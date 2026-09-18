@@ -9,6 +9,7 @@ from .policy import PolicyGate
 from .tools import ToolRegistry, DryRunAdapter
 from .verifier import Verifier
 
+
 @dataclass
 class AgentConfig:
     max_iterations: int = 4
@@ -18,6 +19,7 @@ class AgentConfig:
         "avoid coercion, deception, hidden propagation and irreversible action without approval."
     )
     require_verification: bool = True
+
 
 @dataclass
 class AgentResult:
@@ -29,6 +31,7 @@ class AgentResult:
     iterations: int
     verification_score: float = 0.0
     audit: list[dict[str, Any]] = field(default_factory=list)
+
 
 class AmbivikhryAgent:
     def __init__(self, *, provider: LLMProvider, workdir: str,
@@ -55,6 +58,7 @@ class AmbivikhryAgent:
         state = self.core.intake(task)
         self._log({"event": "intake", "task": task})
         answer, confidence, verification_score = "", 0.0, 0.0
+        iteration = 0
 
         for iteration in range(1, self.config.max_iterations + 1):
             prompt = (
@@ -62,8 +66,10 @@ class AmbivikhryAgent:
                 f"Known facts: {state.facts}\nHypotheses: {state.hypotheses}\n"
                 f"Unknowns: {state.unknowns}\nVerified: {state.verification}\n"
                 f"Observations: {state.observations}\n"
-                "Return JSON fields: facts, hypotheses, unknowns, verification_plan, decision, "
-                "tool_calls, confidence, stop, reason, claims_without_sources."
+                "Return JSON fields: facts, hypotheses, unknowns, verification_plan, "
+                "decision, tool_calls, confidence, stop, reason, claims_without_sources, "
+                "evidence. Evidence entries should contain claim and source when external "
+                "verification exists. Never invent sources."
             )
             proposal = self.provider.generate(
                 [{"role": "system", "content": "Operate the Ambivikhry protocol. Distinguish facts, inference, hypotheses and unknowns."},
@@ -71,18 +77,29 @@ class AmbivikhryAgent:
 
             report = self.verifier.verify(proposal)
             verification_score = report.score
-            confidence = min(float(proposal.get("confidence", 0.0)), report.score if self.config.require_verification else 1.0)
+            confidence = min(float(proposal.get("confidence", 0.0)),
+                             report.score if self.config.require_verification else 1.0)
             answer = str(proposal.get("decision", ""))
 
             for fact in proposal.get("facts", []):
-                if fact not in state.facts: state.facts.append(str(fact))
+                if str(fact) not in state.facts:
+                    state.facts.append(str(fact))
             for hypothesis in proposal.get("hypotheses", []):
-                if hypothesis not in state.hypotheses: state.hypotheses.append(str(hypothesis))
-            state.unknowns = list(dict.fromkeys([*state.unknowns, *map(str, proposal.get("unknowns", []))]))
+                if str(hypothesis) not in state.hypotheses:
+                    state.hypotheses.append(str(hypothesis))
+            state.unknowns = list(dict.fromkeys(
+                [*state.unknowns, *map(str, proposal.get("unknowns", []))]
+            ))
             if report.passed:
-                state.verification.extend([x for x in proposal.get("verification_plan", []) if x not in state.verification])
+                state.verification.extend(
+                    [x for x in proposal.get("verification_plan", [])
+                     if x not in state.verification]
+                )
 
             for call in proposal.get("tool_calls", []):
+                if not isinstance(call, dict):
+                    self._log({"event": "tool_rejected", "reason": "malformed_call"})
+                    continue
                 name = call.get("name")
                 if name not in [x["name"] for x in self.tools.describe()]:
                     self._log({"event": "tool_rejected", "reason": "unknown_tool", "name": name})
@@ -92,14 +109,17 @@ class AmbivikhryAgent:
                 if not decision.allowed:
                     self._log({"event": "tool_blocked", "tool": name, "reason": decision.reason})
                     continue
-                self._log({"event": "tool_dry_run", "result": self.adapter.execute(tool, call.get("args", {}))})
+                self._log({"event": "tool_dry_run",
+                           "result": self.adapter.execute(tool, call.get("args", {}))})
 
             self._log({"event": "cycle", "iteration": iteration, "confidence": confidence,
                        "verification_score": verification_score, "issues": report.issues,
-                       "answer": answer, "unknowns": state.unknowns})
+                       "evidence_count": len(report.evidence), "answer": answer,
+                       "unknowns": state.unknowns})
 
             if (proposal.get("stop") and report.passed) or self.core.should_stop(
-                confidence, len(state.unknowns), iteration, self.config.max_iterations
+                confidence, len(state.unknowns), iteration, self.config.max_iterations,
+                self.config.confidence_stop,
             ):
                 self.core.reenter(state, {
                     "observation": "bounded cycle completed",
