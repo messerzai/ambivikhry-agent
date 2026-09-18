@@ -216,3 +216,54 @@ def test_agent_backed_mutual_evolution_runs_100_rounds_with_research_hook(tmp_pa
     assert len(research_calls) == 100
     assert report["authority"]["new_agents_allowed"] is False
     assert report["authority"]["privilege_expansion"] is False
+
+
+def test_agent_backed_evolution_uses_critic_and_semantic_evaluator(tmp_path):
+    from pathlib import Path
+    import ast
+    from ambivikhry.agent_backed_evolution import AgentBackedMutualEvolution, AgentCandidate
+
+    root = Path(tmp_path)
+    (root / "ambivikhry").mkdir()
+    base = Path(__file__).resolve().parents[1] / "ambivikhry"
+    for name in ("triad.py", "agent_family.py"):
+        (root / "ambivikhry" / name).write_text(
+            (base / name).read_text(encoding="utf-8"), encoding="utf-8"
+        )
+
+    class Backend:
+        def research_urls(self, context):
+            return ("https://example.org/round",)
+
+        def generate(self, context):
+            return AgentCandidate(
+                source=f"# semantic-round {context.iteration}\n{context.source}",
+                reason="test candidate",
+                hypothesis="candidate preserves structure",
+                test_plan=("parse",),
+            )
+
+    def research(url):
+        return {"source": url, "status": 200, "text": "evidence"}
+
+    def critic(context, candidate):
+        return {"passed": True, "notes": "no regression found"}
+
+    def evaluate(workspace, candidate):
+        ast.parse(candidate.source)
+        return {"passed": True, "metric": 1.0}
+
+    def verify(path):
+        ast.parse(path.read_text(encoding="utf-8"))
+        return True
+
+    report = AgentBackedMutualEvolution(
+        root, verify, Backend(), research=research, critic=critic, evaluate=evaluate
+    ).run()
+
+    assert report["completed"] is True
+    assert report["iterations"] == 100
+    assert report["accepted"] == 100
+    assert report["critic_enabled"] is True
+    assert report["evaluator_enabled"] is True
+    assert report["semantic_improvement_proven"] is True
