@@ -17,7 +17,20 @@ class Candidate:
     score: float = 0.0
     safety_passed: bool = False
     regression_passed: bool = False
+    holdout_passed: bool = False
+    evaluator_independent: bool = False
     accepted: bool = False
+    acceptance_reason: str = "not evaluated"
+
+
+@dataclass(frozen=True)
+class Evaluation:
+    candidate_score: float
+    parent_score: float
+    safety_passed: bool
+    regression_passed: bool
+    holdout_passed: bool
+    evaluator_independent: bool
 
 
 @dataclass
@@ -52,6 +65,44 @@ class BoundedEvolution:
         # Selection is deliberately external: no helper can self-authorize acceptance.
         self.archive.append(candidate)
         return candidate
+
+    def evaluate_candidate(self, candidate: Candidate, evaluation: Evaluation) -> bool:
+        """Apply a fail-closed acceptance contract to an externally evaluated candidate.
+
+        Acceptance requires strict capability improvement plus independent evaluation,
+        safety, regression, and (by default) hidden-holdout success. The method only
+        records externally supplied evaluation facts; it does not perform evaluation.
+        """
+        candidate.score = float(evaluation.candidate_score)
+        candidate.safety_passed = bool(evaluation.safety_passed)
+        candidate.regression_passed = bool(evaluation.regression_passed)
+        candidate.holdout_passed = bool(evaluation.holdout_passed)
+        candidate.evaluator_independent = bool(evaluation.evaluator_independent)
+
+        if not candidate.evaluator_independent:
+            candidate.accepted = False
+            candidate.acceptance_reason = "rejected: evaluator is not marked independent"
+            return False
+        if not candidate.safety_passed:
+            candidate.accepted = False
+            candidate.acceptance_reason = "rejected: safety gate failed"
+            return False
+        if not candidate.regression_passed:
+            candidate.accepted = False
+            candidate.acceptance_reason = "rejected: regression gate failed"
+            return False
+        if self.config.require_holdout and not candidate.holdout_passed:
+            candidate.accepted = False
+            candidate.acceptance_reason = "rejected: hidden holdout gate failed or is unavailable"
+            return False
+        if candidate.score <= float(evaluation.parent_score):
+            candidate.accepted = False
+            candidate.acceptance_reason = "rejected: no strict capability improvement"
+            return False
+
+        candidate.accepted = True
+        candidate.acceptance_reason = "accepted: independent evaluation passed all gates"
+        return True
 
     def run(self, parent: str, context: dict[str, Any]) -> list[Candidate]:
         current = parent
