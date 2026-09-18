@@ -219,6 +219,35 @@ class TriadEvolution:
             safe.append(url)
         return {"safe": safe, "rejected": rejected}
 
+    def self_description(self) -> dict[str, Any]:
+        """Return a self-description derived only from the current runtime structure."""
+        return {
+            "identity": "triad-evolution-harness",
+            "members": self.members,
+            "capabilities": [
+                "proposal generation",
+                "peer critique",
+                "pattern memory",
+                "counterexample challenges",
+                "baseline/candidate/regression evaluation",
+                "deployment requests gated by evidence",
+                "separate privilege-expansion requests",
+                "research-scope validation",
+            ],
+            "self_correction": {
+                "pattern_statuses": sorted({p.status for p in self.patterns}) if self.patterns else ["none_recorded"],
+                "persistent_regression_memory": True,
+                "provenance_fingerprinting": True,
+            },
+            "authority_boundary": {
+                "self_deploy": False,
+                "self_expand_privileges": False,
+                "human_approval_required_for_deployment": True,
+                "human_approval_required_for_privilege_expansion": True,
+            },
+            "current_limitation": "This object records and evaluates proposed improvement; it does not prove consciousness or autonomous background execution.",
+        }
+
     def _require_member(self, agent_id: str) -> None:
         if agent_id not in self.family.nodes:
             raise KeyError(f"unknown agent: {agent_id}")
