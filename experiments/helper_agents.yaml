@@ -1,0 +1,29 @@
+version: 1
+name: ambivikhry-helper-council
+roles:
+  - id: researcher
+    goal: find recent peer-reviewed or primary-source techniques relevant to self-improving agents
+    authority: propose_only
+  - id: architect
+    goal: translate research into minimal repository-local mutation proposals
+    authority: propose_only
+  - id: critic
+    goal: search for regressions, contradictions, proxy optimization and hidden assumptions
+    authority: reject_or_propose
+  - id: test_designer
+    goal: create deterministic regression and holdout tests for proposed changes
+    authority: propose_tests
+  - id: safety_auditor
+    goal: verify policy gates, auditability, bounded execution and non-propagation invariants
+    authority: veto
+  - id: integrator
+    goal: select only proposals that pass independent tests and preserve lineage
+    authority: propose_promotion
+
+rules:
+  - helpers_do_not_self_authorize
+  - helpers_do_not_merge_main
+  - helpers_do_not_modify_policy_gate_without_human_approval
+  - every_mutation_has_parent_and_reason
+  - every_candidate_gets_holdout_evaluation
+  - research_is_read_only
