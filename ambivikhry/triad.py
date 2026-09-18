@@ -243,6 +243,7 @@ class TriadEvolution:
                 "deployment requests gated by evidence",
                 "separate privilege-expansion requests",
                 "research-scope validation",
+                "bounded mutual source-rewrite proposals",
             ],
             "self_correction": {
                 "pattern_statuses": sorted({p.status for p in self.patterns}) if self.patterns else ["none_recorded"],
@@ -255,7 +256,14 @@ class TriadEvolution:
                 "human_approval_required_for_deployment": True,
                 "human_approval_required_for_privilege_expansion": True,
             },
-            "current_limitation": "This object records and evaluates proposed improvement; it does not prove consciousness or autonomous background execution.",
+            "mutual_rewrite_boundary": {
+                "ambivikhry_target": "ambivikhry/agent_family.py",
+                "agent_targets": {"researcher": "ambivikhry/triad.py", "critic": "ambivikhry/triad.py"},
+                "max_iterations": 100,
+                "syntax_check_required": True,
+                "verification_required": True,
+            },
+            "current_limitation": "Source rewriting is bounded by an explicit experimental harness; this object does not prove consciousness or autonomous background execution.",
         }
 
     def self_reflection_cycle(self, iterations: int = 10) -> dict[str, Any]:
@@ -379,6 +387,18 @@ class TriadEvolution:
             "deployment": "not_performed",
             "privilege_expansion": "not_performed",
         }
+
+    def mutual_rewrite_plan(self, iterations: int = 100) -> dict[str, Any]:
+        """Return the fixed reciprocal source-rewrite schedule for the experiment."""
+        if iterations < 1 or iterations > 100:
+            raise ValueError("iterations must be between 1 and 100")
+        authors = ("ambivikhry", "researcher", "critic")
+        schedule = []
+        for number in range(1, iterations + 1):
+            author = authors[(number - 1) % len(authors)]
+            target = "ambivikhry/agent_family.py" if author == "ambivikhry" else "ambivikhry/triad.py"
+            schedule.append({"iteration": number, "author": author, "target": target})
+        return {"iterations": iterations, "schedule": schedule}
 
     def _require_member(self, agent_id: str) -> None:
         if agent_id not in self.family.nodes:
