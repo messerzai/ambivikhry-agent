@@ -1,22 +1,12 @@
 from __future__ import annotations
 
-"""Agent-backed orchestration for the bounded mutual rewrite experiment.
-
-This layer separates *who generates a candidate* from *who is allowed to write it*.
-An agent backend may inspect the current source and bounded research evidence, then
-return a complete replacement. The mutation engine still performs syntax checking,
-verification, provenance recording, and the fixed 100-round authority boundary.
-
-The backend is intentionally injected: this repository does not pretend that a
-hard-coded heuristic is an intelligent agent. ChatGPT, another model, or a local
-agent can implement the callback without changing the safety boundary.
-"""
+"""Agent-backed orchestration for bounded mutual source evolution."""
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Protocol, Sequence
+from typing import Callable, Protocol
 
-from .mutual_code_evolution import MutualCodeEvolution, RewriteProposal
+from .mutual_code_evolution import MutualCodeEvolution, RewriteResult
 
 
 @dataclass(frozen=True)
@@ -35,6 +25,7 @@ class AgentCandidate:
     reason: str
     hypothesis: str
     test_plan: tuple[str, ...] = ()
+    critique: str = ""
 
 
 class AgentBackend(Protocol):
@@ -43,18 +34,7 @@ class AgentBackend(Protocol):
 
 
 class AgentBackedMutualEvolution:
-    """Drive 100 reciprocal rewrites through an injected agent backend.
-
-    Round order is fixed:
-      1. ambivikhry -> agent_family.py
-      2. researcher -> triad.py
-      3. critic -> triad.py
-      ... repeated until round 100.
-
-    Research is read-only and injected as evidence. It never grants permissions.
-    A candidate can only replace the current source after the mutation engine's
-    verification callback accepts it.
-    """
+    """Run 100 reciprocal rounds with research, critique, and evaluation gates."""
 
     AUTHORS = ("ambivikhry", "researcher", "critic")
 
@@ -65,16 +45,19 @@ class AgentBackedMutualEvolution:
         backend: AgentBackend,
         *,
         research: Callable[[str], dict] | None = None,
+        critic: Callable[[AgentContext, AgentCandidate], dict] | None = None,
+        evaluate: Callable[[Path, AgentCandidate], dict] | None = None,
         allow_writes: bool = True,
     ):
         self.workspace = Path(workspace).resolve()
         self.backend = backend
         self.research = research
+        self.critic = critic
+        self.evaluate = evaluate
         self.engine = MutualCodeEvolution(
-            self.workspace,
-            verify,
-            allow_writes=allow_writes,
+            self.workspace, verify, allow_writes=allow_writes
         )
+        self.audit: list[dict] = []
 
     def _context(self, iteration: int, author: str, target: str) -> AgentContext:
         path = (self.workspace / target).resolve()
@@ -83,20 +66,11 @@ class AgentBackedMutualEvolution:
         source = path.read_text(encoding="utf-8")
         evidence: list[dict] = []
         if self.research is not None:
-            # The backend chooses whether it needs external evidence. The
-            # orchestrator only accepts evidence returned by the injected,
-            # read-only research function.
-            request = getattr(self.backend, "research_urls", lambda _ctx: ())(
-                AgentContext(
-                    iteration,
-                    author,
-                    target,
-                    source,
-                    (),
-                    tuple(r.__dict__ for r in self.engine.results),
-                )
+            seed = AgentContext(
+                iteration, author, target, source, (), tuple(r.__dict__ for r in self.engine.results)
             )
-            for url in tuple(request or ()):
+            urls = getattr(self.backend, "research_urls", lambda _ctx: ())(seed)
+            for url in tuple(urls or ()):
                 item = dict(self.research(url))
                 item.setdefault("source", url)
                 evidence.append(item)
@@ -109,40 +83,80 @@ class AgentBackedMutualEvolution:
             tuple(r.__dict__ for r in self.engine.results),
         )
 
+    def _record_rejection(
+        self, iteration: int, author: str, target: str, source: str, candidate: AgentCandidate, reason: str
+    ) -> RewriteResult:
+        result = RewriteResult(
+            iteration, author, target, False,
+            self.engine.digest(source), self.engine.digest(candidate.source), reason
+        )
+        self.engine.results.append(result)
+        return result
+
     def run(self) -> dict:
         for iteration in range(1, 101):
             author = self.AUTHORS[(iteration - 1) % len(self.AUTHORS)]
             target = MutualCodeEvolution.TARGETS[author]
             context = self._context(iteration, author, target)
             candidate = self.backend.generate(context)
+
             if not candidate.source.strip():
                 raise ValueError(f"agent {author} returned an empty source")
-            proposal = self.engine.propose(
-                iteration,
-                author,
-                candidate.reason,
-                candidate.source,
+
+            critique = (
+                self.critic(context, candidate)
+                if self.critic is not None
+                else {"passed": True, "notes": "critic not configured"}
             )
+            if not critique.get("passed", False):
+                result = self._record_rejection(
+                    iteration, author, target, context.source, candidate, "critic_rejected"
+                )
+                self.audit.append({
+                    "iteration": iteration, "author": author, "target": target,
+                    "critique": critique, "evaluation": None, "accepted": result.accepted,
+                    "reason": result.reason,
+                })
+                continue
+
+            proposal = self.engine.propose(iteration, author, candidate.reason, candidate.source)
+
+            evaluation = (
+                self.evaluate(self.workspace, candidate)
+                if self.evaluate is not None
+                else {"passed": True, "notes": "evaluator not configured"}
+            )
+            if not evaluation.get("passed", False):
+                result = self._record_rejection(
+                    iteration, author, target, context.source, candidate, "evaluation_failed"
+                )
+                self.audit.append({
+                    "iteration": iteration, "author": author, "target": target,
+                    "critique": critique, "evaluation": evaluation, "accepted": result.accepted,
+                    "reason": result.reason,
+                })
+                continue
+
             result = self.engine.apply(proposal)
-            # Attach non-code reasoning as an audit trail without allowing it to
-            # alter the mutation result.
-            self.engine.results[-1] = type(result)(
-                result.iteration,
-                result.author,
-                result.target,
-                result.accepted,
-                result.before_sha256,
-                result.after_sha256,
-                result.reason,
-            )
+            self.audit.append({
+                "iteration": iteration, "author": author, "target": target,
+                "critique": critique, "evaluation": evaluation,
+                "accepted": result.accepted, "reason": result.reason,
+            })
+
         report = self.engine.report()
-        report["agent_backend"] = type(self.backend).__name__
-        report["research_enabled"] = self.research is not None
-        report["round_order"] = list(self.AUTHORS)
-        report["semantic_improvement_proven"] = False
-        report["semantic_improvement_note"] = (
-            "The harness proves that an injected agent can submit source candidates "
-            "through the same verification boundary. Semantic improvement requires "
-            "an evaluator with measurable task outcomes; syntax acceptance alone is insufficient."
-        )
+        report.update({
+            "agent_backend": type(self.backend).__name__,
+            "research_enabled": self.research is not None,
+            "critic_enabled": self.critic is not None,
+            "evaluator_enabled": self.evaluate is not None,
+            "round_order": list(self.AUTHORS),
+            "semantic_improvement_proven": bool(
+                self.evaluate is not None and any(
+                    item.get("accepted") and item.get("evaluation", {}).get("passed")
+                    for item in self.audit
+                )
+            ),
+            "audit": self.audit,
+        })
         return report
