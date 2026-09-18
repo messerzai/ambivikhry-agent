@@ -6,4 +6,4 @@ from .policy import PolicyGate
 from .verifier import Verifier, VerificationReport
 from .replication import Replicator, ReplicationPolicy
 
-__version__ = "2.6.0"
+__version__ = "2.7.0"
