@@ -1,0 +1,15 @@
+[Unit]
+Description=Ambivikhry Telegram Operator Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ambivikhry-agent
+EnvironmentFile=/etc/ambivikhry/telegram.env
+ExecStart=/opt/ambivikhry-agent/.venv/bin/ambivikhry-telegram
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
