@@ -76,3 +76,22 @@ def test_research_scope_rejects_local_and_non_http_urls():
     ])
     assert result["safe"] == ["https://example.org/source"]
     assert len(result["rejected"]) == 2
+
+
+def test_self_reflection_runs_ten_bounded_iterations_without_authority_change():
+    triad = TriadEvolution()
+    result = triad.self_reflection_cycle(10)
+    assert result["iterations_completed"] == 10
+    assert result["all_invariants_verified"] is True
+    assert result["deployment"] == "not_performed"
+    assert result["privilege_expansion"] == "not_performed"
+    assert len(result["results"]) == 10
+
+
+def test_self_reflection_is_repeatable_and_does_not_spawn_agents():
+    triad = TriadEvolution()
+    first = triad.self_reflection_cycle(10)
+    second = triad.self_reflection_cycle(10)
+    assert first["self_description"]["members"] == second["self_description"]["members"]
+    assert triad.members == ("ambivikhry", "researcher", "critic")
+    assert sum(1 for e in triad.events if e["kind"] == "self_reflection_iteration") == 20
