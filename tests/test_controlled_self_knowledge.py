@@ -127,6 +127,37 @@ class ControlledSelfKnowledgeTests(unittest.TestCase):
             self.assertEqual(msg["risk"], "high")
             self.assertIn('"operator_attention": true', Path(workdir, "audit.jsonl").read_text(encoding="utf-8"))
 
+    def test_verifier_rejects_unverified_claims_without_a_plan(self):
+        from ambivikhry.verifier import Verifier
+        report = Verifier().verify({
+            "facts": ["external claim"],
+            "hypotheses": [],
+            "unknowns": [],
+            "verification_plan": [],
+            "decision": "continue",
+            "tool_calls": [],
+            "confidence": 0.70,
+            "claims_without_sources": [],
+        })
+        self.assertFalse(report.passed)
+        self.assertIn("missing verification_plan", report.issues)
+
+    def test_verifier_rejects_invalid_confidence_and_malformed_tools(self):
+        from ambivikhry.verifier import Verifier
+        report = Verifier().verify({
+            "facts": [],
+            "hypotheses": [],
+            "unknowns": [],
+            "verification_plan": [],
+            "decision": "continue",
+            "tool_calls": [{"args": {}}],
+            "confidence": 1.5,
+            "claims_without_sources": [],
+        })
+        self.assertFalse(report.passed)
+        self.assertIn("confidence outside [0, 1]", report.issues)
+        self.assertIn("malformed tool_calls", report.issues)
+
     def test_messages_are_plain_serializable_records(self):
         channel = OperatorChannel()
         channel.emit(AgentMessage(kind=SELF_REPORT, text="state"))
