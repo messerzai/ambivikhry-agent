@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ambivikhry-agent"
-version = "2.5.0"
-description = "Ambivikhry / Quinn-Vortex controlled self-revising agent"
+version = "2.6.0"
+description = "Ambivikhry / Quinn-Vortex self-revising, tool-using agent runtime"
 requires-python = ">=3.10"
 license = {text = "CC0-1.0"}
 
