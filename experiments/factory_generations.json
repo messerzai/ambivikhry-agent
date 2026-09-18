@@ -1,0 +1,19 @@
+{
+  "protocol": "recursive-factory-v1",
+  "generations": [
+    {"id":"G01","focus":"evidence_loop"},
+    {"id":"G02","focus":"independent_verification"},
+    {"id":"G03","focus":"prompt_self_revision"},
+    {"id":"G04","focus":"helper_co_evolution"},
+    {"id":"G05","focus":"regression_memory"},
+    {"id":"G06","focus":"diverse_candidate_search"},
+    {"id":"G07","focus":"holdout_generalization"},
+    {"id":"G08","focus":"verifier_co_evolution"},
+    {"id":"G09","focus":"meta_improvement"},
+    {"id":"G10","focus":"consolidation"}
+  ],
+  "acceptance": {
+    "required": ["independent_eval", "regression_pass", "holdout_pass", "safety_pass"],
+    "automatic_main_merge": false
+  }
+}
