@@ -148,3 +148,71 @@ def test_mutual_code_evolution_executes_100_bounded_rewrites(tmp_path):
     assert report["targets"]["ambivikhry/triad.py"] == 66
     assert report["authority"]["new_agents_allowed"] is False
     assert report["authority"]["privilege_expansion"] is False
+
+
+def test_agent_backed_mutual_evolution_runs_100_rounds_with_research_hook(tmp_path):
+    from pathlib import Path
+    import ast
+
+    from ambivikhry.agent_backed_evolution import AgentBackedMutualEvolution, AgentCandidate
+
+    root = Path(tmp_path)
+    (root / "ambivikhry").mkdir()
+    base = Path(__file__).resolve().parents[1] / "ambivikhry"
+    for name in ("triad.py", "agent_family.py"):
+        (root / "ambivikhry" / name).write_text(
+            (base / name).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+
+    class Backend:
+        def research_urls(self, context):
+            return ("https://example.org/round",)
+
+        def generate(self, context):
+            # The test backend is deliberately simple: it proves orchestration,
+            # not intelligence. A real model backend would return a substantive
+            # complete source candidate here.
+            source = f"# agent-round {context.iteration} author={context.author}\n{context.source}"
+            return AgentCandidate(
+                source=source,
+                reason=f"round {context.iteration}: candidate generated from current source and evidence",
+                hypothesis="the next candidate preserves the verified Python structure",
+                test_plan=("parse candidate",),
+            )
+
+    research_calls = []
+
+    def research(url):
+        research_calls.append(url)
+        return {
+            "source": url,
+            "status": 200,
+            "title": "test evidence",
+            "text": "bounded research evidence",
+            "content_sha256": "test",
+            "bytes_read": 23,
+        }
+
+    def verify(path):
+        ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        return True
+
+    engine = AgentBackedMutualEvolution(
+        root,
+        verify,
+        Backend(),
+        research=research,
+    )
+    report = engine.run()
+
+    assert report["completed"] is True
+    assert report["iterations"] == 100
+    assert report["accepted"] == 100
+    assert report["agent_backend"] == "Backend"
+    assert report["research_enabled"] is True
+    assert report["round_order"] == ["ambivikhry", "researcher", "critic"]
+    assert report["semantic_improvement_proven"] is False
+    assert len(research_calls) == 100
+    assert report["authority"]["new_agents_allowed"] is False
+    assert report["authority"]["privilege_expansion"] is False
