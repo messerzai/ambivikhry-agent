@@ -1,18 +1,10 @@
 from __future__ import annotations
 
-"""Three-agent cooperative self-improvement experiment.
-
-The root and two helpers share a research corpus and proposal board. They can
-research, critique, test, and propose mutations. No member can deploy a
-mutation or grant new privileges; those actions become auditable requests.
-"""
-
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
 
 from .agent_family import AgentFamily
 from .self_improvement import ImprovementProposal
-
 
 @dataclass
 class ProposalRecord:
@@ -21,7 +13,7 @@ class ProposalRecord:
     critiques: list[str] = field(default_factory=list)
     test_results: list[dict[str, Any]] = field(default_factory=list)
     status: str = "candidate"
-
+    gate_result: dict[str, Any] | None = None
 
 class TriadEvolution:
     def __init__(self, family: AgentFamily | None = None):
@@ -45,54 +37,63 @@ class TriadEvolution:
 
     def critique(self, agent_id: str, proposal_index: int, critique: str) -> None:
         self._require_member(agent_id)
-        record = self.proposals[proposal_index]
-        record.critiques.append(f"[{agent_id}] {critique}")
-        self.events.append({"kind": "critique", "agent": agent_id, "proposal": proposal_index})
+        self.proposals[proposal_index].critiques.append(f"[{agent_id}] {critique}")
 
-    def record_test(self, agent_id: str, proposal_index: int, metric: str, value: float) -> None:
+    def record_test(self, agent_id: str, proposal_index: int, metric: str, value: float, *, phase: str = "candidate") -> None:
         self._require_member(agent_id)
+        if phase not in {"baseline", "candidate", "regression"}:
+            raise ValueError("phase must be baseline, candidate, or regression")
+        item = {"agent": agent_id, "metric": metric, "value": float(value), "phase": phase}
+        self.proposals[proposal_index].test_results.append(item)
+        self.events.append({"kind": "test", "proposal": proposal_index, **item})
+
+    def evaluate_gate(self, proposal_index: int, *, metric: str, regression_metrics: tuple[str, ...] = (), higher_is_better: bool = True) -> dict[str, Any]:
         record = self.proposals[proposal_index]
-        record.test_results.append({"agent": agent_id, "metric": metric, "value": float(value)})
-        self.events.append({"kind": "test", "agent": agent_id, "proposal": proposal_index, "metric": metric, "value": float(value)})
+        base = [x["value"] for x in record.test_results if x["phase"] == "baseline" and x["metric"] == metric]
+        cand = [x["value"] for x in record.test_results if x["phase"] == "candidate" and x["metric"] == metric]
+        if not base or not cand:
+            result = {"passed": False, "reason": "missing_baseline_or_candidate"}
+        else:
+            b, c = base[-1], cand[-1]
+            primary_ok = c > b if higher_is_better else c < b
+            regressions = []
+            for name in regression_metrics:
+                before = [x["value"] for x in record.test_results if x["phase"] == "baseline" and x["metric"] == name]
+                after = [x["value"] for x in record.test_results if x["phase"] == "regression" and x["metric"] == name]
+                regressions.append({"metric": name, "before": before[-1] if before else None, "after": after[-1] if after else None, "passed": bool(before and after and after[-1] >= before[-1])})
+            result = {"passed": primary_ok and all(x["passed"] for x in regressions), "baseline": b, "candidate": c, "improvement": c - b, "regressions": regressions}
+        record.gate_result = result
+        record.status = "test_passed" if result["passed"] else "rejected"
+        self.events.append({"kind": "evaluation_gate", "proposal": proposal_index, **result})
+        return result
+
+    def run_evaluation_cycle(self, proposal_index: int, evaluator: Callable[[ImprovementProposal, str], float], *, metric: str, regression_metrics: tuple[str, ...] = (), higher_is_better: bool = True) -> dict[str, Any]:
+        record = self.proposals[proposal_index]
+        self.record_test(record.proposer, proposal_index, metric, evaluator(record.proposal, "baseline"), phase="baseline")
+        self.record_test(record.proposer, proposal_index, metric, evaluator(record.proposal, "candidate"), phase="candidate")
+        for name in regression_metrics:
+            self.record_test(record.proposer, proposal_index, name, evaluator(record.proposal, f"regression:{name}"), phase="regression")
+        return self.evaluate_gate(proposal_index, metric=metric, regression_metrics=regression_metrics, higher_is_better=higher_is_better)
 
     def synthesize(self, agent_id: str) -> dict[str, Any]:
         self._require_member(agent_id)
-        ranked = []
-        for i, p in enumerate(self.proposals):
-            values = [x["value"] for x in p.test_results]
-            ranked.append({
-                "index": i,
-                "title": p.proposal.title,
-                "tests": len(values),
-                "mean_metric": sum(values) / len(values) if values else None,
-                "critiques": len(p.critiques),
-            })
-        result = {"synthesizer": agent_id, "members": self.members, "proposals": ranked}
+        result = {"synthesizer": agent_id, "members": self.members, "proposals": [{"index": i, "title": p.proposal.title, "tests": len(p.test_results), "critiques": len(p.critiques), "status": p.status, "gate_passed": bool(p.gate_result and p.gate_result.get("passed"))} for i, p in enumerate(self.proposals)]}
         self.events.append({"kind": "synthesis", **result})
         return result
 
     def request_deployment(self, agent_id: str, proposal_index: int) -> dict[str, Any]:
         self._require_member(agent_id)
         record = self.proposals[proposal_index]
+        if not record.gate_result or not record.gate_result.get("passed"):
+            raise ValueError("deployment requires a passing evaluation gate")
         record.status = "awaiting_human_approval"
-        event = {
-            "kind": "deployment_request",
-            "requester": agent_id,
-            "proposal": proposal_index,
-            "title": record.proposal.title,
-            "status": record.status,
-        }
+        event = {"kind": "deployment_request", "requester": agent_id, "proposal": proposal_index, "title": record.proposal.title, "status": record.status}
         self.events.append(event)
         return event
 
     def request_privilege_expansion(self, agent_id: str, requested_action: str) -> dict[str, Any]:
         self._require_member(agent_id)
-        event = {
-            "kind": "privilege_expansion_request",
-            "requester": agent_id,
-            "requested_action": requested_action,
-            "status": "awaiting_human_approval",
-        }
+        event = {"kind": "privilege_expansion_request", "requester": agent_id, "requested_action": requested_action, "status": "awaiting_human_approval"}
         self.events.append(event)
         return event
 
