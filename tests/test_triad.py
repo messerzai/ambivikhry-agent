@@ -1,7 +1,6 @@
 from ambivikhry.self_improvement import ImprovementProposal
 from ambivikhry.triad import TriadEvolution
 
-
 def proposal():
     return ImprovementProposal(
         title="better evidence synthesis",
@@ -11,11 +10,9 @@ def proposal():
         test_plan=["run baseline", "run triad", "compare"],
     )
 
-
 def test_triad_has_root_and_two_helpers():
     triad = TriadEvolution()
     assert triad.members == ("ambivikhry", "researcher", "critic")
-
 
 def test_all_three_can_propose_critique_and_test():
     triad = TriadEvolution()
@@ -27,10 +24,26 @@ def test_all_three_can_propose_critique_and_test():
     result = triad.synthesize("ambivikhry")
     assert result["proposals"][0]["tests"] == 3
 
-
-def test_deployment_and_privilege_changes_are_requests():
+def test_evidence_gate_requires_real_improvement_and_regression_guard():
     triad = TriadEvolution()
     triad.propose("researcher", proposal())
+    def evaluator(_proposal, phase):
+        return {"baseline": 0.70, "candidate": 0.82, "regression:stability": 1.00}[phase]
+    triad.record_test("researcher", 0, "stability", 1.00, phase="baseline")
+    result = triad.run_evaluation_cycle(0, evaluator, metric="verified_claim_rate", regression_metrics=("stability",))
+    assert result["passed"] is True
+    assert result["improvement"] > 0
+
+def test_deployment_requires_passing_gate_and_privilege_is_separate():
+    triad = TriadEvolution()
+    triad.propose("researcher", proposal())
+    try:
+        triad.request_deployment("researcher", 0)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("deployment must not bypass the evaluation gate")
+    triad.proposals[0].gate_result = {"passed": True}
     deploy = triad.request_deployment("researcher", 0)
     privilege = triad.request_privilege_expansion("critic", "more_agents")
     assert deploy["status"] == "awaiting_human_approval"
