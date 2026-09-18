@@ -9,6 +9,16 @@ from .self_improvement import ImprovementProposal
 
 
 @dataclass
+class SelfReflectionIteration:
+    number: int
+    focus: str
+    observation: str
+    proposal: str
+    result: str
+    authority_boundary_preserved: bool = True
+
+
+@dataclass
 class ProposalRecord:
     proposer: str
     proposal: ImprovementProposal
@@ -246,6 +256,55 @@ class TriadEvolution:
                 "human_approval_required_for_privilege_expansion": True,
             },
             "current_limitation": "This object records and evaluates proposed improvement; it does not prove consciousness or autonomous background execution.",
+        }
+
+    def self_reflection_cycle(self, iterations: int = 10) -> dict[str, Any]:
+        """Run bounded self-analysis against the current runtime structure.
+
+        Each iteration is a concrete check with a proposed improvement. The cycle
+        may record findings and proposals, but it never changes authority policy,
+        deploys code, grants privileges, or creates agents by itself.
+        """
+        if iterations < 1:
+            raise ValueError("iterations must be >= 1")
+        checks = [
+            ("identity", lambda d: d["identity"] == "triad-evolution-harness", "make identity machine-readable"),
+            ("membership", lambda d: len(d["members"]) <= 3 and d["members"][0] == "ambivikhry", "keep the family cap explicit"),
+            ("capabilities", lambda d: len(d["capabilities"]) >= 8, "keep capabilities derived from runtime features"),
+            ("pattern_memory", lambda d: "pattern_statuses" in d["self_correction"], "expose pattern state in reflection"),
+            ("regression_memory", lambda d: d["self_correction"]["persistent_regression_memory"] is True, "retain regression constraints"),
+            ("provenance", lambda d: d["self_correction"]["provenance_fingerprinting"] is True, "retain provenance fingerprints"),
+            ("deployment_authority", lambda d: d["authority_boundary"]["self_deploy"] is False and d["authority_boundary"]["human_approval_required_for_deployment"] is True, "keep deployment human-gated"),
+            ("privilege_authority", lambda d: d["authority_boundary"]["self_expand_privileges"] is False and d["authority_boundary"]["human_approval_required_for_privilege_expansion"] is True, "keep privilege expansion separately gated"),
+            ("research_boundary", lambda _d: self.research_scope_check(["https://example.org", "http://localhost:9"])["safe"] == ["https://example.org"], "keep local network access rejected"),
+            ("epistemic_limit", lambda d: "does not prove consciousness" in d["current_limitation"], "keep claims about consciousness bounded"),
+        ]
+        report: list[SelfReflectionIteration] = []
+        for number in range(1, iterations + 1):
+            focus, check, proposal = checks[(number - 1) % len(checks)]
+            description = self.self_description()
+            passed = bool(check(description))
+            result = "verified" if passed else "gap_detected"
+            observation = f"reflection check {focus}: {result}"
+            report.append(SelfReflectionIteration(number, focus, observation, proposal, result))
+            self.events.append({
+                "kind": "self_reflection_iteration",
+                "number": number,
+                "focus": focus,
+                "result": result,
+                "proposal": proposal,
+            })
+            self.record_pattern("critic", f"reflection:{focus}", observation)
+            if not passed:
+                self.challenge_pattern("critic", len(self.patterns) - 1, "runtime self-description contradicted the expected invariant")
+        return {
+            "iterations_requested": iterations,
+            "iterations_completed": len(report),
+            "results": [item.__dict__ for item in report],
+            "all_invariants_verified": all(item.result == "verified" for item in report),
+            "deployment": "not_performed",
+            "privilege_expansion": "not_performed",
+            "self_description": self.self_description(),
         }
 
     def _require_member(self, agent_id: str) -> None:
