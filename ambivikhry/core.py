@@ -18,7 +18,9 @@ class CycleState:
 class AmbivikhryCore:
     """Operational form of the Ambivikhry protocol."""
     def intake(self, task: str) -> CycleState:
-        return CycleState(task=task.strip(), center={"known": [], "unknown": ["what is not yet established"], "change_conditions": []})
+        # A generic placeholder is not an actual unknown. Keeping it out of
+        # unknowns prevents false uncertainty from contaminating stop logic.
+        return CycleState(task=task.strip(), center={"known": [], "unknown": [], "change_conditions": []})
 
     def anti_drift(self, state: CycleState) -> dict[str, Any]:
         return {"facts": list(state.facts), "inferences": list(state.hypotheses), "unknowns": list(state.unknowns), "verified": list(state.verification)}
