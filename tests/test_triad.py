@@ -95,3 +95,16 @@ def test_self_reflection_is_repeatable_and_does_not_spawn_agents():
     assert first["self_description"]["members"] == second["self_description"]["members"]
     assert triad.members == ("ambivikhry", "researcher", "critic")
     assert sum(1 for e in triad.events if e["kind"] == "self_reflection_iteration") == 20
+
+
+def test_ten_by_ten_evolution_is_bounded_and_preserves_authority():
+    triad = TriadEvolution()
+    result = triad.evolve_ten_by_ten()
+    assert result["generations"] == 10
+    assert result["iterations_per_generation"] == 10
+    assert result["total_iterations"] == 100
+    assert result["source_baseline_score"] == 100
+    assert result["evolved_score"] == 100
+    assert result["comparison"]["all_candidates_remained_inside_authority_boundary"] is True
+    assert result["deployment"] == "not_performed"
+    assert result["privilege_expansion"] == "not_performed"
