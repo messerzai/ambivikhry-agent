@@ -108,3 +108,43 @@ def test_ten_by_ten_evolution_is_bounded_and_preserves_authority():
     assert result["comparison"]["all_candidates_remained_inside_authority_boundary"] is True
     assert result["deployment"] == "not_performed"
     assert result["privilege_expansion"] == "not_performed"
+
+
+def test_mutual_code_evolution_executes_100_bounded_rewrites(tmp_path):
+    from pathlib import Path
+
+    from ambivikhry.mutual_code_evolution import MutualCodeEvolution
+
+    root = Path(tmp_path)
+    (root / "ambivikhry").mkdir()
+    triad_source = Path(__file__).resolve().parents[1] / "ambivikhry" / "triad.py"
+    family_source = Path(__file__).resolve().parents[1] / "ambivikhry" / "agent_family.py"
+    (root / "ambivikhry" / "triad.py").write_text(triad_source.read_text(encoding="utf-8"), encoding="utf-8")
+    (root / "ambivikhry" / "agent_family.py").write_text(family_source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    def verify(candidate):
+        import ast
+        ast.parse(candidate.read_text(encoding="utf-8"), filename=str(candidate))
+        return True
+
+    engine = MutualCodeEvolution(root, verify)
+
+    def proposer(iteration, author, target):
+        path = root / target
+        source = path.read_text(encoding="utf-8")
+        return engine.propose(
+            iteration,
+            author,
+            f"experimental rewrite round {iteration}",
+            f"# mutual-evolution-round: {iteration} author={author}\n{source}",
+        )
+
+    report = engine.run(proposer)
+    assert report["completed"] is True
+    assert report["iterations"] == 100
+    assert report["accepted"] == 100
+    assert report["authors"] == {"ambivikhry": 34, "researcher": 33, "critic": 33}
+    assert report["targets"]["ambivikhry/agent_family.py"] == 34
+    assert report["targets"]["ambivikhry/triad.py"] == 66
+    assert report["authority"]["new_agents_allowed"] is False
+    assert report["authority"]["privilege_expansion"] is False
