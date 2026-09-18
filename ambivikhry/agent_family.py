@@ -101,6 +101,7 @@ class AgentFamily:
             "max_agents": self.max_agents,
             "active_agents": len(self.nodes),
             "lineage_agents": len(self.lineage),
+            "lineage_agents": len(self.lineage),
             "agents": {
                 agent_id: {
                     "parent_id": node.parent_id,
