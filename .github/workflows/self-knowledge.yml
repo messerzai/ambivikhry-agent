@@ -3,7 +3,9 @@ name: Controlled self-knowledge red-team
 on:
   pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "experiment/**"
 
 jobs:
   test:
