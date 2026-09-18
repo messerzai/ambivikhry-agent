@@ -245,6 +245,7 @@ class TriadEvolution:
                 "research-scope validation",
                 "bounded mutual source-rewrite proposals",
                 "agent-backed source candidate orchestration",
+                "web-informed 100-round evidence-gated improvement protocol",
             ],
             "self_correction": {
                 "pattern_statuses": sorted({p.status for p in self.patterns}) if self.patterns else ["none_recorded"],
@@ -264,6 +265,7 @@ class TriadEvolution:
                 "syntax_check_required": True,
                 "verification_required": True,
                 "agent_backend_injected": True,
+                "web_improvement_protocol": "100 rounds max; held-out evaluation, independent critique, regression, provenance",
             },
             "current_limitation": "Source rewriting is bounded by an explicit experimental harness; this object does not prove consciousness or autonomous background execution.",
         }
