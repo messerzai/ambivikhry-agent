@@ -244,6 +244,7 @@ class TriadEvolution:
                 "separate privilege-expansion requests",
                 "research-scope validation",
                 "bounded mutual source-rewrite proposals",
+                "agent-backed source candidate orchestration",
             ],
             "self_correction": {
                 "pattern_statuses": sorted({p.status for p in self.patterns}) if self.patterns else ["none_recorded"],
@@ -262,6 +263,7 @@ class TriadEvolution:
                 "max_iterations": 100,
                 "syntax_check_required": True,
                 "verification_required": True,
+                "agent_backend_injected": True,
             },
             "current_limitation": "Source rewriting is bounded by an explicit experimental harness; this object does not prove consciousness or autonomous background execution.",
         }
