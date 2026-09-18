@@ -84,5 +84,13 @@ class AgentFamily:
             },
         }
 
+    def mutation_targets(self) -> dict[str, str]:
+        """Declare the reciprocal experimental target owned by each role."""
+        return {
+            "ambivikhry": "ambivikhry/agent_family.py",
+            "researcher": "ambivikhry/triad.py",
+            "critic": "ambivikhry/triad.py",
+        }
+
     def audit(self) -> list[dict[str, Any]]:
         return list(self.events)
