@@ -8,7 +8,11 @@ version = "2.6.0"
 description = "Ambivikhry / Quinn-Vortex self-revising, tool-using agent runtime"
 requires-python = ">=3.10"
 license = {text = "CC0-1.0"}
+dependencies = [
+  "python-telegram-bot>=21,<23",
+]
 
 [project.scripts]
 ambivikhry-demo = "ambivikhry.demo:main"
 ambivikhry-resource-mission = "ambivikhry.resource_mission:main"
+ambivikhry-telegram = "ambivikhry.telegram_bot:main"
