@@ -82,7 +82,6 @@ class AgentFamily:
         self.nodes[child_id] = child
         self.lineage[child_id] = child
         self.nodes[parent_id].children.append(child_id)
-        self.lineage[parent_id].children.append(child_id)
         self._event(
             "agent_spawned",
             parent_id=parent_id,
@@ -100,7 +99,6 @@ class AgentFamily:
         return {
             "max_agents": self.max_agents,
             "active_agents": len(self.nodes),
-            "lineage_agents": len(self.lineage),
             "lineage_agents": len(self.lineage),
             "agents": {
                 agent_id: {
