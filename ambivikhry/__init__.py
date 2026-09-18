@@ -1,7 +1,9 @@
-"""Ambivikhry / Quinn-Vortex agent."""
+"""Ambivikhry / Quinn-Vortex agent runtime."""
 from .agent import AmbivikhryAgent, AgentConfig, AgentResult
-from .core import AmbivikhryCore
-from .llm import MockLLM, LLMProvider
+from .llm import LLMProvider, MockLLM, OpenAICompatibleLLM
 from .tools import Tool, ToolRegistry, DryRunAdapter
+from .policy import PolicyGate
+from .verifier import Verifier, VerificationReport
 from .replication import Replicator, ReplicationPolicy
-__version__ = "2.5.0"
+
+__version__ = "2.6.0"
