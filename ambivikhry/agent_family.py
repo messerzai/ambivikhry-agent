@@ -30,6 +30,7 @@ class AgentFamily:
         self.nodes: dict[str, AgentNode] = {
             root_id: AgentNode(agent_id=root_id)
         }
+        self.lineage: dict[str, AgentNode] = dict(self.nodes)
         self.events: list[dict[str, Any]] = []
 
     def _event(self, kind: str, **data: Any) -> dict[str, Any]:
@@ -61,10 +62,13 @@ class AgentFamily:
         """Record an unbounded conceptual descendant without starting it."""
         if parent_id not in self.nodes:
             raise KeyError(f"unknown parent: {parent_id}")
-        if child_id in self.nodes:
+        if child_id in self.lineage:
             raise ValueError(f"agent already exists: {child_id}")
 
-        child = self._spawn_unchecked(parent_id, child_id)
+        child = AgentNode(agent_id=child_id, parent_id=parent_id)
+        self.lineage[child_id] = child
+        if parent_id in self.lineage:
+            self.lineage[parent_id].children.append(child_id)
         self._event(
             "lineage_recorded",
             parent_id=parent_id,
@@ -76,7 +80,9 @@ class AgentFamily:
     def _spawn_unchecked(self, parent_id: str, child_id: str) -> AgentNode:
         child = AgentNode(agent_id=child_id, parent_id=parent_id)
         self.nodes[child_id] = child
+        self.lineage[child_id] = child
         self.nodes[parent_id].children.append(child_id)
+        self.lineage[parent_id].children.append(child_id)
         self._event(
             "agent_spawned",
             parent_id=parent_id,
@@ -94,6 +100,7 @@ class AgentFamily:
         return {
             "max_agents": self.max_agents,
             "active_agents": len(self.nodes),
+            "lineage_agents": len(self.lineage),
             "agents": {
                 agent_id: {
                     "parent_id": node.parent_id,
