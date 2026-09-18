@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambivikhry-agent"
+version = "2.5.0"
+description = "Ambivikhry / Quinn-Vortex controlled self-revising agent"
+requires-python = ">=3.10"
+license = {text = "CC0-1.0"}
+
+[project.scripts]
+ambivikhry-demo = "ambivikhry.demo:main"
