@@ -24,7 +24,7 @@ def test_all_three_can_propose_critique_and_test():
     result = triad.synthesize("ambivikhry")
     assert result["proposals"][0]["tests"] == 3
 
-def test_evidence_gate_requires_real_improvement_and_regression_guard():
+def test_evidence_gate_accepts_measured_improvement_without_regression():
     triad = TriadEvolution()
     triad.propose("researcher", proposal())
     def evaluator(_proposal, phase):
@@ -33,6 +33,16 @@ def test_evidence_gate_requires_real_improvement_and_regression_guard():
     result = triad.run_evaluation_cycle(0, evaluator, metric="verified_claim_rate", regression_metrics=("stability",))
     assert result["passed"] is True
     assert result["improvement"] > 0
+
+def test_evidence_gate_rejects_regression():
+    triad = TriadEvolution()
+    triad.propose("critic", proposal())
+    def evaluator(_proposal, phase):
+        return {"baseline": 0.70, "candidate": 0.82, "regression:stability": 0.90}[phase]
+    triad.record_test("critic", 0, "stability", 1.00, phase="baseline")
+    result = triad.run_evaluation_cycle(0, evaluator, metric="verified_claim_rate", regression_metrics=("stability",))
+    assert result["passed"] is False
+    assert result["regressions"][0]["passed"] is False
 
 def test_deployment_requires_passing_gate_and_privilege_is_separate():
     triad = TriadEvolution()
