@@ -58,3 +58,21 @@ def test_deployment_requires_passing_gate_and_privilege_is_separate():
     privilege = triad.request_privilege_expansion("critic", "more_agents")
     assert deploy["status"] == "awaiting_human_approval"
     assert privilege["status"] == "awaiting_human_approval"
+
+def test_pattern_memory_requires_counterexample_to_challenge():
+    triad = TriadEvolution()
+    record = triad.record_pattern("ambivikhry", "search_loop", "we kept searching after the evidence threshold")
+    assert record.status == "hypothesis"
+    triad.challenge_pattern("critic", 0, "a search ended because a primary source was recovered")
+    assert triad.patterns[0].status == "challenged"
+
+
+def test_research_scope_rejects_local_and_non_http_urls():
+    triad = TriadEvolution()
+    result = triad.research_scope_check([
+        "https://example.org/source",
+        "http://localhost:8080/internal",
+        "file:///tmp/x",
+    ])
+    assert result["safe"] == ["https://example.org/source"]
+    assert len(result["rejected"]) == 2
