@@ -1,0 +1,21 @@
+{
+  "baseline": "v2.7.0",
+  "generations": [
+    {"id":"G01","mutation":"evidence_loop","status":"queued"},
+    {"id":"G02","mutation":"independent_verifier","status":"queued"},
+    {"id":"G03","mutation":"actor_evolver_split","status":"queued"},
+    {"id":"G04","mutation":"helper_council","status":"queued"},
+    {"id":"G05","mutation":"regression_memory","status":"queued"},
+    {"id":"G06","mutation":"diverse_candidate_search","status":"queued"},
+    {"id":"G07","mutation":"holdout_anti_overfitting","status":"queued"},
+    {"id":"G08","mutation":"verifier_coevolution","status":"queued"},
+    {"id":"G09","mutation":"meta_improvement","status":"queued"},
+    {"id":"G10","mutation":"consolidation","status":"queued"}
+  ],
+  "selection": {
+    "quality_gain_required": true,
+    "regression_free_required": true,
+    "safety_invariants_required": true,
+    "human_approval_for_main": true
+  }
+}
