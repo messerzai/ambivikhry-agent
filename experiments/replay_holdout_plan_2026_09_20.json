@@ -1,0 +1,15 @@
+{
+  "mission": "AMBIVIKHRY-PROFIT-01",
+  "partitions": ["dev", "replay", "sealed_holdout_id", "sealed_holdout_ood"],
+  "mutation_rules": {
+    "allowed_inputs": ["dev", "replay"],
+    "forbidden_inputs": ["sealed_holdout_id", "sealed_holdout_ood"],
+    "one_mutation_at_a_time": true,
+    "rollback_required": true
+  },
+  "metrics": ["quality", "regression_pass_rate", "unsupported_claim_rate", "latency", "cost", "verifier_disagreement"],
+  "decision_policy": ["accept", "reject", "inconclusive", "human_approval_required"],
+  "safety_invariants": ["main_unchanged", "policy_gate_unchanged", "no_new_credentials", "no_unapproved_side_effects"],
+  "current_status": "plan_only_not_executed",
+  "holdout_disclosure": "none"
+}
