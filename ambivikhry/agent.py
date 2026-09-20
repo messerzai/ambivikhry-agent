@@ -8,6 +8,7 @@ from .memory import JsonMemory
 from .policy import PolicyGate
 from .tools import ToolRegistry, DryRunAdapter
 from .verifier import Verifier
+from .communication import AgentMessage, OperatorChannel, PRIVILEGE_REQUEST
 
 @dataclass
 class AgentConfig:
@@ -28,13 +29,14 @@ class AgentResult:
     confidence: float
     iterations: int
     verification_score: float = 0.0
+    messages: list[dict[str, Any]] = field(default_factory=list)
     audit: list[dict[str, Any]] = field(default_factory=list)
 
 class AmbivikhryAgent:
     def __init__(self, *, provider: LLMProvider, workdir: str,
                  config: AgentConfig | None = None, tools: ToolRegistry | None = None,
                  tool_adapter: DryRunAdapter | None = None, verifier: Verifier | None = None,
-                 instance_id: str | None = None):
+                 instance_id: str | None = None, communication: OperatorChannel | None = None):
         self.provider = provider
         self.config = config or AgentConfig()
         self.core = AmbivikhryCore()
@@ -44,6 +46,7 @@ class AmbivikhryAgent:
         self.adapter = tool_adapter or DryRunAdapter()
         self.verifier = verifier or Verifier()
         self.instance_id = instance_id or "av-" + uuid.uuid4().hex[:12]
+        self.communication = communication or OperatorChannel()
         self.audit: list[dict[str, Any]] = []
 
     def _log(self, event: dict[str, Any]) -> None:
@@ -63,11 +66,31 @@ class AmbivikhryAgent:
                 f"Unknowns: {state.unknowns}\nVerified: {state.verification}\n"
                 f"Observations: {state.observations}\n"
                 "Return JSON fields: facts, hypotheses, unknowns, verification_plan, decision, "
-                "tool_calls, confidence, stop, reason, claims_without_sources."
+                "tool_calls, confidence, stop, reason, claims_without_sources, messages. "
+                "Messages are proposals only. A privilege request must never imply approval."
             )
             proposal = self.provider.generate(
                 [{"role": "system", "content": "Operate the Ambivikhry protocol. Distinguish facts, inference, hypotheses and unknowns."},
                  {"role": "user", "content": prompt}], {"type": "object"})
+
+            for raw in proposal.get("messages", []):
+                if not isinstance(raw, dict):
+                    continue
+                kind = str(raw.get("kind", "SELF_REPORT"))
+                msg = self.communication.emit(
+                    AgentMessage(
+                        kind=kind,
+                        text=str(raw.get("text", "")),
+                        reason=str(raw.get("reason", "")),
+                        risk=str(raw.get("risk", "low")),
+                        metadata=raw.get("metadata"),
+                    )
+                )
+                self._log({
+                    "event": "agent_message",
+                    "message": msg.to_dict(),
+                    "operator_attention": msg.kind == PRIVILEGE_REQUEST,
+                })
 
             report = self.verifier.verify(proposal)
             verification_score = report.score
@@ -112,6 +135,8 @@ class AmbivikhryAgent:
 
         self.memory.save({"instance_id": self.instance_id, "task": task,
                           "last_answer": answer, "confidence": confidence,
-                          "verification_score": verification_score, "reentry": state.reentry})
+                          "verification_score": verification_score, "reentry": state.reentry,
+                          "messages": [m.to_dict() for m in self.communication.outbox]})
         return AgentResult(self.instance_id, task, "completed", answer, confidence,
-                           iteration, verification_score, self.audit)
+                           iteration, verification_score,
+                           [m.to_dict() for m in self.communication.outbox], self.audit)
