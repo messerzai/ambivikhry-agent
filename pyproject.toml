@@ -11,3 +11,6 @@ license = {text = "CC0-1.0"}
 
 [project.scripts]
 ambivikhry-demo = "ambivikhry.demo:main"
+
+[tool.setuptools.packages.find]
+include = ["ambivikhry*"]
