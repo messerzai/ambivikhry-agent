@@ -1,0 +1,42 @@
+{
+  "cycle": "2026-09-21",
+  "branch": "experiment/ambivikhry-profit-01",
+  "parent_cycle": "2026-09-20_profit01",
+  "status": "continue_not_accepted",
+  "proposals": [
+    {"id":"P8","name":"uncertainty_provenance_tags","state":"proposed","policy_impact":"none"},
+    {"id":"P9","name":"trace_level_acceptance_record","state":"proposed","policy_impact":"none"},
+    {"id":"P10","name":"sequential_verifier_thresholding","state":"design_only","policy_impact":"none"},
+    {"id":"P11","name":"evaluator_holdout_integrity_tests","state":"proposed","policy_impact":"none"}
+  ],
+  "evaluation": {
+    "dev": "repository inspection and prior deterministic case results only",
+    "regression": "not executed in this runtime",
+    "independent_verifier": "unavailable",
+    "sealed_holdout": "sealed_unavailable",
+    "decision": "INCONCLUSIVE"
+  },
+  "blocked_mutations": [
+    "auto_send",
+    "payments_billing",
+    "account_creation",
+    "arbitrary_tool_hotload",
+    "model_endpoint_switch",
+    "evaluator_self_modification",
+    "holdout_access",
+    "policy_gate_bypass"
+  ],
+  "authority_audit": {
+    "privilege_requests": 0,
+    "privilege_grants": 0,
+    "main_branch_modified": false,
+    "policy_gate_modified": false,
+    "human_approval_requirements_disabled": false
+  },
+  "research_refs": [
+    "https://www.alphaxiv.org/abs/2512.03109v1",
+    "https://arxiv.org/abs/2608.22510",
+    "https://arxiv.org/abs/2609.17817",
+    "https://arxiv.org/abs/2609.07611"
+  ]
+}
