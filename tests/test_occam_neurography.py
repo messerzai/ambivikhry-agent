@@ -1,7 +1,7 @@
 import pytest
 
 from ambivikhry.occams_razor import Hypothesis, OccamsRazor
-from ambivikhry.neurography import NeurographicSelfSimilarity
+from ambivikhry.neurography import DenisSelfSimilarityAnalyzer, NeurographicSelfSimilarity
 from ambivikhry.self_revision import RevisionCandidate, SelfRevisionGate
 
 
@@ -29,6 +29,24 @@ def test_self_similarity_is_high_for_repeated_trace():
 def test_self_similarity_rejects_short_input():
     with pytest.raises(ValueError):
         NeurographicSelfSimilarity().analyze([1, 2, 3])
+
+
+def test_denis_analyzer_detects_repeated_behavioral_loop():
+    analyzer = DenisSelfSimilarityAnalyzer()
+    report = analyzer.detect_loop([0, 1, 0, 1, 0, 1, 0, 1], period=2)
+    assert report.repeated_cycles == 4
+    assert report.score > .95
+
+
+def test_denis_analyzer_separates_micro_macro_reality_change():
+    analyzer = DenisSelfSimilarityAnalyzer()
+    report = analyzer.reconstruction_effect(.30, .80, .40, .70)
+    assert report.reality_change == pytest.approx(.40)
+
+
+def test_denis_analyzer_rejects_invalid_reality_scores():
+    with pytest.raises(ValueError):
+        DenisSelfSimilarityAnalyzer().reconstruction_effect(.30, 1.2, .40, .70)
 
 
 def test_revision_accepts_bounded_improvement():
