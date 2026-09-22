@@ -1,13 +1,19 @@
-"""A bounded visual self-similarity feature inspired by neurographic practice.
+"""Bounded self-similarity analysis inspired by public materials by Denis Isay.
 
-Important provenance note: public material located for "Neurographica" attributes
-the named method to psychologist Pavel Piskarev. The requested attribution to
-"Denis" and the exact claimed self-similarity method could not be verified, so
-this module does NOT attribute a proprietary method to Denis. It implements only
-the neutral computational idea requested here: quantify repeated structure at
-multiple scales.
+Provenance: Denis Isay publicly describes himself as the author of the system
+"self-similarity" and describes a principle in which recurring micro-level
+behavior is reproduced at larger system scales, with identification of loops,
+breaking automatic cycles, and judging a reconstruction by observable changes
+in reality. This implementation is an explicit computational formalization of
+those publicly described ideas, not a claim to reproduce a proprietary or
+clinically validated method.
 
-This is an analysis/creative tool, not a diagnostic or therapeutic instrument.
+Public sources:
+- https://tenchat.ru/DenIsay
+- https://tenchat.ru/media/5648883-olimpiada-zhertv-kak-kult-pro####
+
+This is an analysis/creative tool, not a psychological diagnostic or treatment
+instrument.
 """
 from __future__ import annotations
 
@@ -21,6 +27,22 @@ class SelfSimilarityReport:
     scales: tuple[int, ...]
     scores: tuple[float, ...]
     mean_score: float
+
+
+@dataclass(frozen=True)
+class LoopReport:
+    period: int
+    score: float
+    repeated_cycles: int
+
+
+@dataclass(frozen=True)
+class ReconstructionReport:
+    micro_before: float
+    micro_after: float
+    macro_before: float
+    macro_after: float
+    reality_change: float
 
 
 def _validate(values: Sequence[float]) -> None:
@@ -41,13 +63,12 @@ def _correlation(a: Sequence[float], b: Sequence[float]) -> float:
     return sum(x * y for x, y in zip(da, db)) / denom
 
 
-class NeurographicSelfSimilarity:
-    """Measure coarse-to-fine repetition in a numeric trace.
+def _unit_similarity(a: Sequence[float], b: Sequence[float]) -> float:
+    return (_correlation(a, b) + 1.0) / 2.0
 
-    For each scale, adjacent blocks are compared after normalization. The
-    resulting score is descriptive only; it must not be interpreted as a
-    psychological diagnosis.
-    """
+
+class NeurographicSelfSimilarity:
+    """Measure coarse-to-fine repetition in a numeric trace."""
 
     def analyze(self, trace: Sequence[float], scales: Sequence[int] = (2, 4, 8)) -> SelfSimilarityReport:
         _validate(trace)
@@ -57,18 +78,59 @@ class NeurographicSelfSimilarity:
             raise ValueError("no valid scales for trace length")
 
         scores: list[float] = []
+        used_scales: list[int] = []
         for scale in valid_scales:
             blocks = [trace[i:i + scale] for i in range(0, n - scale + 1, scale)]
             if len(blocks) < 2:
                 continue
             reference = blocks[0]
-            local = []
-            for block in blocks[1:]:
-                if len(block) != len(reference):
-                    continue
-                local.append((_correlation(reference, block) + 1.0) / 2.0)
-            scores.append(sum(local) / len(local) if local else 0.0)
+            local = [_unit_similarity(reference, block) for block in blocks[1:] if len(block) == len(reference)]
+            if local:
+                scores.append(sum(local) / len(local))
+                used_scales.append(scale)
 
         if not scores:
             raise ValueError("insufficient repeated blocks")
-        return SelfSimilarityReport(valid_scales[:len(scores)], tuple(scores), sum(scores) / len(scores))
+        return SelfSimilarityReport(tuple(used_scales), tuple(scores), sum(scores) / len(scores))
+
+
+class DenisSelfSimilarityAnalyzer:
+    """Bounded operationalization of publicly described self-similarity ideas.
+
+    The analyzer treats a repeated pattern at a small scale as a candidate
+    that may recur at a larger scale. It also exposes loop detection and a
+    separate before/after reality-change measure so that a verbal claim of
+    "change" is not confused with an observable change in the trace.
+    """
+
+    def self_similarity(self, trace: Sequence[float], scales: Sequence[int] = (2, 4, 8)) -> SelfSimilarityReport:
+        return NeurographicSelfSimilarity().analyze(trace, scales)
+
+    def detect_loop(self, trace: Sequence[float], period: int) -> LoopReport:
+        _validate(trace)
+        if period < 1 or period * 2 > len(trace):
+            raise ValueError("period must allow at least two cycles")
+        cycles = [trace[i:i + period] for i in range(0, len(trace) - period + 1, period)]
+        if len(cycles) < 2:
+            raise ValueError("insufficient cycles")
+        reference = cycles[0]
+        similarities = [_unit_similarity(reference, cycle) for cycle in cycles[1:]]
+        return LoopReport(period, sum(similarities) / len(similarities), len(cycles))
+
+    def reconstruction_effect(
+        self,
+        micro_before: float,
+        micro_after: float,
+        macro_before: float,
+        macro_after: float,
+    ) -> ReconstructionReport:
+        values = (micro_before, micro_after, macro_before, macro_after)
+        if not all(isfinite(float(v)) for v in values):
+            raise ValueError("all scores must be finite")
+        for value in values:
+            if not 0.0 <= float(value) <= 1.0:
+                raise ValueError("scores must be between 0 and 1")
+        # Observable change is reported separately from interpretation. A
+        # positive value means both scales improved; it does not prove causality.
+        reality_change = ((micro_after - micro_before) + (macro_after - macro_before)) / 2.0
+        return ReconstructionReport(micro_before, micro_after, macro_before, macro_after, reality_change)
