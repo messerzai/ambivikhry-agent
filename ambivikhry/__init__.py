@@ -10,5 +10,6 @@ from .occams_razor import Hypothesis, OccamsRazor
 from .neurography import NeurographicSelfSimilarity, SelfSimilarityReport
 from .self_revision import RevisionCandidate, SelfRevisionGate
 from .evolution_audit import AuditVerdict, EvolutionEvidence, EvolutionAuditor
+from .evolution_cycle import Candidate, ControlledEvolutionCycle, CycleResult
 
-__version__ = "2.6.1"
+__version__ = "2.6.2"
