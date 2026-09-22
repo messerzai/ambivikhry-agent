@@ -9,5 +9,6 @@ from .comfort_expansion import ComfortContext, ComfortAssessment, ComfortExpansi
 from .occams_razor import Hypothesis, OccamsRazor
 from .neurography import NeurographicSelfSimilarity, SelfSimilarityReport
 from .self_revision import RevisionCandidate, SelfRevisionGate
+from .evolution_audit import AuditVerdict, EvolutionEvidence, EvolutionAuditor
 
-__version__ = "2.6.0"
+__version__ = "2.6.1"
