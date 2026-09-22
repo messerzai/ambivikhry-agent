@@ -10,7 +10,7 @@ clinically validated method.
 
 Public sources:
 - https://tenchat.ru/DenIsay
-- https://tenchat.ru/media/5648883-olimpiada-zhertv-kak-kult-pro####
+- https://tenchat.ru/media/5648883-olimpiada-zhertv-kak-kult-pro########
 
 This is an analysis/creative tool, not a psychological diagnostic or treatment
 instrument.
