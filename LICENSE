@@ -1,3 +1,60 @@
-CC0 1.0 Universal
+AMBIVIKHRY PROPRIETARY LICENSE v1.0
 
-To the extent possible under law, the author has waived all copyright and related rights to this work.
+Copyright (c) 2026 Михаил Прокопенко. All rights reserved.
+
+1. Scope
+This license governs the Ambivikhry / Quinn-Vortex software, source code,
+documentation, prompts, protocols, architecture descriptions, and other
+materials explicitly marked as covered by this license (the "Software").
+
+2. No Public-Use Grant
+No permission is granted to use, copy, modify, merge, publish, distribute,
+sublicense, sell, host, provide as a service, or create derivative works of
+the Software except as expressly permitted below or by a separate written
+license from the copyright holder.
+
+3. Research License
+Individuals may inspect and evaluate the publicly available source solely
+for personal, non-commercial research, education, security review, and
+interoperability evaluation, provided that no redistribution, commercial
+use, hosted service, or derivative distribution occurs.
+
+4. Commercial License
+Commercial use requires a separate written commercial license from the
+copyright holder. Commercial use includes, without limitation, use in a
+paid product or service, SaaS/API access, consulting, deployment for a
+customer, resale, embedding in another commercial system, and monetized
+training or operation of derivative systems.
+
+5. Derivative Works and Forks
+Creating or distributing a modified version, fork, port, translation,
+substantial adaptation, or derivative implementation for use outside the
+research permissions above requires prior written permission.
+
+6. Brand and Identity
+This license does not grant permission to use the names Ambivikhry,
+Quinn-Vortex, or associated logos and distinctive project identifiers to
+endorse, market, or misrepresent another product or service.
+
+7. Third-Party Components
+This license does not supersede licenses applicable to third-party
+components. Such components remain governed by their respective licenses.
+
+8. Contributions
+Unless a separate contributor agreement states otherwise, contributions
+submitted for inclusion in the Software are provided to the project under
+terms compatible with this license and without granting the public an
+additional right to redistribute the resulting Software.
+
+9. No Warranty
+THE SOFTWARE IS PROVIDED "AS IS", TO THE MAXIMUM EXTENT PERMITTED BY LAW,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EXPRESS OR IMPLIED.
+
+10. Reservation of Rights
+All rights not expressly granted by this license are reserved by the
+copyright holder.
+
+For commercial licensing, contact the copyright holder through the official
+project repository.
+
+This is a proprietary license, not an OSI-approved open-source license.
