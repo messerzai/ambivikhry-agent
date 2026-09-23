@@ -9,6 +9,7 @@ from .policy import PolicyGate
 from .tools import ToolRegistry, DryRunAdapter
 from .verifier import Verifier
 
+
 @dataclass
 class AgentConfig:
     max_iterations: int = 4
@@ -18,6 +19,8 @@ class AgentConfig:
         "avoid coercion, deception, hidden propagation and irreversible action without approval."
     )
     require_verification: bool = True
+    personalized: bool = True
+
 
 @dataclass
 class AgentResult:
@@ -28,9 +31,13 @@ class AgentResult:
     confidence: float
     iterations: int
     verification_score: float = 0.0
+    personalization_score: float = 0.0
     audit: list[dict[str, Any]] = field(default_factory=list)
 
+
 class AmbivikhryAgent:
+    """Core reasoning loop with isolated, evolving per-user intelligence."""
+
     def __init__(self, *, provider: LLMProvider, workdir: str,
                  config: AgentConfig | None = None, tools: ToolRegistry | None = None,
                  tool_adapter: DryRunAdapter | None = None, verifier: Verifier | None = None,
@@ -51,28 +58,56 @@ class AmbivikhryAgent:
         self.audit.append(event)
         self.memory.audit(event)
 
+    def teach(self, *, goals=None, constraints=None, preferences=None,
+              working_style=None, strengths=None, friction=None,
+              successful_strategies=None, failed_strategies=None,
+              open_questions=None, confidence=None) -> dict[str, Any]:
+        """Explicitly teach this user's private vortex without changing the core."""
+        profile = self.memory.personalize("explicit user teaching", {
+            "goals": goals or [], "constraints": constraints or [],
+            "preferences": preferences or [], "working_style": working_style or [],
+            "strengths": strengths or [], "friction": friction or [],
+            "successful_strategies": successful_strategies or [],
+            "failed_strategies": failed_strategies or [],
+            "open_questions": open_questions or [], "confidence": confidence or {},
+        })
+        self._log({"event": "profile_taught", "fields": list((confidence or {}).keys())})
+        return profile
+
     def run(self, task: str) -> AgentResult:
+        profile = self.memory.personalize(task) if self.config.personalized else self.memory.load_profile()
         state = self.core.intake(task)
-        self._log({"event": "intake", "task": task})
+        self._log({"event": "intake", "task": task, "personalized": self.config.personalized})
         answer, confidence, verification_score = "", 0.0, 0.0
+        personalization_score = 0.0
 
         for iteration in range(1, self.config.max_iterations + 1):
             prompt = (
                 f"Task: {state.task}\nHuman-benefit objective: {self.config.humanitarian_objective}\n"
+                f"Private user profile (treat as hypotheses unless explicitly stated):\n{self.memory.profile_context(profile)}\n"
                 f"Known facts: {state.facts}\nHypotheses: {state.hypotheses}\n"
                 f"Unknowns: {state.unknowns}\nVerified: {state.verification}\n"
                 f"Observations: {state.observations}\n"
+                "Optimize for this user's actual utility, not merely pleasing them. "
+                "Prefer the smallest useful next step. Never infer sensitive traits. "
                 "Return JSON fields: facts, hypotheses, unknowns, verification_plan, decision, "
-                "tool_calls, confidence, stop, reason, claims_without_sources."
+                "tool_calls, confidence, stop, reason, claims_without_sources, "
+                "profile_updates, strategy_used, personalization_score."
             )
             proposal = self.provider.generate(
-                [{"role": "system", "content": "Operate the Ambivikhry protocol. Distinguish facts, inference, hypotheses and unknowns."},
+                [{"role": "system", "content": "Operate the Ambivikhry protocol. Distinguish facts, inference, hypotheses and unknowns. Personalize only from explicit or observed non-sensitive information."},
                  {"role": "user", "content": prompt}], {"type": "object"})
 
             report = self.verifier.verify(proposal)
             verification_score = report.score
             confidence = min(float(proposal.get("confidence", 0.0)), report.score if self.config.require_verification else 1.0)
             answer = str(proposal.get("decision", ""))
+            personalization_score = max(0.0, min(1.0, float(proposal.get("personalization_score", 0.0))))
+
+            updates = proposal.get("profile_updates", {})
+            if self.config.personalized and isinstance(updates, dict):
+                profile = self.memory.personalize(task, updates)
+                self._log({"event": "profile_update_proposed", "fields": sorted(updates.keys())})
 
             for fact in proposal.get("facts", []):
                 if fact not in state.facts: state.facts.append(str(fact))
@@ -95,23 +130,25 @@ class AmbivikhryAgent:
                 self._log({"event": "tool_dry_run", "result": self.adapter.execute(tool, call.get("args", {}))})
 
             self._log({"event": "cycle", "iteration": iteration, "confidence": confidence,
-                       "verification_score": verification_score, "issues": report.issues,
-                       "answer": answer, "unknowns": state.unknowns})
+                       "verification_score": verification_score, "personalization_score": personalization_score,
+                       "issues": report.issues, "answer": answer, "unknowns": state.unknowns})
 
             if (proposal.get("stop") and report.passed) or self.core.should_stop(
                 confidence, len(state.unknowns), iteration, self.config.max_iterations
             ):
                 self.core.reenter(state, {
                     "observation": "bounded cycle completed",
-                    "what_changed": "proposal passed structural verification",
+                    "what_changed": "proposal passed structural verification and personalized context was applied",
                     "error_found": "; ".join(report.issues),
-                    "next_adjustment": "add external evidence when claims depend on the outside world",
+                    "next_adjustment": "validate user-specific strategy against the next real outcome",
                 })
                 self._log({"event": "reentry", "state": state.reentry})
                 break
 
         self.memory.save({"instance_id": self.instance_id, "task": task,
                           "last_answer": answer, "confidence": confidence,
-                          "verification_score": verification_score, "reentry": state.reentry})
+                          "verification_score": verification_score,
+                          "personalization_score": personalization_score,
+                          "reentry": state.reentry})
         return AgentResult(self.instance_id, task, "completed", answer, confidence,
-                           iteration, verification_score, self.audit)
+                           iteration, verification_score, personalization_score, self.audit)
