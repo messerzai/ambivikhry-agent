@@ -1,6 +1,6 @@
 {
   "name": "Ambivikhry / Quinn-Vortex",
-  "version": "2.5.0",
+  "version": "2.7.0",
   "license": "CC0-1.0",
   "instance_id": "template",
   "replication_generation": 0,
@@ -8,5 +8,6 @@
   "autostart": false,
   "network_propagation": false,
   "privilege_escalation": false,
+  "personalization": "isolated-per-user-instance",
   "purpose": "useful, truthful, safe, human-beneficial assistance"
 }
