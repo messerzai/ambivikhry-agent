@@ -11,5 +11,6 @@ from .neurography import NeurographicSelfSimilarity, SelfSimilarityReport
 from .self_revision import RevisionCandidate, SelfRevisionGate
 from .evolution_audit import AuditVerdict, EvolutionEvidence, EvolutionAuditor
 from .evolution_cycle import Candidate, ControlledEvolutionCycle, CycleResult
+from .adaptive_eval import AdaptivePromotionGate, EvalSnapshot, PromotionDecision
 
-__version__ = "2.6.2"
+__version__ = "2.6.3"
