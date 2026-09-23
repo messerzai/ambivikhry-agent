@@ -1,7 +1,8 @@
 {
   "name": "Ambivikhry / Quinn-Vortex",
   "version": "2.7.0",
-  "license": "CC0-1.0",
+  "license": "Ambivikhry-Proprietary-1.0",
+  "research_license": "Ambivikhry-Research-1.0",
   "instance_id": "template",
   "replication_generation": 0,
   "parent_instance_id": null,
