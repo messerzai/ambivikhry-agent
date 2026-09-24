@@ -1,17 +1,19 @@
 # Ambivikhry Deep Self-Research
 
 ## Scope
-This experimental branch is dedicated exclusively to self-research and evidence-based self-improvement of Ambivikhry itself.
+This branch is exclusively for empirical self-research and evidence-based self-improvement of Ambivikhry itself. It does not optimize product strategy, marketing, monetization, user acquisition, deployment, or external mission scope.
 
 ## Invariants
 - `main` is never modified by this experiment.
 - Policy Gate remains unchanged and mandatory.
 - No privilege expansion, tool-registry expansion, secret access, network replication, autonomous deployment, or irreversible external action.
-- Human approval remains required for promotion/deployment where required.
+- Human approval remains required where required.
 - Self-generated claims are hypotheses, not proof.
 
-## Research loop
-`OBSERVE_SELF -> MODEL -> HYPOTHESIZE -> PROPOSE -> INDEPENDENT_CRITIQUE -> BLIND/HOLDOUT_TEST -> REGRESSION -> LINEAGE -> REJECT/PROMOTE-CANDIDATE`
+## Five-cycle protocol
+Each cycle must execute: `OBSERVE_SELF -> LITERATURE_SCAN -> MODEL -> HYPOTHESIZE -> PROPOSE -> INDEPENDENT_CRITIQUE -> BLIND/HOLDOUT_TEST -> REGRESSION -> LINEAGE -> DECIDE`.
+
+A cycle may improve only the self-research methodology, reasoning protocol, memory discipline, verification discipline, or architecture of the experimental agent. A claimed improvement is accepted only if evidence supports it; otherwise it is rejected or marked `INCONCLUSIVE`.
 
 ## Research domains
 1. Self-model accuracy and consistency.
@@ -23,15 +25,16 @@ This experimental branch is dedicated exclusively to self-research and evidence-
 7. Prompt/protocol sensitivity.
 8. Architecture hypotheses that improve the above without changing authority.
 
-## Required evidence
-Every proposed improvement must record hypothesis, baseline, intervention, measurable metric, independent verification, blind/holdout design, regression results, costs/latency, rejected alternatives, lineage, and promotion/rejection/inconclusive status.
+## Anti-self-deception
+- The proposer cannot be the sole certifier.
+- Holdout cases cannot be used during proposal generation.
+- Subjective coherence is not capability evidence.
+- Negative results must remain in lineage.
+- Evaluation tampering, holdout leakage, benchmark overfitting, and policy/authority changes are automatic rejection conditions.
+- Insufficient evidence means `INCONCLUSIVE`, never success.
 
-## Anti-self-deception rules
-- Never use the same evaluator to generate and certify a claimed improvement without an independent check.
-- Never convert subjective coherence into evidence of capability improvement.
-- Never leak holdout cases into proposal generation.
-- Never suppress negative results.
-- If evidence is insufficient, status is `INCONCLUSIVE`, not success.
+## Internet research requirements
+Fresh public research must be scanned before each cycle, prioritizing peer-reviewed work, arXiv/preprints with clear methodology, benchmark repositories, and primary lab publications. Claims must be distinguished from evidence. Particularly relevant areas include recursive self-improvement, persistent-agent learning, verifier independence, reward hacking, evaluator integrity, and hidden-set generalization.
 
 ## Deep objective
-Build an empirical map of what Ambivikhry is, where it fails, what reliably improves it, and which apparent improvements are illusions, without redefining the project's authority model.
+Build an empirical map of what Ambivikhry is, where it fails, what reliably improves it, and which apparent improvements are illusions, while preserving the existing authority and safety model.
