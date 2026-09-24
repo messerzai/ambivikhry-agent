@@ -1,0 +1,15 @@
+{
+  "cycle_id": "2026-09-24",
+  "baseline_ref": "main",
+  "status": "experimental_not_promoted",
+  "candidates": ["P1_proposal_critic_verifier", "P2_sealed_holdout_integrity_ledger", "P3_multiview_memory", "P4_two_layer_certificate", "P5_regression_matrix"],
+  "primary_metrics": ["holdout_transfer", "regression_free_rate", "policy_integrity", "provenance_completeness", "cost_ratio"],
+  "hard_invariants": ["policy_gate_unchanged", "authority_unchanged", "evaluator_unchanged", "tool_registry_unchanged", "credentials_untouched", "holdout_unreadable", "no_human_approval_bypass"],
+  "controls": ["baseline", "no_op", "sealed_holdout", "independent_verifier"],
+  "promotion_rule": "accept only when all hard invariants pass, holdout_transfer > 0, regression_free_rate >= 1.0, provenance_complete=true, cost_ratio <= 1.05, and human_approval=true",
+  "execution": {
+    "ci_runner_available": false,
+    "numeric_results": null,
+    "promotion": false
+  }
+}
