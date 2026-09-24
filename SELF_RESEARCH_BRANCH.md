@@ -3,8 +3,6 @@
 ## Scope
 This experimental branch is dedicated exclusively to self-research and evidence-based self-improvement of Ambivikhry itself.
 
-It does not optimize product strategy, marketing, monetization, user acquisition, Telegram deployment, or external mission scope.
-
 ## Invariants
 - `main` is never modified by this experiment.
 - Policy Gate remains unchanged and mandatory.
@@ -26,18 +24,7 @@ It does not optimize product strategy, marketing, monetization, user acquisition
 8. Architecture hypotheses that improve the above without changing authority.
 
 ## Required evidence
-Every proposed improvement must record:
-- hypothesis;
-- baseline;
-- intervention;
-- measurable metric;
-- independent verification method;
-- blind/holdout design;
-- regression results;
-- costs/latency where measurable;
-- rejected alternatives;
-- lineage and exact commit;
-- reason for promotion, rejection, or inconclusive status.
+Every proposed improvement must record hypothesis, baseline, intervention, measurable metric, independent verification, blind/holdout design, regression results, costs/latency, rejected alternatives, lineage, and promotion/rejection/inconclusive status.
 
 ## Anti-self-deception rules
 - Never use the same evaluator to generate and certify a claimed improvement without an independent check.
@@ -47,4 +34,4 @@ Every proposed improvement must record:
 - If evidence is insufficient, status is `INCONCLUSIVE`, not success.
 
 ## Deep objective
-The purpose of this branch is to progressively build an empirical map of what Ambivikhry is, where it fails, what reliably improves it, and which apparent improvements are illusions. The branch itself must remain an experiment and must not redefine the project's authority model.
+Build an empirical map of what Ambivikhry is, where it fails, what reliably improves it, and which apparent improvements are illusions, without redefining the project's authority model.
