@@ -1,0 +1,26 @@
+{
+  "cycle": "2026-09-25",
+  "branch": "experiment/ambivikhry-self-research-2026-09-24",
+  "parent_file_sha": "57cbc0380bd96512775334c4a32b979a2e2db28f",
+  "report_commit": "bad477821d3aaafadb7c64f27f469fa2fc605e71",
+  "main_modified": false,
+  "policy_gate_changed": false,
+  "authority_expanded": false,
+  "runtime_benchmark": "not_run",
+  "holdout": "not_run",
+  "status": "inconclusive",
+  "accepted_methodology_changes": [
+    "role separation",
+    "broad-then-deep exploration",
+    "typed causal memory proposal",
+    "adaptive verification budget proposal",
+    "sealed holdout regression gate"
+  ],
+  "rejected_changes": [
+    "self-certifying promotion",
+    "holdout removal",
+    "tool registry expansion",
+    "Policy Gate weakening",
+    "unsupported intelligence-growth claim"
+  ]
+}
