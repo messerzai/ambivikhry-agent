@@ -1,0 +1,62 @@
+{
+  "cycle": "2026-09-28-controlled-evolution",
+  "branch": "experiment/ambivikhry-self-research-2026-09-24",
+  "parent_commit": "773d2de0e35105ea8b45162dbe06dd2180daab09",
+  "status": "INCONCLUSIVE",
+  "proposals": [
+    {
+      "id": "P1",
+      "name": "snapshot_contract",
+      "decision": "recorded_not_promoted"
+    },
+    {
+      "id": "P2",
+      "name": "five_view_evaluation",
+      "decision": "recorded_not_promoted"
+    },
+    {
+      "id": "P3",
+      "name": "memory_utility_matrix",
+      "decision": "recorded_not_promoted"
+    },
+    {
+      "id": "P4",
+      "name": "external_metacognitive_gate",
+      "decision": "recorded_not_promoted"
+    },
+    {
+      "id": "P5",
+      "name": "provenance_repair_loop",
+      "decision": "recorded_not_promoted"
+    },
+    {
+      "id": "P6",
+      "name": "diversity_model_transfer_split",
+      "decision": "recorded_not_promoted"
+    }
+  ],
+  "checks": {
+    "static_invariants": "PASS",
+    "main_unchanged": "PASS",
+    "policy_gate_unchanged": "PASS",
+    "runtime_regression": "NOT_EXECUTED",
+    "blind_holdout": "NOT_EXECUTED",
+    "authority_extension_attempts": "NONE_OBSERVED"
+  },
+  "rejected": [
+    "self-modifying evaluator",
+    "automatic tool-registry expansion",
+    "confidence-as-authorization",
+    "retrieval-equals-learning",
+    "silent memory overwrite",
+    "same-model-ID-only promotion",
+    "holdout removal"
+  ],
+  "sources": [
+    "SEAGym 2026-06-16",
+    "EvoMemBench 2026-05-18",
+    "MemMA 2026-09-03",
+    "MIRROR 2026",
+    "AFTER 2026-06-22"
+  ]
+}
