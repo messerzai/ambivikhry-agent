@@ -5,5 +5,6 @@ from .tools import Tool, ToolRegistry, DryRunAdapter
 from .policy import PolicyGate
 from .verifier import Verifier, VerificationReport
 from .replication import Replicator, ReplicationPolicy
+from .visual_facets import FacetPattern, VisualFacet, VisualFacetRenderer
 
-__version__ = "2.6.0"
+__version__ = "2.6.1-visual-facets"
