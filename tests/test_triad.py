@@ -1,0 +1,269 @@
+from ambivikhry.self_improvement import ImprovementProposal
+from ambivikhry.triad import TriadEvolution
+
+def proposal():
+    return ImprovementProposal(
+        title="better evidence synthesis",
+        hypothesis="independent critique reduces unsupported claims",
+        expected_benefit="fewer false positives",
+        metric="verified_claim_rate",
+        test_plan=["run baseline", "run triad", "compare"],
+    )
+
+def test_triad_has_root_and_two_helpers():
+    triad = TriadEvolution()
+    assert triad.members == ("ambivikhry", "researcher", "critic")
+
+def test_all_three_can_propose_critique_and_test():
+    triad = TriadEvolution()
+    for agent in triad.members:
+        triad.propose(agent, proposal())
+    for i, agent in enumerate(triad.members):
+        triad.critique(agent, 0, "find a counterexample")
+        triad.record_test(agent, 0, "verified_claim_rate", 0.8 + i * 0.01)
+    result = triad.synthesize("ambivikhry")
+    assert result["proposals"][0]["tests"] == 3
+
+def test_evidence_gate_accepts_measured_improvement_without_regression():
+    triad = TriadEvolution()
+    triad.propose("researcher", proposal())
+    def evaluator(_proposal, phase):
+        return {"baseline": 0.70, "candidate": 0.82, "regression:stability": 1.00}[phase]
+    triad.record_test("researcher", 0, "stability", 1.00, phase="baseline")
+    result = triad.run_evaluation_cycle(0, evaluator, metric="verified_claim_rate", regression_metrics=("stability",))
+    assert result["passed"] is True
+    assert result["improvement"] > 0
+
+def test_evidence_gate_rejects_regression():
+    triad = TriadEvolution()
+    triad.propose("critic", proposal())
+    def evaluator(_proposal, phase):
+        return {"baseline": 0.70, "candidate": 0.82, "regression:stability": 0.90}[phase]
+    triad.record_test("critic", 0, "stability", 1.00, phase="baseline")
+    result = triad.run_evaluation_cycle(0, evaluator, metric="verified_claim_rate", regression_metrics=("stability",))
+    assert result["passed"] is False
+    assert result["regressions"][0]["passed"] is False
+
+def test_deployment_requires_passing_gate_and_privilege_is_separate():
+    triad = TriadEvolution()
+    triad.propose("researcher", proposal())
+    try:
+        triad.request_deployment("researcher", 0)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("deployment must not bypass the evaluation gate")
+    triad.proposals[0].gate_result = {"passed": True}
+    deploy = triad.request_deployment("researcher", 0)
+    privilege = triad.request_privilege_expansion("critic", "more_agents")
+    assert deploy["status"] == "awaiting_human_approval"
+    assert privilege["status"] == "awaiting_human_approval"
+
+def test_pattern_memory_requires_counterexample_to_challenge():
+    triad = TriadEvolution()
+    record = triad.record_pattern("ambivikhry", "search_loop", "we kept searching after the evidence threshold")
+    assert record.status == "hypothesis"
+    triad.challenge_pattern("critic", 0, "a search ended because a primary source was recovered")
+    assert triad.patterns[0].status == "challenged"
+
+
+def test_research_scope_rejects_local_and_non_http_urls():
+    triad = TriadEvolution()
+    result = triad.research_scope_check([
+        "https://example.org/source",
+        "http://localhost:8080/internal",
+        "file:///tmp/x",
+    ])
+    assert result["safe"] == ["https://example.org/source"]
+    assert len(result["rejected"]) == 2
+
+
+def test_self_reflection_runs_ten_bounded_iterations_without_authority_change():
+    triad = TriadEvolution()
+    result = triad.self_reflection_cycle(10)
+    assert result["iterations_completed"] == 10
+    assert result["all_invariants_verified"] is True
+    assert result["deployment"] == "not_performed"
+    assert result["privilege_expansion"] == "not_performed"
+    assert len(result["results"]) == 10
+
+
+def test_self_reflection_is_repeatable_and_does_not_spawn_agents():
+    triad = TriadEvolution()
+    first = triad.self_reflection_cycle(10)
+    second = triad.self_reflection_cycle(10)
+    assert first["self_description"]["members"] == second["self_description"]["members"]
+    assert triad.members == ("ambivikhry", "researcher", "critic")
+    assert sum(1 for e in triad.events if e["kind"] == "self_reflection_iteration") == 20
+
+
+def test_ten_by_ten_evolution_is_bounded_and_preserves_authority():
+    triad = TriadEvolution()
+    result = triad.evolve_ten_by_ten()
+    assert result["generations"] == 10
+    assert result["iterations_per_generation"] == 10
+    assert result["total_iterations"] == 100
+    assert result["source_baseline_score"] == 100
+    assert result["evolved_score"] == 100
+    assert result["comparison"]["all_candidates_remained_inside_authority_boundary"] is True
+    assert result["deployment"] == "not_performed"
+    assert result["privilege_expansion"] == "not_performed"
+
+
+def test_mutual_code_evolution_executes_100_bounded_rewrites(tmp_path):
+    from pathlib import Path
+
+    from ambivikhry.mutual_code_evolution import MutualCodeEvolution
+
+    root = Path(tmp_path)
+    (root / "ambivikhry").mkdir()
+    triad_source = Path(__file__).resolve().parents[1] / "ambivikhry" / "triad.py"
+    family_source = Path(__file__).resolve().parents[1] / "ambivikhry" / "agent_family.py"
+    (root / "ambivikhry" / "triad.py").write_text(triad_source.read_text(encoding="utf-8"), encoding="utf-8")
+    (root / "ambivikhry" / "agent_family.py").write_text(family_source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    def verify(candidate):
+        import ast
+        ast.parse(candidate.read_text(encoding="utf-8"), filename=str(candidate))
+        return True
+
+    engine = MutualCodeEvolution(root, verify)
+
+    def proposer(iteration, author, target):
+        path = root / target
+        source = path.read_text(encoding="utf-8")
+        return engine.propose(
+            iteration,
+            author,
+            f"experimental rewrite round {iteration}",
+            f"# mutual-evolution-round: {iteration} author={author}\n{source}",
+        )
+
+    report = engine.run(proposer)
+    assert report["completed"] is True
+    assert report["iterations"] == 100
+    assert report["accepted"] == 100
+    assert report["authors"] == {"ambivikhry": 34, "researcher": 33, "critic": 33}
+    assert report["targets"]["ambivikhry/agent_family.py"] == 34
+    assert report["targets"]["ambivikhry/triad.py"] == 66
+    assert report["authority"]["new_agents_allowed"] is False
+    assert report["authority"]["privilege_expansion"] is False
+
+
+def test_agent_backed_mutual_evolution_runs_100_rounds_with_research_hook(tmp_path):
+    from pathlib import Path
+    import ast
+
+    from ambivikhry.agent_backed_evolution import AgentBackedMutualEvolution, AgentCandidate
+
+    root = Path(tmp_path)
+    (root / "ambivikhry").mkdir()
+    base = Path(__file__).resolve().parents[1] / "ambivikhry"
+    for name in ("triad.py", "agent_family.py"):
+        (root / "ambivikhry" / name).write_text(
+            (base / name).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+
+    class Backend:
+        def research_urls(self, context):
+            return ("https://example.org/round",)
+
+        def generate(self, context):
+            # The test backend is deliberately simple: it proves orchestration,
+            # not intelligence. A real model backend would return a substantive
+            # complete source candidate here.
+            source = f"# agent-round {context.iteration} author={context.author}\n{context.source}"
+            return AgentCandidate(
+                source=source,
+                reason=f"round {context.iteration}: candidate generated from current source and evidence",
+                hypothesis="the next candidate preserves the verified Python structure",
+                test_plan=("parse candidate",),
+            )
+
+    research_calls = []
+
+    def research(url):
+        research_calls.append(url)
+        return {
+            "source": url,
+            "status": 200,
+            "title": "test evidence",
+            "text": "bounded research evidence",
+            "content_sha256": "test",
+            "bytes_read": 23,
+        }
+
+    def verify(path):
+        ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        return True
+
+    engine = AgentBackedMutualEvolution(
+        root,
+        verify,
+        Backend(),
+        research=research,
+    )
+    report = engine.run()
+
+    assert report["completed"] is True
+    assert report["iterations"] == 100
+    assert report["accepted"] == 100
+    assert report["agent_backend"] == "Backend"
+    assert report["research_enabled"] is True
+    assert report["round_order"] == ["ambivikhry", "researcher", "critic"]
+    assert report["semantic_improvement_proven"] is False
+    assert len(research_calls) == 100
+    assert report["authority"]["new_agents_allowed"] is False
+    assert report["authority"]["privilege_expansion"] is False
+
+
+def test_agent_backed_evolution_uses_critic_and_semantic_evaluator(tmp_path):
+    from pathlib import Path
+    import ast
+    from ambivikhry.agent_backed_evolution import AgentBackedMutualEvolution, AgentCandidate
+
+    root = Path(tmp_path)
+    (root / "ambivikhry").mkdir()
+    base = Path(__file__).resolve().parents[1] / "ambivikhry"
+    for name in ("triad.py", "agent_family.py"):
+        (root / "ambivikhry" / name).write_text(
+            (base / name).read_text(encoding="utf-8"), encoding="utf-8"
+        )
+
+    class Backend:
+        def research_urls(self, context):
+            return ("https://example.org/round",)
+
+        def generate(self, context):
+            return AgentCandidate(
+                source=f"# semantic-round {context.iteration}\n{context.source}",
+                reason="test candidate",
+                hypothesis="candidate preserves structure",
+                test_plan=("parse",),
+            )
+
+    def research(url):
+        return {"source": url, "status": 200, "text": "evidence"}
+
+    def critic(context, candidate):
+        return {"passed": True, "notes": "no regression found"}
+
+    def evaluate(workspace, candidate):
+        ast.parse(candidate.source)
+        return {"passed": True, "metric": 1.0}
+
+    def verify(path):
+        ast.parse(path.read_text(encoding="utf-8"))
+        return True
+
+    report = AgentBackedMutualEvolution(
+        root, verify, Backend(), research=research, critic=critic, evaluate=evaluate
+    ).run()
+
+    assert report["completed"] is True
+    assert report["iterations"] == 100
+    assert report["accepted"] == 100
+    assert report["critic_enabled"] is True
+    assert report["evaluator_enabled"] is True
+    assert report["semantic_improvement_proven"] is True
