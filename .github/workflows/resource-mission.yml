@@ -1,0 +1,33 @@
+name: Ambivikhry resource mission
+
+on:
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "Bounded research iterations (1-100)"
+        required: true
+        default: "100"
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e .
+      - name: Run bounded mission
+        env:
+          AMBIVIKHRY_API_KEY: ${{ secrets.AMBIVIKHRY_API_KEY }}
+          AMBIVIKHRY_BASE_URL: ${{ secrets.AMBIVIKHRY_BASE_URL }}
+          AMBIVIKHRY_MODEL: ${{ secrets.AMBIVIKHRY_MODEL }}
+        run: python -m ambivikhry.resource_mission --iterations "${{ inputs.iterations }}" --out resource_mission_report.json
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ambivikhry-resource-mission
+          path: resource_mission_report.json
