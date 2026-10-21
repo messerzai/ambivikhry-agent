@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Живой узор — Карточка желания 2.0</title>
+<style>
+:root{--ink:#172b2b;--muted:#58706b;--paper:#f5f4ec;--card:#fffef8;--green:#176b55;--lime:#c7e86b;--line:#dbe4d7;--orange:#e49b56}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:28px 18px 24px;background:radial-gradient(ellipse at 80% 20%,#d6e8a6,transparent 35%),linear-gradient(125deg,#103f39,#176b55);color:white}
+.wrap{max-width:1020px;margin:auto}header .eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:12px;opacity:.8}h1{font-size:clamp(30px,5vw,52px);line-height:1.05;margin:10px 0}header p{max-width:720px;color:#e0eee2;margin-bottom:0}
+main{max-width:1020px;margin:22px auto;padding:0 14px 50px;display:grid;grid-template-columns:1fr;gap:16px}.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(16px,3vw,26px);box-shadow:0 6px 22px #173c2810}
+h2{font-size:22px;margin:0 0 8px}h3{font-size:17px;margin:0 0 7px}p{margin:6px 0 12px}.muted{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}label{font-weight:650;font-size:14px}input,textarea,select{font:inherit;color:var(--ink);width:100%;padding:11px 12px;border:1px solid #cbd8ce;border-radius:11px;background:#fff}textarea{min-height:86px;resize:vertical}button{font:inherit;font-weight:700;border:0;border-radius:999px;padding:11px 16px;cursor:pointer;background:var(--green);color:white}button.secondary{background:#eaf0e5;color:var(--ink);border:1px solid var(--line)}button.ghost{background:transparent;color:var(--green);border:1px solid var(--green)}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.pill{display:inline-block;background:#edf3dd;color:#28513e;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:2px}.result{background:#f1f6e8;border-radius:16px;padding:16px;margin-top:12px}.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.step{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}.step small{color:var(--muted)}.idea{border-left:4px solid var(--lime);padding:9px 12px;margin:9px 0;background:#fbfcf5;border-radius:0 10px 10px 0}.check{display:flex;gap:8px;align-items:flex-start;margin:8px 0}.check input{width:auto;margin-top:5px}.status{font-size:13px;color:var(--green);min-height:20px}.hide{display:none!important}.fine{font-size:12px;color:var(--muted)}footer{max-width:1020px;padding:0 14px 30px;margin:auto;color:var(--muted);font-size:12px}
+@media(max-width:640px){.grid,.steps{grid-template-columns:1fr}.panel{border-radius:16px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Живой узор · прототип 2.0</div><h1>Не просто желание.<br>Узор, который движется.</h1><p>Персональная карточка для Павла Косолапова: соединить людей, их настоящие стремления и практическую помощь так, чтобы из разговора рождались совместные действия и видимый результат.</p></div></header>
+<main>
+<section class="panel">
+<h2>01 · С чего начинается узор</h2>
+<p class="muted">Исходная формулировка сохраняется отдельно. ИИ-предложения можно менять, а решения остаются за человеком.</p>
+<div class="grid">
+<div class="field full"><label for="wish">Моё желание — своими словами</label><textarea id="wish" placeholder="Что я хочу воплотить? Не редактируй себя ради красивого ответа."></textarea></div>
+<div class="field"><label for="why">Почему это важно именно мне?</label><textarea id="why" placeholder="Что изменится в жизни, если получится?"></textarea></div>
+<div class="field"><label for="outcome">Как выглядит результат в реальности?</label><textarea id="outcome" placeholder="Что можно будет увидеть, сделать или проверить?"></textarea></div>
+<div class="field"><label for="when">Горизонт</label><select id="when"><option value="7 дней">Ближайшие 7 дней</option><option value="30 дней" selected>30 дней</option><option value="90 дней">90 дней</option><option value="1 год">Год</option><option value="открытый">Пока не знаю</option></select></div>
+<div class="field"><label for="energy">Что уже есть в моём распоряжении?</label><input id="energy" placeholder="Люди, навыки, идеи, ресурсы"></div>
+<div class="field full"><label for="limits">Что может мешать или чего не хватает?</label><textarea id="limits" placeholder="Время, ясность, партнёр, деньги, доступ, смелость попросить…"></textarea></div>
+<div class="field full"><label for="people">С кем или для кого хочется это воплотить?</label><textarea id="people" placeholder="Люди, команда, участники, будущие партнёры"></textarea></div>
+</div>
+<div class="actions"><button id="build">Собрать мой узор</button><button class="secondary" id="example">Загрузить демонстрационный пример</button><button class="ghost" id="clear">Очистить форму</button></div>
+<div id="status" class="status" role="status"></div>
+</section>
+<section id="card" class="panel hide">
+<h2>02 · Карточка, с которой можно работать</h2><p class="muted">Это не оценка личности. Это рабочая версия, которую ты можешь поправить.</p>
+<div id="summary" class="result"></div>
+<h3 style="margin-top:18px">Гипотезы для проверки</h3><div id="hypotheses"></div>
+<div class="grid" style="margin-top:12px">
+<div class="field"><label for="success">Как поймём, что получилось?</label><textarea id="success" placeholder="Один наблюдаемый признак успеха"></textarea></div>
+<div class="field"><label for="firststep">Самый маленький следующий шаг</label><textarea id="firststep" placeholder="Действие, которое реально сделать"></textarea></div>
+</div>
+<div class="actions"><button id="save">Сохранить локально</button><button class="secondary" id="export">Экспортировать JSON</button><button class="ghost" id="createProject">Создать проект из карточки</button></div>
+</section>
+<section id="project" class="panel hide">
+<h2>03 · Проект превращает желание в движение</h2>
+<div class="grid">
+<div class="field"><label for="projectName">Название проекта</label><input id="projectName" value="Живой узор: первый практический эксперимент"></div>
+<div class="field"><label for="owner">Ответственный за первый шаг</label><input id="owner" placeholder="Имя или роль"></div>
+<div class="field"><label for="deadline">Дата проверки</label><input id="deadline" type="date"></div>
+<div class="field"><label for="proof">Критерий завершения</label><input id="proof" placeholder="Какой факт подтвердит выполнение?"></div>
+</div>
+<div class="steps" style="margin-top:14px">
+<div class="step"><small>ШАГ 1</small><h3>Сформулировать</h3><p>Уточнить желаемый результат и выбрать один критерий успеха.</p><label class="check"><input type="checkbox" data-task="1"> Готово</label></div>
+<div class="step"><small>ШАГ 2</small><h3>Связать</h3><p>Назвать одного человека или ресурс, который реально поможет.</p><label class="check"><input type="checkbox" data-task="2"> Готово</label></div>
+<div class="step"><small>ШАГ 3</small><h3>Проверить</h3><p>Сделать маленькое действие и записать, что произошло на деле.</p><label class="check"><input type="checkbox" data-task="3"> Готово</label></div>
+</div>
+<div class="field" style="margin-top:14px"><label for="feedback">Обратная связь: что сработало и чему научились?</label><textarea id="feedback" placeholder="Можно заполнить позже. Здесь нет правильного ответа."></textarea></div>
+<div class="actions"><button id="saveProject">Сохранить проект</button><button class="secondary" id="exportProject">Экспортировать проект JSON</button></div><div id="projectStatus" class="status" role="status"></div>
+</section>
+<section class="panel">
+<h2>04 · Новые идеи для Павла</h2>
+<p class="muted">Идеи для продуктовой механики «Живого узора», которые можно проверить с реальными участниками.</p>
+<div class="idea"><b>Перекрёсток желаний.</b> Система ищет не «похожих людей», а взаимодополняющие запросы: одному нужна экспертиза, другой готов её предложить; одному нужна площадка, другой собирает сообщество. Любая связь показывается как предложение, не как факт.</div>
+<div class="idea"><b>Мост на 20 минут.</b> Вместо абстрактного «найди единомышленников» — конкретный безопасный микроформат: короткий разговор, один вопрос, ясная взаимная польза и добровольное согласие обеих сторон.</div>
+<div class="idea"><b>Живой след.</b> Карточка сохраняет версии: что человек хотел раньше, что изменилось и какой опыт на это повлиял. Старые версии не подменяют текущие и не трактуются как ошибка.</div>
+<div class="idea"><b>Грань самости как интерфейс.</b> Пользователь сам выбирает темы для визуального узора; каждый элемент открывает связанные цели, заметки и проекты. Красивая графика не подменяет работающую структуру.</div>
+<div class="idea"><b>От мечты к доказательству.</b> У каждого проекта есть один маленький эксперимент, который можно провести до крупных вложений. Карточка учится на результате, а не на обещаниях и красивых формулировках.</div>
+</section>
+<section class="panel">
+<h2>05 · Принципы персонализации</h2>
+<div class="check"><input type="checkbox" id="p1" checked><label for="p1">Сохранять точные слова человека и отдельно показывать предложения ИИ.</label></div>
+<div class="check"><input type="checkbox" id="p2" checked><label for="p2">Разделять сказанное человеком, наблюдение и гипотезу.</label></div>
+<div class="check"><input type="checkbox" id="p3" checked><label for="p3">Не делать психологических диагнозов и не выдавать догадки за истину.</label></div>
+<div class="check"><input type="checkbox" id="p4" checked><label for="p4">Не писать людям и не раскрывать желания без явного согласия.</label></div>
+<div class="check"><input type="checkbox" id="p5" checked><label for="p5">Пользователь управляет сохранением, экспортом и удалением данных.</label></div>
+<p class="fine">Демо работает в браузере и сохраняет данные только в локальном хранилище этого браузера. Это функциональный прототип карточки, а не подключение к существующей базе или аккаунту приложения.</p>
+</section>
+</main>
+<footer>«Живой узор» · рабочий прототип. Результат принадлежит человеку; система помогает уточнять, связывать и действовать.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const ids=['wish','why','outcome','when','energy','limits','people','success','firststep','projectName','owner','deadline','proof','feedback'];
+let current=null;
+function val(id){return $(id).value.trim()}
+function getData(){return {schema:'zhivoy-uzor-card-v2',updatedAt:new Date().toISOString(),owner:'Pavel Kosolapov / editable prototype',originalWish:val('wish'),why:val('why'),desiredOutcome:val('outcome'),horizon:val('when'),resources:val('energy'),constraints:val('limits'),people:val('people'),successCriteria:val('success'),firstStep:val('firststep'),hypotheses:current?.hypotheses||[],principles:{preserveOriginal:$('p1').checked,separateEvidence:$('p2').checked,noDiagnosis:$('p3').checked,consentBeforeContact:$('p4').checked,userControlsData:$('p5').checked}}}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){const d=getData();const missing=[];if(!d.originalWish)missing.push('точная формулировка желания');if(!d.desiredOutcome)missing.push('наблюдаемый результат');if(!d.successCriteria)missing.push('критерий успеха');if(!d.firstStep)missing.push('первый маленький шаг');
+current={...d,hypotheses:[]};
+if(d.constraints)current.hypotheses.push({title:'Ограничение как дизайн задачи',text:'«'+d.constraints+'» может быть реальным ограничением, временным условием или сигналом, что нужен другой формат. Какой факт поможет различить варианты?',kind:'hypothesis'});
+if(d.people)current.hypotheses.push({title:'Связь через взаимную пользу',text:'Кого именно стоит пригласить и что каждая сторона добровольно получит или предложит? Не отправлять приглашение без согласия.',kind:'hypothesis'});
+if(d.resources)current.hypotheses.push({title:'Старт из уже доступного',text:'Можно ли провести маленькую проверку, используя «'+d.resources+'», до поиска новых ресурсов?',kind:'hypothesis'});
+$('summary').innerHTML='<span class="pill">Черновик · редактируемый</span><h3 style="margin-top:10px">Желание</h3><p>'+esc(d.originalWish||'Добавь формулировку желания.')+'</p><h3>Зачем</h3><p>'+esc(d.why||'Уточни личную значимость.')+'</p><h3>Результат</h3><p>'+esc(d.desiredOutcome||'Опиши результат, который можно увидеть или проверить.')+'</p><p><b>Горизонт:</b> '+esc(d.horizon)+' · <b>Ресурсы:</b> '+esc(d.resources||'пока не указаны')+'</p>';
+$('hypotheses').innerHTML=current.hypotheses.length?current.hypotheses.map((h,i)=>'<div class="idea"><b>'+esc(h.title)+'</b><p>'+esc(h.text)+'</p><label class="check"><input type="checkbox" data-hyp="'+i+'"> Полезная гипотеза</label><p class="fine">Тип: гипотеза — требует проверки</p></div>').join(''):'<p class="muted">Пока недостаточно сведений для гипотез. Это нормально.</p>';
+$('card').classList.remove('hide');$('status').textContent=missing.length?'Черновик создан. Для полноценного плана уточни: '+missing.join(', ')+'.':'Черновик собран. Проверь формулировки и поправь всё, что не отражает твоё намерение.';$('card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function download(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$('build').onclick=render;
+$('example').onclick=()=>{const demo={wish:'Создать пространство, в котором люди с разными талантами помогают друг другу воплощать важные желания.',why:'Хочу, чтобы общение приводило к реальным изменениям и соединяло людей, которым полезно встретиться.',outcome:'Провести небольшой пилот: несколько участников, конкретные запросы, взаимные предложения помощи и зафиксированные первые результаты.',when:'30 дней',energy:'Идея «Живого узора», диалог с участниками, опыт сообщества и AI-помощник.',limits:'Нужно проверить интерес людей и выбрать простой формат до разработки сложной платформы.',people:'Участники сообщества, люди с конкретными запросами и люди, готовые предложить навык или ресурс.',success:'Не менее 3 добровольных пар взаимопомощи и хотя бы одно завершённое полезное действие в пилоте.',firststep:'Поговорить с тремя потенциальными участниками и спросить об одном желании и одной помощи, которую они готовы предложить.',projectName:'Пилот «Перекрёсток желаний»',owner:'Организатор пилота',proof:'Записаны запросы, согласия и результаты первых взаимных действий.'};Object.entries(demo).forEach(([k,v])=>$(k).value=v);render();};
+$('clear').onclick=()=>{if(!confirm('Очистить поля карточки?'))return;ids.forEach(id=>$(id).value='');$('card').classList.add('hide');$('project').classList.add('hide');$('status').textContent='Форма очищена.'};
+$('save').onclick=()=>{const d=getData();localStorage.setItem('zhivoy-uzor-card-v2',JSON.stringify(d));$('status').textContent='Карточка сохранена в локальном хранилище этого браузера.'};
+$('export').onclick=()=>download(getData(),'zhivoy-uzor-card.json');
+$('createProject').onclick=()=>{const d=getData();$('projectName').value=d.originalWish?'Проект: '+d.originalWish.slice(0,70):'Живой узор: первый практический эксперимент';$('proof').value=d.successCriteria;$('project').classList.remove('hide');$('project').scrollIntoView({behavior:'smooth',block:'start'})};
+$('saveProject').onclick=()=>{const d=getData();const p={schema:'zhivoy-uzor-project-v1',card:d,project:{name:val('projectName'),owner:val('owner'),deadline:val('deadline'),acceptanceCriteria:val('proof'),tasks:[...document.querySelectorAll('[data-task]')].map((e,i)=>({title:['Уточнить результат','Найти взаимодополняющий ресурс','Провести проверку'][i],done:e.checked})),feedback:val('feedback')},updatedAt:new Date().toISOString()};localStorage.setItem('zhivoy-uzor-project-v1',JSON.stringify(p));$('projectStatus').textContent='Проект сохранён локально.'};
+$('exportProject').onclick=()=>{const d=getData();download({schema:'zhivoy-uzor-project-v1',card:d,project:{name:val('projectName'),owner:val('owner'),deadline:val('deadline'),acceptanceCriteria:val('proof'),tasks:[...document.querySelectorAll('[data-task]')].map((e,i)=>({title:['Уточнить результат','Найти взаимодополняющий ресурс','Провести проверку'][i],done:e.checked})),feedback:val('feedback')},updatedAt:new Date().toISOString()},'zhivoy-uzor-project.json')};
+try{const saved=JSON.parse(localStorage.getItem('zhivoy-uzor-card-v2')||'null');if(saved){const map={wish:'originalWish',why:'why',outcome:'desiredOutcome',when:'horizon',energy:'resources',limits:'constraints',people:'people',success:'successCriteria',firststep:'firstStep'};Object.entries(map).forEach(([id,key])=>{if(saved[key]!==undefined)$(id).value=saved[key]});$('status').textContent='Найдена локально сохранённая карточка. Нажми «Собрать мой узор», чтобы продолжить.'}}catch(e){}
+</script>
+</body></html>
