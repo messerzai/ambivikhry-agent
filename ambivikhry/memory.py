@@ -49,6 +49,8 @@ class JsonMemory:
             "open_questions": [],
             "confidence": {},
             "observations": [],
+            "profile_lifecycle": {},
+            "profile_history": [],
         }
 
     def save_profile(self, profile):
@@ -56,10 +58,129 @@ class JsonMemory:
         tmp.write_text(json.dumps(profile, ensure_ascii=False, indent=2), encoding="utf-8")
         tmp.replace(self.profile_file)
 
-    def personalize(self, task: str, hints: dict | None = None):
+    PROFILE_LIST_FIELDS = (
+        "goals", "constraints", "preferences", "working_style", "strengths",
+        "friction", "successful_strategies", "failed_strategies", "open_questions",
+    )
+
+    def revise_profile_item(
+        self, field: str, value: str, action: str, *, replacement: str | None = None
+    ):
+        """Apply an explicit user-confirmed lifecycle action to one profile item.
+
+        Supported actions are confirm, dismiss, and correct. A dismissed or
+        superseded value is not silently re-added by later inferred hints.
+        """
+        if field not in self.PROFILE_LIST_FIELDS:
+            raise ValueError("unsupported profile field")
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("value must be a non-empty string")
+        if not isinstance(action, str) or action not in {"confirm", "dismiss", "correct"}:
+            raise ValueError("action must be confirm, dismiss, or correct")
+        if action == "correct":
+            if not isinstance(replacement, str) or not replacement.strip():
+                raise ValueError("correct requires a non-empty replacement")
+            if replacement == value:
+                raise ValueError("replacement must differ from the original value")
+        elif replacement is not None:
+            raise ValueError("replacement is only valid for correct")
+
+        profile = self.load_profile()
+        lifecycle = profile.get("profile_lifecycle")
+        if not isinstance(lifecycle, dict):
+            lifecycle = {}
+        history = profile.get("profile_history")
+        if not isinstance(history, list):
+            history = []
+        profile["profile_lifecycle"] = lifecycle
+        profile["profile_history"] = history
+
+        items = profile.get(field, [])
+        if not isinstance(items, list):
+            raise ValueError("profile field must contain a list")
+        profile[field] = items
+        field_lifecycle = lifecycle.get(field)
+        if not isinstance(field_lifecycle, dict):
+            field_lifecycle = {}
+        lifecycle[field] = field_lifecycle
+
+        if action == "correct" and value not in items:
+            raise ValueError("cannot correct a value that is not active")
+
+        timestamp = datetime.now(timezone.utc).isoformat()
+        events = []
+        if action == "confirm":
+            if value not in items:
+                items.append(value)
+            field_lifecycle[value] = {"status": "confirmed", "updated_at": timestamp}
+            events.append({
+                "timestamp": timestamp, "field": field, "value": value,
+                "action": "confirmed", "source": "user_explicit",
+            })
+        elif action == "dismiss":
+            profile[field] = [item for item in items if item != value]
+            field_lifecycle[value] = {"status": "dismissed", "updated_at": timestamp}
+            events.append({
+                "timestamp": timestamp, "field": field, "value": value,
+                "action": "dismissed", "source": "user_explicit",
+            })
+        else:
+            profile[field] = [item for item in items if item != value]
+            if replacement not in profile[field]:
+                profile[field].append(replacement)
+            field_lifecycle[value] = {
+                "status": "superseded", "updated_at": timestamp,
+                "replacement": replacement,
+            }
+            field_lifecycle[replacement] = {
+                "status": "confirmed", "updated_at": timestamp,
+            }
+            events.extend([
+                {
+                    "timestamp": timestamp, "field": field, "value": value,
+                    "action": "corrected", "replacement": replacement,
+                    "source": "user_explicit",
+                },
+                {
+                    "timestamp": timestamp, "field": field, "value": replacement,
+                    "action": "confirmed", "source": "user_explicit",
+                },
+            ])
+
+        # Keep a bounded event trail; lifecycle state persists separately so
+        # a trimmed history does not reactivate dismissed or superseded values.
+        profile["profile_history"] = (history + events)[-500:]
+        self.save_profile(profile)
+        # Audit metadata only; do not duplicate the profile text into audit.jsonl.
+        self.audit({
+            "event": "profile_item_lifecycle",
+            "field": field,
+            "action": action,
+        })
+        return deepcopy(profile)
+
+    def personalize(
+        self, task: str, hints: dict | None = None, *, explicit_user_input: bool = False
+    ):
         """Create/update a user instance without pretending inferences are facts."""
         profile = self.load_profile()
-        hints = hints or {}
+        if not isinstance(explicit_user_input, bool):
+            raise ValueError("explicit_user_input must be a boolean")
+        if hints is None:
+            hints = {}
+        if not isinstance(hints, dict):
+            raise ValueError("hints must be a dictionary")
+        if not isinstance(profile.get("profile_lifecycle"), dict):
+            profile["profile_lifecycle"] = {}
+        if not isinstance(profile.get("profile_history"), list):
+            profile["profile_history"] = []
+        for field_name in self.PROFILE_LIST_FIELDS:
+            if not isinstance(profile.get(field_name), list):
+                profile[field_name] = []
+        if not isinstance(profile.get("observations"), list):
+            profile["observations"] = []
+        if not isinstance(profile.get("confidence"), dict):
+            profile["confidence"] = {}
         profile["status"] = "active"
         profile["observations"].append({
             "text": task,
@@ -67,18 +188,38 @@ class JsonMemory:
             "source": "user_task",
         })
         profile["observations"] = profile["observations"][-50:]
-        for key in ("goals", "constraints", "preferences", "working_style", "strengths", "friction"):
+        explicit_events = []
+        explicit_timestamp = datetime.now(timezone.utc).isoformat()
+        for key in ("goals", "constraints", "preferences", "working_style", "strengths", "friction",
+                    "successful_strategies", "failed_strategies", "open_questions"):
             values = hints.get(key, [])
             for value in values:
                 value = str(value)
-                if value and value not in profile[key]:
+                if not value:
+                    continue
+                field_lifecycle = profile["profile_lifecycle"].get(key, {})
+                item_state = field_lifecycle.get(value, {}) if isinstance(field_lifecycle, dict) else {}
+                is_blocked = (
+                    isinstance(item_state, dict)
+                    and item_state.get("status") in {"dismissed", "superseded"}
+                )
+                if is_blocked and not explicit_user_input:
+                    continue
+                if value not in profile[key]:
                     profile[key].append(value)
-        for key in ("successful_strategies", "failed_strategies", "open_questions"):
-            values = hints.get(key, [])
-            for value in values:
-                value = str(value)
-                if value and value not in profile[key]:
-                    profile[key].append(value)
+                if explicit_user_input:
+                    if not isinstance(field_lifecycle, dict):
+                        field_lifecycle = {}
+                        profile["profile_lifecycle"][key] = field_lifecycle
+                    field_lifecycle[value] = {
+                        "status": "confirmed", "updated_at": explicit_timestamp,
+                    }
+                    explicit_events.append({
+                        "timestamp": explicit_timestamp, "field": key, "value": value,
+                        "action": "confirmed", "source": "user_explicit",
+                    })
+        if explicit_events:
+            profile["profile_history"] = (profile["profile_history"] + explicit_events)[-500:]
         profile["confidence"].update({k: float(v) for k, v in hints.get("confidence", {}).items()})
         self.save_profile(profile)
         return deepcopy(profile)

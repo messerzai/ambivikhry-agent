@@ -81,7 +81,7 @@ class AmbivikhryAgent:
             "successful_strategies": successful_strategies or [],
             "failed_strategies": failed_strategies or [],
             "open_questions": open_questions or [], "confidence": confidence or {},
-        })
+        }, explicit_user_input=True)
         self._log({"event": "profile_taught", "fields": list((confidence or {}).keys())})
         return profile
 
