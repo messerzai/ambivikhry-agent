@@ -33,8 +33,8 @@ If a user explicitly corrects or dismisses a profile item, later generic hints s
 5. Audit metadata contains no profile value.
 6. Invalid fields/actions and correction of a non-active value fail closed.
 7. Event history is bounded to 500 records while current lifecycle status remains available.
-9. Explicit `teach()` can intentionally re-confirm a dismissed value; generic hints cannot.
-8. Existing test suite and four-version GitHub Actions matrix pass before considering promotion.
+8. Explicit `teach()` can intentionally re-confirm a dismissed value; generic hints cannot.
+9. Existing test suite and four-version GitHub Actions matrix pass before considering promotion.
 
 ## Risks and limitations
 

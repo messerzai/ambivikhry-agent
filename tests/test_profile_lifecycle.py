@@ -125,6 +125,25 @@ def test_missing_legacy_list_field_can_be_confirmed(tmp_path):
     assert profile["open_questions"] == ["clarify goal"]
 
 
+def test_personalize_migrates_missing_legacy_profile_fields(tmp_path):
+    memory = JsonMemory(tmp_path)
+    memory.profile_file.write_text(json.dumps({
+        "version": 1, "status": "active", "preferences": [],
+    }), encoding="utf-8")
+
+    profile = memory.personalize("legacy profile", {"preferences": ["concise"]})
+
+    assert profile["preferences"] == ["concise"]
+    assert profile["goals"] == []
+    assert profile["observations"][-1]["text"] == "legacy profile"
+
+
+def test_explicit_user_input_flag_must_be_boolean(tmp_path):
+    memory = JsonMemory(tmp_path)
+    with pytest.raises(ValueError):
+        memory.personalize("task", {"preferences": ["x"]}, explicit_user_input="yes")
+
+
 def test_unhashable_action_fails_closed(tmp_path):
     memory = JsonMemory(tmp_path)
     with pytest.raises(ValueError):

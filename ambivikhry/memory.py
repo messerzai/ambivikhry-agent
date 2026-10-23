@@ -164,11 +164,23 @@ class JsonMemory:
     ):
         """Create/update a user instance without pretending inferences are facts."""
         profile = self.load_profile()
-        hints = hints or {}
+        if not isinstance(explicit_user_input, bool):
+            raise ValueError("explicit_user_input must be a boolean")
+        if hints is None:
+            hints = {}
+        if not isinstance(hints, dict):
+            raise ValueError("hints must be a dictionary")
         if not isinstance(profile.get("profile_lifecycle"), dict):
             profile["profile_lifecycle"] = {}
         if not isinstance(profile.get("profile_history"), list):
             profile["profile_history"] = []
+        for field_name in self.PROFILE_LIST_FIELDS:
+            if not isinstance(profile.get(field_name), list):
+                profile[field_name] = []
+        if not isinstance(profile.get("observations"), list):
+            profile["observations"] = []
+        if not isinstance(profile.get("confidence"), dict):
+            profile["confidence"] = {}
         profile["status"] = "active"
         profile["observations"].append({
             "text": task,
