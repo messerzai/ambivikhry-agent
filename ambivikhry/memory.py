@@ -75,7 +75,7 @@ class JsonMemory:
             raise ValueError("unsupported profile field")
         if not isinstance(value, str) or not value.strip():
             raise ValueError("value must be a non-empty string")
-        if action not in {"confirm", "dismiss", "correct"}:
+        if not isinstance(action, str) or action not in {"confirm", "dismiss", "correct"}:
             raise ValueError("action must be confirm, dismiss, or correct")
         if action == "correct":
             if not isinstance(replacement, str) or not replacement.strip():
@@ -95,9 +95,10 @@ class JsonMemory:
         profile["profile_lifecycle"] = lifecycle
         profile["profile_history"] = history
 
-        items = profile.get(field)
+        items = profile.get(field, [])
         if not isinstance(items, list):
             raise ValueError("profile field must contain a list")
+        profile[field] = items
         field_lifecycle = lifecycle.get(field)
         if not isinstance(field_lifecycle, dict):
             field_lifecycle = {}
@@ -158,7 +159,9 @@ class JsonMemory:
         })
         return deepcopy(profile)
 
-    def personalize(self, task: str, hints: dict | None = None):
+    def personalize(
+        self, task: str, hints: dict | None = None, *, explicit_user_input: bool = False
+    ):
         """Create/update a user instance without pretending inferences are facts."""
         profile = self.load_profile()
         hints = hints or {}
@@ -173,7 +176,10 @@ class JsonMemory:
             "source": "user_task",
         })
         profile["observations"] = profile["observations"][-50:]
-        for key in ("goals", "constraints", "preferences", "working_style", "strengths", "friction"):
+        explicit_events = []
+        explicit_timestamp = datetime.now(timezone.utc).isoformat()
+        for key in ("goals", "constraints", "preferences", "working_style", "strengths", "friction",
+                    "successful_strategies", "failed_strategies", "open_questions"):
             values = hints.get(key, [])
             for value in values:
                 value = str(value)
@@ -181,16 +187,27 @@ class JsonMemory:
                     continue
                 field_lifecycle = profile["profile_lifecycle"].get(key, {})
                 item_state = field_lifecycle.get(value, {}) if isinstance(field_lifecycle, dict) else {}
-                if isinstance(item_state, dict) and item_state.get("status") in {"dismissed", "superseded"}:
+                is_blocked = (
+                    isinstance(item_state, dict)
+                    and item_state.get("status") in {"dismissed", "superseded"}
+                )
+                if is_blocked and not explicit_user_input:
                     continue
                 if value not in profile[key]:
                     profile[key].append(value)
-        for key in ("successful_strategies", "failed_strategies", "open_questions"):
-            values = hints.get(key, [])
-            for value in values:
-                value = str(value)
-                if value and value not in profile[key]:
-                    profile[key].append(value)
+                if explicit_user_input:
+                    if not isinstance(field_lifecycle, dict):
+                        field_lifecycle = {}
+                        profile["profile_lifecycle"][key] = field_lifecycle
+                    field_lifecycle[value] = {
+                        "status": "confirmed", "updated_at": explicit_timestamp,
+                    }
+                    explicit_events.append({
+                        "timestamp": explicit_timestamp, "field": key, "value": value,
+                        "action": "confirmed", "source": "user_explicit",
+                    })
+        if explicit_events:
+            profile["profile_history"] = (profile["profile_history"] + explicit_events)[-500:]
         profile["confidence"].update({k: float(v) for k, v in hints.get("confidence", {}).items()})
         self.save_profile(profile)
         return deepcopy(profile)

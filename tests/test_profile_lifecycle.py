@@ -100,6 +100,37 @@ def test_invalid_lifecycle_operations_are_rejected(tmp_path, field, value, actio
         memory.revise_profile_item(field, value, action, replacement=replacement)
 
 
+def test_explicit_teach_can_reactivate_a_dismissed_item(tmp_path):
+    from ambivikhry.agent import AmbivikhryAgent
+    from ambivikhry.llm import MockLLM
+
+    memory = JsonMemory(tmp_path)
+    memory.revise_profile_item("preferences", "concise", "dismiss")
+    agent = AmbivikhryAgent(provider=MockLLM(), workdir=str(tmp_path))
+
+    profile = agent.teach(preferences=["concise"])
+
+    assert "concise" in profile["preferences"]
+    assert profile["profile_lifecycle"]["preferences"]["concise"]["status"] == "confirmed"
+
+
+def test_missing_legacy_list_field_can_be_confirmed(tmp_path):
+    memory = JsonMemory(tmp_path)
+    memory.profile_file.write_text(json.dumps({
+        "version": 1, "status": "active", "preferences": [],
+    }), encoding="utf-8")
+
+    profile = memory.revise_profile_item("open_questions", "clarify goal", "confirm")
+
+    assert profile["open_questions"] == ["clarify goal"]
+
+
+def test_unhashable_action_fails_closed(tmp_path):
+    memory = JsonMemory(tmp_path)
+    with pytest.raises(ValueError):
+        memory.revise_profile_item("preferences", "x", [], replacement=None)
+
+
 def test_correction_requires_an_active_original_value(tmp_path):
     memory = JsonMemory(tmp_path)
     with pytest.raises(ValueError):

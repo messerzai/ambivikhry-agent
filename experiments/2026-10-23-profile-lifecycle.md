@@ -19,6 +19,7 @@ If a user explicitly corrects or dismisses a profile item, later generic hints s
 
 - Adds backward-compatible `profile_lifecycle` state and a bounded `profile_history` trail to the JSON profile.
 - Adds `JsonMemory.revise_profile_item(field, value, action, replacement=None)` with explicit `confirm`, `dismiss`, and `correct` operations.
+- The existing explicit `teach()` API may confirm/re-activate values; the agent's generic personalization path cannot do so.
 - Prevents later `personalize(..., hints=...)` calls from re-adding values whose latest lifecycle status is `dismissed` or `superseded`.
 - Keeps lifecycle history separate from audit metadata; audit events record field/action only and do not duplicate profile text.
 - Leaves agent prompts, Policy Gate, tool permissions, and autonomous write authority unchanged. The method is an explicit application/API hook; this commit does not connect it to a UI or let the model invoke it automatically.
@@ -32,13 +33,14 @@ If a user explicitly corrects or dismisses a profile item, later generic hints s
 5. Audit metadata contains no profile value.
 6. Invalid fields/actions and correction of a non-active value fail closed.
 7. Event history is bounded to 500 records while current lifecycle status remains available.
+9. Explicit `teach()` can intentionally re-confirm a dismissed value; generic hints cannot.
 8. Existing test suite and four-version GitHub Actions matrix pass before considering promotion.
 
 ## Risks and limitations
 
 - This is not temporal reasoning by the LLM; it is a deterministic memory lifecycle guard.
 - Existing values that have no lifecycle status remain active for backward compatibility.
-- Explicit confirmation can reactivate a value by design.
+- Explicit confirmation can reactivate a value by design; the existing `teach()` API uses this explicit path, while generic agent hints do not.
 - The status map can grow with unique profile values; a future retention policy needs user-visible export/delete semantics.
 - Atomic profile-file replacement and audit-file append are not a single transaction. If audit writing fails after profile persistence, callers must inspect the saved profile before retrying.
 - No automatic profile updates, biometric inputs, new tool permissions, or Policy Gate changes are introduced.
