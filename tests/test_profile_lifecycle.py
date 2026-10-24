@@ -223,3 +223,26 @@ def test_model_context_handles_malformed_lifecycle_metadata_fail_closed(tmp_path
     assert "do not expose" not in context
     assert "profile_history" not in context
     assert "observations" not in context
+
+
+
+def test_model_context_filters_stale_items_even_if_legacy_list_still_contains_them():
+    profile = {
+        "version": 1,
+        "status": "active",
+        "preferences": ["dismissed preference", "superseded preference", "current preference"],
+        "profile_lifecycle": {
+            "preferences": {
+                "dismissed preference": {"status": "dismissed"},
+                "superseded preference": {"status": "superseded"},
+            }
+        },
+        "profile_history": [],
+        "observations": [],
+    }
+
+    context = JsonMemory.profile_context(profile)
+
+    assert "dismissed preference" not in context
+    assert "superseded preference" not in context
+    assert "current preference" in context
