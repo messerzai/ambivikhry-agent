@@ -167,3 +167,59 @@ def test_profile_history_is_bounded_without_losing_lifecycle_state(tmp_path):
     assert len(profile["profile_history"]) == 500
     assert profile["profile_lifecycle"]["open_questions"]["question 0"]["status"] == "dismissed"
     assert profile["profile_lifecycle"]["open_questions"]["question 509"]["status"] == "dismissed"
+
+
+
+def test_model_context_excludes_dismissed_and_superseded_values(tmp_path):
+    memory = JsonMemory(tmp_path)
+    memory.personalize(
+        "private observation mentions concise answers and coffee",
+        {"preferences": ["concise answers", "coffee"], "working_style": ["iterative"]},
+    )
+    memory.revise_profile_item("preferences", "concise answers", "dismiss")
+    memory.revise_profile_item("preferences", "coffee", "correct", replacement="tea")
+
+    persisted = memory.load_profile()
+    context = memory.profile_context(persisted)
+
+    assert "concise answers" not in context
+    assert "coffee" not in context
+    assert "tea" in context
+    assert "iterative" in context
+    assert "profile_lifecycle" not in context
+    assert "profile_history" not in context
+    assert "observations" not in context
+    assert "private observation" not in context
+
+
+def test_model_context_projection_does_not_mutate_persisted_profile(tmp_path):
+    memory = JsonMemory(tmp_path)
+    memory.personalize("initial", {"preferences": ["brief"]})
+    memory.revise_profile_item("preferences", "brief", "dismiss")
+    before = memory.load_profile()
+
+    memory.profile_context(before)
+    after = memory.load_profile()
+
+    assert before == after
+    assert after["profile_lifecycle"]["preferences"]["brief"]["status"] == "dismissed"
+    assert after["profile_history"]
+
+
+def test_model_context_handles_malformed_lifecycle_metadata_fail_closed(tmp_path):
+    memory = JsonMemory(tmp_path)
+    profile = {
+        "version": 1,
+        "status": "active",
+        "preferences": ["keep"],
+        "profile_lifecycle": ["malformed"],
+        "profile_history": [{"value": "do not expose"}],
+        "observations": [{"text": "do not expose"}],
+    }
+
+    context = memory.profile_context(profile)
+
+    assert "keep" in context
+    assert "do not expose" not in context
+    assert "profile_history" not in context
+    assert "observations" not in context
