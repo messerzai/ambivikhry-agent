@@ -226,4 +226,54 @@ class JsonMemory:
 
     @staticmethod
     def profile_context(profile):
-        return json.dumps(profile, ensure_ascii=False, indent=2)
+        """Project only current, active profile items into the model-visible context.
+
+        Persisted lifecycle/history and raw observations remain available for
+        user review and audit, but are excluded from prompts: they can contain
+        dismissed or superseded values and unrelated private task text.
+        """
+        if not isinstance(profile, dict):
+            raise ValueError("profile must be a dictionary")
+
+        raw_version = profile.get("version", 1)
+        version = (
+            raw_version
+            if isinstance(raw_version, int) and not isinstance(raw_version, bool) and raw_version >= 1
+            else 1
+        )
+        raw_status = profile.get("status", "unknown")
+        status = (
+            raw_status
+            if isinstance(raw_status, str) and 0 < len(raw_status) <= 64
+            else "unknown"
+        )
+        context = {"version": version, "status": status}
+        lifecycle = profile.get("profile_lifecycle", {})
+        if not isinstance(lifecycle, dict):
+            lifecycle = {}
+
+        for field_name in JsonMemory.PROFILE_LIST_FIELDS:
+            items = profile.get(field_name, [])
+            if not isinstance(items, list):
+                items = []
+            field_lifecycle = lifecycle.get(field_name, {})
+            if not isinstance(field_lifecycle, dict):
+                field_lifecycle = {}
+            active_items = []
+            for item in items:
+                # Persisted legacy/corrupt profiles may contain arbitrary JSON
+                # objects. Only compact non-empty strings belong in prompt context.
+                if not isinstance(item, str) or not item.strip() or len(item) > 2000:
+                    continue
+                item_state = field_lifecycle.get(item, {})
+                if (
+                    isinstance(item_state, dict)
+                    and item_state.get("status") in {"dismissed", "superseded"}
+                ):
+                    continue
+                active_items.append(item)
+            context[field_name] = active_items
+
+        # Deliberately do not pass raw observations, lifecycle keys, event
+        # history, confidence internals, or unknown extension fields to the LLM.
+        return json.dumps(context, ensure_ascii=False, indent=2)
