@@ -67,3 +67,17 @@ def test_projection_does_not_mutate_malformed_persisted_profile():
     JsonMemory.profile_context(profile)
 
     assert profile == before
+
+
+def test_model_context_rejects_unrecognized_status_string():
+    profile = {
+        "version": 1,
+        "status": "MALFORMED_STATUS_SENTINEL",
+        "preferences": ["keep this preference"],
+    }
+
+    context = json.loads(JsonMemory.profile_context(profile))
+
+    assert context["status"] == "unknown"
+    assert context["preferences"] == ["keep this preference"]
+    assert "MALFORMED_STATUS_SENTINEL" not in json.dumps(context, ensure_ascii=False)
