@@ -38,3 +38,21 @@ This benchmark measures storage and context-projection behavior only. It does **
 ## Decision rule
 
 Keep the candidate isolated. A pass is evidence for these four deterministic cases only. Do not merge, change `main`, alter Policy Gate, or increase agent permissions based on this result alone. Follow with adversarial paraphrase cases and a separate audit of retention/deletion paths.
+
+
+## Observed CI result (2026-10-26)
+
+GitHub Actions run 40368754056 (run 433) completed successfully on the benchmark candidate. The full `pytest -q` suite reported 67 passed on each of Python 3.10, 3.11, 3.12, and 3.13.
+
+The tests assert these exact-string results:
+- stale-marker checks: 6;
+- legacy whole-profile baseline exposure: 6/6 (100%);
+- candidate projection exposure: 0/6 (0%);
+- current-value retention: 4/4 (100%);
+- explicit re-confirmation: 1/1 (100%).
+
+During iteration, an earlier CI run failed because the expected stale-marker count remained 5 after the status marker was added. The expected count was corrected to 6; the subsequent full suite passed. This is a test-fixture correction, not evidence that semantic forgetting has been solved.
+
+Run: https://github.com/messerzai/ambivikhry-agent/actions/runs/40368754056
+
+Decision remains `CANDIDATE / NOT PROMOTED`. The benchmark covers exact strings and storage/context projection only.
