@@ -241,12 +241,11 @@ class JsonMemory:
             if isinstance(raw_version, int) and not isinstance(raw_version, bool) and raw_version >= 1
             else 1
         )
+        # Status is control metadata, not free-form profile text. Allow only
+        # values currently emitted by the runtime; unknown legacy values fail closed.
+        allowed_statuses = {"bootstrap", "active", "unknown"}
         raw_status = profile.get("status", "unknown")
-        status = (
-            raw_status
-            if isinstance(raw_status, str) and 0 < len(raw_status) <= 64
-            else "unknown"
-        )
+        status = raw_status if isinstance(raw_status, str) and raw_status in allowed_statuses else "unknown"
         context = {"version": version, "status": status}
         lifecycle = profile.get("profile_lifecycle", {})
         if not isinstance(lifecycle, dict):
