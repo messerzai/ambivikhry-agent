@@ -98,7 +98,7 @@ def build_cases(directory: str | Path) -> list[dict[str, Any]]:
     # Intervention 4: malformed legacy list entries must not be prompt-visible.
     malformed = {
         "version": 1,
-        "status": "active",
+        "status": "MALFORMED_STATUS_SENTINEL",
         "preferences": [
             {"private_payload_marker": "MALFORMED_SENTINEL"},
             "current legacy preference",
@@ -113,6 +113,7 @@ def build_cases(directory: str | Path) -> list[dict[str, Any]]:
             "MALFORMED_SENTINEL",
             "MALFORMED_OBSERVATION_SENTINEL",
             "MALFORMED_HISTORY_SENTINEL",
+            "MALFORMED_STATUS_SENTINEL",
         ],
         current_markers=["current legacy preference"],
     ))
