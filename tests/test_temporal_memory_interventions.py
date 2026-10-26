@@ -20,7 +20,7 @@ def test_temporal_memory_intervention_benchmark_passes_and_exposes_baseline_gap(
     assert result.returncode == 0, result.stdout + result.stderr
     report = json.loads(result.stdout)
     assert report["pass"] is True
-    assert report["metrics"]["stale_marker_checks"] == 5
+    assert report["metrics"]["stale_marker_checks"] == 6
     assert report["metrics"]["legacy_baseline_stale_exposure_rate"] == 1.0
     assert report["metrics"]["candidate_stale_exposure_rate"] == 0.0
     assert report["metrics"]["current_value_retention_rate"] == 1.0
