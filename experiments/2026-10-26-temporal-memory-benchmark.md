@@ -15,7 +15,7 @@ python benchmarks/temporal_memory_interventions.py
 pytest -q tests/test_temporal_memory_interventions.py
 ```
 
-The harness is deterministic and makes no LLM calls. It reports JSON for four interventions:
+The harness is deterministic and makes no LLM calls. It reports JSON for four interventions, including an unrecognized free-form status string that must not be treated as control metadata:
 
 1. dismiss a value, then replay an inferred hint;
 2. correct a value, then replay the superseded hint;
@@ -29,7 +29,7 @@ The harness is deterministic and makes no LLM calls. It reports JSON for four in
 - `current_value_retention_rate`: proportion of expected current values retained in candidate context.
 - `explicit_reconfirmation_rate`: proportion of explicit re-confirmations visible after the user action.
 
-The pass condition is zero candidate stale-marker exposure, 100% retention of expected current values, 100% explicit re-confirmation, and a non-zero stale exposure rate in the legacy baseline.
+The current candidate includes an allowlist for model-visible status metadata (`bootstrap`, `active`, `unknown`); unrecognized strings map to `unknown`. The pass condition is zero candidate stale-marker exposure, 100% retention of expected current values, 100% explicit re-confirmation, and a non-zero stale exposure rate in the legacy baseline.
 
 ## Limits
 
