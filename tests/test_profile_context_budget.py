@@ -45,3 +45,17 @@ def test_profile_context_budget_does_not_mutate_source_profile():
     JsonMemory.profile_context(profile)
 
     assert profile == before
+
+
+def test_profile_context_budget_counts_json_escaping():
+    escaped = ('"\\\\\n' * 400)
+    profile = {"version": 1, "status": "active"}
+    for field in JsonMemory.PROFILE_LIST_FIELDS:
+        profile[field] = [f"{field}-{index}-" + escaped for index in range(20)]
+
+    context_text = JsonMemory.profile_context(profile)
+
+    # The limit applies to the serialized prompt representation, where quotes,
+    # backslashes and newlines can expand during JSON encoding.
+    assert len(context_text) <= JsonMemory.MAX_PROFILE_CONTEXT_CHARS
+    assert json.loads(context_text)["status"] == "active"
