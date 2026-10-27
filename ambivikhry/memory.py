@@ -63,6 +63,12 @@ class JsonMemory:
         "friction", "successful_strategies", "failed_strategies", "open_questions",
     )
 
+    # Prompt-path limits are deterministic safety/performance heuristics, not
+    # claims about an optimal context size.
+    MAX_PROFILE_ITEMS_PER_FIELD = 20
+    MAX_PROFILE_ITEM_CHARS = 2000
+    MAX_PROFILE_CONTEXT_CHARS = 20_000
+
     def revise_profile_item(
         self, field: str, value: str, action: str, *, replacement: str | None = None
     ):
@@ -226,11 +232,13 @@ class JsonMemory:
 
     @staticmethod
     def profile_context(profile):
-        """Project only current, active profile items into the model-visible context.
+        """Build a bounded, model-visible projection of active profile items.
 
         Persisted lifecycle/history and raw observations remain available for
-        user review and audit, but are excluded from prompts: they can contain
-        dismissed or superseded values and unrelated private task text.
+        user review and audit, but are excluded from prompts. The projection
+        applies per-item, per-field, and total serialized-size limits. Within
+        each field, the newest retained items are preferred; selection proceeds
+        round-robin across fields so one large field cannot consume the budget.
         """
         if not isinstance(profile, dict):
             raise ValueError("profile must be a dictionary")
@@ -251,6 +259,9 @@ class JsonMemory:
         if not isinstance(lifecycle, dict):
             lifecycle = {}
 
+        candidates_by_field = {}
+        selected_by_field = {}
+        blocked_fields = set()
         for field_name in JsonMemory.PROFILE_LIST_FIELDS:
             items = profile.get(field_name, [])
             if not isinstance(items, list):
@@ -261,8 +272,12 @@ class JsonMemory:
             active_items = []
             for item in items:
                 # Persisted legacy/corrupt profiles may contain arbitrary JSON
-                # objects. Only compact non-empty strings belong in prompt context.
-                if not isinstance(item, str) or not item.strip() or len(item) > 2000:
+                # objects. Only non-empty strings within the item limit are eligible.
+                if (
+                    not isinstance(item, str)
+                    or not item.strip()
+                    or len(item) > JsonMemory.MAX_PROFILE_ITEM_CHARS
+                ):
                     continue
                 item_state = field_lifecycle.get(item, {})
                 if (
@@ -271,7 +286,38 @@ class JsonMemory:
                 ):
                     continue
                 active_items.append(item)
-            context[field_name] = active_items
+
+            candidates_by_field[field_name] = active_items[-JsonMemory.MAX_PROFILE_ITEMS_PER_FIELD:]
+            selected_by_field[field_name] = []
+            context[field_name] = []
+
+        # Prefer each field's newest value before admitting older values from
+        # any field. This bounds prompt size while reducing field-order bias.
+        depth = 1
+        while True:
+            made_progress = False
+            for field_name in JsonMemory.PROFILE_LIST_FIELDS:
+                candidates = candidates_by_field[field_name]
+                if field_name in blocked_fields or depth > len(candidates):
+                    continue
+
+                item = candidates[-depth]
+                tentative = deepcopy(context)
+                tentative[field_name] = list(reversed(selected_by_field[field_name] + [item]))
+                serialized = json.dumps(tentative, ensure_ascii=False, indent=2)
+                if len(serialized) > JsonMemory.MAX_PROFILE_CONTEXT_CHARS:
+                    # Keep the newest values already selected for this field;
+                    # do not skip a newer value to admit an older one.
+                    blocked_fields.add(field_name)
+                    continue
+
+                selected_by_field[field_name].append(item)
+                context[field_name] = list(reversed(selected_by_field[field_name]))
+                made_progress = True
+
+            if not made_progress:
+                break
+            depth += 1
 
         # Deliberately do not pass raw observations, lifecycle keys, event
         # history, confidence internals, or unknown extension fields to the LLM.
