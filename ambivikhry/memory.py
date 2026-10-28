@@ -244,7 +244,11 @@ class JsonMemory:
                     # A malformed field map cannot authorize re-adding inferred values.
                     if not explicit_user_input:
                         continue
-                    field_lifecycle = {}
+                    field_lifecycle = {
+                        existing_value: {"status": "unknown"}
+                        for existing_value in profile.get(key, [])
+                        if isinstance(existing_value, str) and existing_value.strip()
+                    }
                     profile["profile_lifecycle"][key] = field_lifecycle
                 else:
                     field_lifecycle = raw_field_lifecycle if isinstance(raw_field_lifecycle, dict) else {}
