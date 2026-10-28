@@ -33,10 +33,10 @@ an observation.
 4. explicit-user recovery of a malformed per-field map.
 
 ## Independent criticism and limits
-- This patch does not handle a malformed *root* `profile_lifecycle` object
-  end-to-end; `personalize` currently normalizes a non-dictionary root. That
-  case needs a separate migration/recovery design to avoid losing the evidence
-  that the root was corrupt.
+- A malformed *root* `profile_lifecycle` object is now handled by
+  quarantining pre-existing string values as `unknown`; they remain persisted
+  but are excluded from model context until explicitly reconfirmed. This
+  recovery path still needs review against real legacy profiles.
 - Exact status allowlisting may exclude data written by an external extension
   using a status other than `confirmed`, `dismissed`, or `superseded`.
 - This is structural validation, not semantic forgetting, secure erasure,
