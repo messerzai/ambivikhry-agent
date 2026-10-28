@@ -15,7 +15,9 @@ lifecycle entry remain eligible for backward compatibility.
 - Non-dictionary item records, non-string status values, and unknown status
   strings fail closed for that item.
 - A malformed lifecycle map for a particular field excludes that field from
-  model-visible context.
+  model-visible context. If explicit teaching repairs the map, existing values
+  are retained as `unknown`; only the explicitly taught value becomes
+  `confirmed`.
 - Inferred hints are skipped when their field lifecycle map is malformed.
 - Explicit user teaching can replace a malformed field map and write a new
   confirmed record.
@@ -45,5 +47,5 @@ an observation.
 ## Acceptance
 - Full repository CI must pass on supported Python versions.
 - Verify this PR targets the existing experimental branch, not `main`.
-- Keep the PR draft until a separate review of root-level corruption and
+- Keep the PR draft until a separate review of legacy-profile migration and
   temporal benchmark coverage is complete.
