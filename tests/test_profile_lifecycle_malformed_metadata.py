@@ -94,3 +94,54 @@ def test_explicit_user_input_can_repair_malformed_field_lifecycle_map(tmp_path):
         updated["profile_lifecycle"]["preferences"]["user-confirmed-preference"]["status"]
         == "confirmed"
     )
+
+
+
+def test_context_excludes_values_when_root_lifecycle_object_is_malformed():
+    profile = {
+        "version": 1,
+        "status": "active",
+        "preferences": ["possibly-stale-preference"],
+        "profile_lifecycle": [],
+    }
+
+    context = json.loads(JsonMemory.profile_context(profile))
+
+    assert context["preferences"] == []
+
+
+def test_personalize_quarantines_existing_values_after_malformed_root(tmp_path):
+    memory = JsonMemory(tmp_path)
+    profile = memory.load_profile()
+    profile["preferences"] = ["old-preference"]
+    profile["profile_lifecycle"] = []
+    memory.save_profile(profile)
+
+    updated = memory.personalize(
+        "later task", {"preferences": ["old-preference", "new-preference"]}
+    )
+
+    assert updated["profile_lifecycle"]["preferences"]["old-preference"]["status"] == "unknown"
+    assert "old-preference" in updated["preferences"]  # retained, not erased
+    assert "new-preference" in updated["preferences"]
+    context = json.loads(memory.profile_context(updated))
+    assert "old-preference" not in context["preferences"]
+    assert "new-preference" in context["preferences"]
+
+
+def test_explicit_user_teaching_can_reconfirm_quarantined_value(tmp_path):
+    memory = JsonMemory(tmp_path)
+    profile = memory.load_profile()
+    profile["preferences"] = ["old-preference"]
+    profile["profile_lifecycle"] = []
+    memory.save_profile(profile)
+
+    updated = memory.personalize(
+        "explicit teaching",
+        {"preferences": ["old-preference"]},
+        explicit_user_input=True,
+    )
+
+    assert updated["profile_lifecycle"]["preferences"]["old-preference"]["status"] == "confirmed"
+    context = json.loads(memory.profile_context(updated))
+    assert "old-preference" in context["preferences"]
