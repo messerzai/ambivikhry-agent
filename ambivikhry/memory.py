@@ -194,7 +194,25 @@ class JsonMemory:
             hints = {}
         if not isinstance(hints, dict):
             raise ValueError("hints must be a dictionary")
-        if not isinstance(profile.get("profile_lifecycle"), dict):
+        lifecycle_root_invalid = (
+            "profile_lifecycle" in profile
+            and not isinstance(profile.get("profile_lifecycle"), dict)
+        )
+        if lifecycle_root_invalid:
+            # Preserve old values, but quarantine them until explicit confirmation.
+            recovered_lifecycle = {}
+            for field_name in self.PROFILE_LIST_FIELDS:
+                field_values = profile.get(field_name, [])
+                if isinstance(field_values, list):
+                    recovered = {
+                        value: {"status": "unknown"}
+                        for value in field_values
+                        if isinstance(value, str) and value.strip()
+                    }
+                    if recovered:
+                        recovered_lifecycle[field_name] = recovered
+            profile["profile_lifecycle"] = recovered_lifecycle
+        elif "profile_lifecycle" not in profile:
             profile["profile_lifecycle"] = {}
         if not isinstance(profile.get("profile_history"), list):
             profile["profile_history"] = []
@@ -277,9 +295,11 @@ class JsonMemory:
         raw_status = profile.get("status", "unknown")
         status = raw_status if isinstance(raw_status, str) and raw_status in allowed_statuses else "unknown"
         context = {"version": version, "status": status}
-        lifecycle = profile.get("profile_lifecycle", {})
-        if not isinstance(lifecycle, dict):
-            lifecycle = {}
+        raw_lifecycle = profile.get("profile_lifecycle", {})
+        lifecycle_root_invalid = (
+            "profile_lifecycle" in profile and not isinstance(raw_lifecycle, dict)
+        )
+        lifecycle = raw_lifecycle if isinstance(raw_lifecycle, dict) else {}
 
         candidates_by_field = {}
         selected_by_field = {}
@@ -290,7 +310,8 @@ class JsonMemory:
                 items = []
             raw_field_lifecycle = lifecycle.get(field_name, {})
             field_lifecycle_invalid = (
-                field_name in lifecycle and not isinstance(raw_field_lifecycle, dict)
+                lifecycle_root_invalid
+                or (field_name in lifecycle and not isinstance(raw_field_lifecycle, dict))
             )
             field_lifecycle = raw_field_lifecycle if isinstance(raw_field_lifecycle, dict) else {}
             active_items = []
