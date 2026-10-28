@@ -80,6 +80,7 @@ def test_personalize_skips_inferred_hints_when_field_lifecycle_map_is_malformed(
 def test_explicit_user_input_can_repair_malformed_field_lifecycle_map(tmp_path):
     memory = JsonMemory(tmp_path)
     profile = memory.load_profile()
+    profile["preferences"] = ["old-unconfirmed-preference", "user-confirmed-preference"]
     profile["profile_lifecycle"] = {"preferences": []}
     memory.save_profile(profile)
 
@@ -94,6 +95,13 @@ def test_explicit_user_input_can_repair_malformed_field_lifecycle_map(tmp_path):
         updated["profile_lifecycle"]["preferences"]["user-confirmed-preference"]["status"]
         == "confirmed"
     )
+    assert (
+        updated["profile_lifecycle"]["preferences"]["old-unconfirmed-preference"]["status"]
+        == "unknown"
+    )
+    context = json.loads(memory.profile_context(updated))
+    assert "user-confirmed-preference" in context["preferences"]
+    assert "old-unconfirmed-preference" not in context["preferences"]
 
 
 
