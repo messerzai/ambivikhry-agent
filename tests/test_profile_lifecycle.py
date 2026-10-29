@@ -219,7 +219,9 @@ def test_model_context_handles_malformed_lifecycle_metadata_fail_closed(tmp_path
 
     context = memory.profile_context(profile)
 
-    assert "keep" in context
+    # A malformed lifecycle root quarantines profile values instead of
+    # treating an unknown state as active. Raw history/observations stay hidden.
+    assert json.loads(context)["preferences"] == []
     assert "do not expose" not in context
     assert "profile_history" not in context
     assert "observations" not in context

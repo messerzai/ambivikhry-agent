@@ -69,6 +69,24 @@ class JsonMemory:
     MAX_PROFILE_ITEM_CHARS = 2000
     MAX_PROFILE_CONTEXT_CHARS = 20_000
 
+    @staticmethod
+    def _lifecycle_state_blocks(field_lifecycle, value):
+        """Fail closed for malformed lifecycle records attached to an item.
+
+        Legacy items without a lifecycle entry remain eligible. Once an entry
+        exists, only an explicit "confirmed" state is eligible for model use.
+        Dismissed, superseded, and malformed/unknown states are excluded.
+        """
+        if not isinstance(field_lifecycle, dict) or value not in field_lifecycle:
+            return False
+        item_state = field_lifecycle[value]
+        if not isinstance(item_state, dict):
+            return True
+        status = item_state.get("status")
+        if not isinstance(status, str):
+            return True
+        return status != "confirmed"
+
     def revise_profile_item(
         self, field: str, value: str, action: str, *, replacement: str | None = None
     ):
@@ -176,7 +194,25 @@ class JsonMemory:
             hints = {}
         if not isinstance(hints, dict):
             raise ValueError("hints must be a dictionary")
-        if not isinstance(profile.get("profile_lifecycle"), dict):
+        lifecycle_root_invalid = (
+            "profile_lifecycle" in profile
+            and not isinstance(profile.get("profile_lifecycle"), dict)
+        )
+        if lifecycle_root_invalid:
+            # Preserve old values, but quarantine them until explicit confirmation.
+            recovered_lifecycle = {}
+            for field_name in self.PROFILE_LIST_FIELDS:
+                field_values = profile.get(field_name, [])
+                if isinstance(field_values, list):
+                    recovered = {
+                        value: {"status": "unknown"}
+                        for value in field_values
+                        if isinstance(value, str) and value.strip()
+                    }
+                    if recovered:
+                        recovered_lifecycle[field_name] = recovered
+            profile["profile_lifecycle"] = recovered_lifecycle
+        elif "profile_lifecycle" not in profile:
             profile["profile_lifecycle"] = {}
         if not isinstance(profile.get("profile_history"), list):
             profile["profile_history"] = []
@@ -203,12 +239,20 @@ class JsonMemory:
                 value = str(value)
                 if not value:
                     continue
-                field_lifecycle = profile["profile_lifecycle"].get(key, {})
-                item_state = field_lifecycle.get(value, {}) if isinstance(field_lifecycle, dict) else {}
-                is_blocked = (
-                    isinstance(item_state, dict)
-                    and item_state.get("status") in {"dismissed", "superseded"}
-                )
+                raw_field_lifecycle = profile["profile_lifecycle"].get(key, {})
+                if key in profile["profile_lifecycle"] and not isinstance(raw_field_lifecycle, dict):
+                    # A malformed field map cannot authorize re-adding inferred values.
+                    if not explicit_user_input:
+                        continue
+                    field_lifecycle = {
+                        existing_value: {"status": "unknown"}
+                        for existing_value in profile.get(key, [])
+                        if isinstance(existing_value, str) and existing_value.strip()
+                    }
+                    profile["profile_lifecycle"][key] = field_lifecycle
+                else:
+                    field_lifecycle = raw_field_lifecycle if isinstance(raw_field_lifecycle, dict) else {}
+                is_blocked = self._lifecycle_state_blocks(field_lifecycle, value)
                 if is_blocked and not explicit_user_input:
                     continue
                 if value not in profile[key]:
@@ -255,9 +299,11 @@ class JsonMemory:
         raw_status = profile.get("status", "unknown")
         status = raw_status if isinstance(raw_status, str) and raw_status in allowed_statuses else "unknown"
         context = {"version": version, "status": status}
-        lifecycle = profile.get("profile_lifecycle", {})
-        if not isinstance(lifecycle, dict):
-            lifecycle = {}
+        raw_lifecycle = profile.get("profile_lifecycle", {})
+        lifecycle_root_invalid = (
+            "profile_lifecycle" in profile and not isinstance(raw_lifecycle, dict)
+        )
+        lifecycle = raw_lifecycle if isinstance(raw_lifecycle, dict) else {}
 
         candidates_by_field = {}
         selected_by_field = {}
@@ -266,9 +312,12 @@ class JsonMemory:
             items = profile.get(field_name, [])
             if not isinstance(items, list):
                 items = []
-            field_lifecycle = lifecycle.get(field_name, {})
-            if not isinstance(field_lifecycle, dict):
-                field_lifecycle = {}
+            raw_field_lifecycle = lifecycle.get(field_name, {})
+            field_lifecycle_invalid = (
+                lifecycle_root_invalid
+                or (field_name in lifecycle and not isinstance(raw_field_lifecycle, dict))
+            )
+            field_lifecycle = raw_field_lifecycle if isinstance(raw_field_lifecycle, dict) else {}
             active_items = []
             for item in items:
                 # Persisted legacy/corrupt profiles may contain arbitrary JSON
@@ -279,11 +328,7 @@ class JsonMemory:
                     or len(item) > JsonMemory.MAX_PROFILE_ITEM_CHARS
                 ):
                     continue
-                item_state = field_lifecycle.get(item, {})
-                if (
-                    isinstance(item_state, dict)
-                    and item_state.get("status") in {"dismissed", "superseded"}
-                ):
+                if field_lifecycle_invalid or JsonMemory._lifecycle_state_blocks(field_lifecycle, item):
                     continue
                 active_items.append(item)
 
