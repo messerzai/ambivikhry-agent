@@ -328,7 +328,7 @@ class JsonMemory:
                     or len(item) > JsonMemory.MAX_PROFILE_ITEM_CHARS
                 ):
                     continue
-                if field_lifecycle_invalid or self._lifecycle_state_blocks(field_lifecycle, item):
+                if field_lifecycle_invalid or JsonMemory._lifecycle_state_blocks(field_lifecycle, item):
                     continue
                 active_items.append(item)
 
