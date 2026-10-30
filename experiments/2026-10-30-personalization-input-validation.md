@@ -28,6 +28,8 @@ Validating the ingestion boundary before mutating the profile will prevent malfo
 
 ## Validation
 
+The first CI run exposed an additional lifecycle persistence defect: explicit confirmation updated a temporary empty dictionary when a field lifecycle map did not yet exist. The fix now registers that map with `setdefault` before writing the `confirmed` state. The existing explicit-teaching test then verifies that the confirmation survives persistence.
+
 New test file: `tests/test_personalization_input_validation.py`.
 
 Scenarios:
