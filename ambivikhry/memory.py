@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import math
 from datetime import datetime, timezone
 from copy import deepcopy
 
@@ -227,6 +228,37 @@ class JsonMemory:
                 accepted.append(value)
             normalized_hints[key] = accepted
 
+        raw_confidence = hints.get("confidence", {})
+        if raw_confidence is None:
+            raw_confidence = {}
+        if not isinstance(raw_confidence, dict):
+            if explicit_user_input:
+                raise ValueError("confidence must be a dictionary")
+            raw_confidence = {}
+        normalized_confidence = {}
+        for confidence_key, confidence_value in raw_confidence.items():
+            valid_confidence = (
+                isinstance(confidence_key, str)
+                and bool(confidence_key.strip())
+                and isinstance(confidence_value, (int, float))
+                and not isinstance(confidence_value, bool)
+            )
+            numeric_confidence = None
+            if valid_confidence:
+                try:
+                    numeric_confidence = float(confidence_value)
+                    valid_confidence = (
+                        math.isfinite(numeric_confidence)
+                        and 0.0 <= numeric_confidence <= 1.0
+                    )
+                except (OverflowError, TypeError, ValueError):
+                    valid_confidence = False
+            if not valid_confidence:
+                if explicit_user_input:
+                    raise ValueError("confidence values must be finite numbers between 0 and 1")
+                continue
+            normalized_confidence[confidence_key] = numeric_confidence
+
         profile = self.load_profile()
         lifecycle_root_invalid = (
             "profile_lifecycle" in profile
@@ -305,7 +337,7 @@ class JsonMemory:
                     })
         if explicit_events:
             profile["profile_history"] = (profile["profile_history"] + explicit_events)[-500:]
-        profile["confidence"].update({k: float(v) for k, v in hints.get("confidence", {}).items()})
+        profile["confidence"].update(normalized_confidence)
         self.save_profile(profile)
         return deepcopy(profile)
 
