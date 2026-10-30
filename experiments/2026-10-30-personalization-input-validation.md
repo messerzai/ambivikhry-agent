@@ -23,6 +23,7 @@ Validating the ingestion boundary before mutating the profile will prevent malfo
 - Require `task` to be a non-empty string.
 - For inferred/model-produced hints, accept only list/tuple containers and non-empty strings up to `MAX_PROFILE_ITEM_CHARS`; skip malformed containers and entries without coercion.
 - For explicit user teaching, reject malformed containers or entries with `ValueError` rather than silently accepting only part of the submission.
+- Validate confidence metadata as a mapping of non-empty keys to finite numeric values in the inclusive range [0, 1]; filter malformed inferred metadata and reject malformed explicit metadata.
 - Keep lifecycle, context projection, Policy Gate, tool permissions, autonomy, and biometric behavior unchanged.
 - Validate before loading/mutating the profile so rejected explicit submissions do not persist partial changes.
 
@@ -38,6 +39,7 @@ Scenarios:
 3. Explicit teaching rejects malformed containers and values without writing a profile.
 4. Valid explicit strings remain accepted and marked `confirmed`.
 5. Empty and non-string tasks are rejected before persistence.
+6. Malformed confidence containers, booleans, strings, non-finite values, and out-of-range scores cannot crash or contaminate stored confidence metadata.
 
 Run from repository root:
 
@@ -48,7 +50,7 @@ pytest -q tests/test_personalization_input_validation.py tests/test_profile_life
 ## Risks and limits
 
 - Explicit callers that previously passed a scalar string instead of a list will now receive `ValueError`; this is an intentional contract clarification.
-- Inferred malformed entries are silently skipped; this avoids crashes and unsafe coercion but does not yet emit a per-field rejection diagnostic.
+- Inferred malformed entries and confidence values are silently skipped; this avoids crashes and unsafe coercion but does not yet emit a per-field rejection diagnostic.
 - This validates profile hint inputs only. It does not sanitize arbitrary task text, observations, external tools, or other persistence paths.
 - It does not establish semantic forgetting, secure erasure, prompt-injection resistance, or improved user-facing personalization.
 - Full test and CI results must be checked after this branch commit; no promotion is authorized by this note.
