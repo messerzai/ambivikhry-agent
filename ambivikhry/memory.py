@@ -187,13 +187,47 @@ class JsonMemory:
         self, task: str, hints: dict | None = None, *, explicit_user_input: bool = False
     ):
         """Create/update a user instance without pretending inferences are facts."""
-        profile = self.load_profile()
+        if not isinstance(task, str) or not task.strip():
+            raise ValueError("task must be a non-empty string")
         if not isinstance(explicit_user_input, bool):
             raise ValueError("explicit_user_input must be a boolean")
         if hints is None:
             hints = {}
         if not isinstance(hints, dict):
             raise ValueError("hints must be a dictionary")
+
+        # Validate the ingestion boundary before mutating the in-memory profile.
+        # Inferred/model-produced hints are filtered; explicit teaching rejects
+        # malformed input so a caller cannot mistake partial acceptance for success.
+        normalized_hints = {}
+        for key in self.PROFILE_LIST_FIELDS:
+            values = hints.get(key, [])
+            if values is None:
+                values = []
+            if not isinstance(values, (list, tuple)):
+                if explicit_user_input:
+                    raise ValueError(f"{key} must be a list or tuple of strings")
+                normalized_hints[key] = []
+                continue
+
+            accepted = []
+            for value in values:
+                valid = (
+                    isinstance(value, str)
+                    and bool(value.strip())
+                    and len(value) <= self.MAX_PROFILE_ITEM_CHARS
+                )
+                if not valid:
+                    if explicit_user_input:
+                        raise ValueError(
+                            f"{key} values must be non-empty strings no longer "
+                            f"than {self.MAX_PROFILE_ITEM_CHARS} characters"
+                        )
+                    continue
+                accepted.append(value)
+            normalized_hints[key] = accepted
+
+        profile = self.load_profile()
         lifecycle_root_invalid = (
             "profile_lifecycle" in profile
             and not isinstance(profile.get("profile_lifecycle"), dict)
@@ -234,11 +268,8 @@ class JsonMemory:
         explicit_timestamp = datetime.now(timezone.utc).isoformat()
         for key in ("goals", "constraints", "preferences", "working_style", "strengths", "friction",
                     "successful_strategies", "failed_strategies", "open_questions"):
-            values = hints.get(key, [])
+            values = normalized_hints.get(key, [])
             for value in values:
-                value = str(value)
-                if not value:
-                    continue
                 raw_field_lifecycle = profile["profile_lifecycle"].get(key, {})
                 if key in profile["profile_lifecycle"] and not isinstance(raw_field_lifecycle, dict):
                     # A malformed field map cannot authorize re-adding inferred values.
