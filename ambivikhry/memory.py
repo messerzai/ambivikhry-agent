@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import math
 from datetime import datetime, timezone
 from copy import deepcopy
 
@@ -187,13 +188,78 @@ class JsonMemory:
         self, task: str, hints: dict | None = None, *, explicit_user_input: bool = False
     ):
         """Create/update a user instance without pretending inferences are facts."""
-        profile = self.load_profile()
+        if not isinstance(task, str) or not task.strip():
+            raise ValueError("task must be a non-empty string")
         if not isinstance(explicit_user_input, bool):
             raise ValueError("explicit_user_input must be a boolean")
         if hints is None:
             hints = {}
         if not isinstance(hints, dict):
             raise ValueError("hints must be a dictionary")
+
+        # Validate the ingestion boundary before mutating the in-memory profile.
+        # Inferred/model-produced hints are filtered; explicit teaching rejects
+        # malformed input so a caller cannot mistake partial acceptance for success.
+        normalized_hints = {}
+        for key in self.PROFILE_LIST_FIELDS:
+            values = hints.get(key, [])
+            if values is None:
+                values = []
+            if not isinstance(values, (list, tuple)):
+                if explicit_user_input:
+                    raise ValueError(f"{key} must be a list or tuple of strings")
+                normalized_hints[key] = []
+                continue
+
+            accepted = []
+            for value in values:
+                valid = (
+                    isinstance(value, str)
+                    and bool(value.strip())
+                    and len(value) <= self.MAX_PROFILE_ITEM_CHARS
+                )
+                if not valid:
+                    if explicit_user_input:
+                        raise ValueError(
+                            f"{key} values must be non-empty strings no longer "
+                            f"than {self.MAX_PROFILE_ITEM_CHARS} characters"
+                        )
+                    continue
+                accepted.append(value)
+            normalized_hints[key] = accepted
+
+        raw_confidence = hints.get("confidence", {})
+        if raw_confidence is None:
+            raw_confidence = {}
+        if not isinstance(raw_confidence, dict):
+            if explicit_user_input:
+                raise ValueError("confidence must be a dictionary")
+            raw_confidence = {}
+        normalized_confidence = {}
+        for confidence_key, confidence_value in raw_confidence.items():
+            valid_confidence = (
+                isinstance(confidence_key, str)
+                and bool(confidence_key.strip())
+                and isinstance(confidence_value, (int, float))
+                and not isinstance(confidence_value, bool)
+            )
+            numeric_confidence = None
+            if valid_confidence:
+                try:
+                    numeric_confidence = float(confidence_value)
+                    valid_confidence = (
+                        math.isfinite(numeric_confidence)
+                        and 0.0 <= numeric_confidence <= 1.0
+                    )
+                except (OverflowError, TypeError, ValueError):
+                    valid_confidence = False
+            if not valid_confidence:
+                if explicit_user_input:
+                    raise ValueError("confidence values must be finite numbers between 0 and 1")
+                continue
+            normalized_confidence[confidence_key] = numeric_confidence
+
+        profile = self.load_profile()
         lifecycle_root_invalid = (
             "profile_lifecycle" in profile
             and not isinstance(profile.get("profile_lifecycle"), dict)
@@ -234,11 +300,8 @@ class JsonMemory:
         explicit_timestamp = datetime.now(timezone.utc).isoformat()
         for key in ("goals", "constraints", "preferences", "working_style", "strengths", "friction",
                     "successful_strategies", "failed_strategies", "open_questions"):
-            values = hints.get(key, [])
+            values = normalized_hints.get(key, [])
             for value in values:
-                value = str(value)
-                if not value:
-                    continue
                 raw_field_lifecycle = profile["profile_lifecycle"].get(key, {})
                 if key in profile["profile_lifecycle"] and not isinstance(raw_field_lifecycle, dict):
                     # A malformed field map cannot authorize re-adding inferred values.
@@ -258,6 +321,10 @@ class JsonMemory:
                 if value not in profile[key]:
                     profile[key].append(value)
                 if explicit_user_input:
+                    # Persist the field map even when it did not exist before.
+                    # Without setdefault, confirmation could update only a local
+                    # temporary dict and appear successful without being stored.
+                    field_lifecycle = profile["profile_lifecycle"].setdefault(key, {})
                     if not isinstance(field_lifecycle, dict):
                         field_lifecycle = {}
                         profile["profile_lifecycle"][key] = field_lifecycle
@@ -270,7 +337,7 @@ class JsonMemory:
                     })
         if explicit_events:
             profile["profile_history"] = (profile["profile_history"] + explicit_events)[-500:]
-        profile["confidence"].update({k: float(v) for k, v in hints.get("confidence", {}).items()})
+        profile["confidence"].update(normalized_confidence)
         self.save_profile(profile)
         return deepcopy(profile)
 
