@@ -289,6 +289,10 @@ class JsonMemory:
                 if value not in profile[key]:
                     profile[key].append(value)
                 if explicit_user_input:
+                    # Persist the field map even when it did not exist before.
+                    # Without setdefault, confirmation could update only a local
+                    # temporary dict and appear successful without being stored.
+                    field_lifecycle = profile["profile_lifecycle"].setdefault(key, {})
                     if not isinstance(field_lifecycle, dict):
                         field_lifecycle = {}
                         profile["profile_lifecycle"][key] = field_lifecycle
