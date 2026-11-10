@@ -91,7 +91,7 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
     fast, medium, slow = ewma(r1, 4), ewma(r4, 16), ewma(r12, 48)
     sig1 = statistics.stdev(r1)
     sig24 = statistics.stdev(returns[-288:]) if len(returns) >= 288 else statistics.stdev(returns)
-    vol_ratio = sig1 / max(sig24 / math.sqrt(12), 1e-12)
+    vol_ratio = sig1 / max(sig24, 1e-12)
     agreement = 1.0 / (1.0 + statistics.pstdev([fast, medium, slow]) / max(sig24, 1e-12))
     trend_hour = _clamp((0.50*fast + 0.30*medium + 0.20*slow) * 12, -0.0025, 0.0025)
     trend_hour *= _clamp(0.75 * agreement, 0.10, 0.75)
