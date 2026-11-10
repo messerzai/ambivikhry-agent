@@ -1,12 +1,28 @@
-# Executable BTC hourly forecast prototype
+# Executable BTC hourly forecast prototypes
 
 Requires Python 3.10+ and internet access. No API key or exchange account.
 
+## Generation 0.2 (current challenger)
+
+From the repository root:
+
+    python research/living-fractal-market/forecast_btc_v2.py
+    python research/living-fractal-market/forecast_btc_v2.py --json > forecast_v2.json
+
+Model `LFM-Multiscale-Regime-Ensemble-0.2` combines 24h/72h/168h exponentially weighted log-return signals, trend agreement, a volatility-regime confidence factor, bounded directional shrinkage, and a gradually fading mean-reversion term. It produces 24 hourly point estimates and approximate 50%/90% ranges.
+
+The model validates at least 200 closed hourly candles, timestamp ordering, hourly continuity, OHLCV sanity and data freshness (latest closed candle no older than 90 minutes). It abstains rather than inventing values when these gates fail.
+
+## Tests
+
+From `research/living-fractal-market`:
+
+    python -m unittest test_forecast_btc_v2.py
+
+## Previous baseline
+
     python research/living-fractal-market/forecast_btc.py
-    python research/living-fractal-market/forecast_btc.py --json > forecast.json
 
-Downloads up to 500 closed 1-hour BTCUSDT spot candles from Binance public market data. Validates at least 100 bars, unique ordered timestamps, no hourly gaps and finite positive closes. Excludes the still-forming candle. Produces 24 hourly targets. On stale, missing or invalid data it abstains.
+The v0.1 model remains a simple shrinkage-drift reference. V0.2 is a challenger, not yet champion: no out-of-sample edge has been established, and its Gaussian-style intervals are uncalibrated. Keep every forecast vintage immutable and score only after target candles close.
 
-Model LFM-Shrinkage-Drift-0.1: exponentially weighted 72-hour log-return drift, 90% shrinkage toward random walk, capped residual drift, and volatility-scaled approximate lognormal intervals. The intervals are uncalibrated pending forward evaluation.
-
-This is the first executable baseline, not yet the full multifractal/sentiment champion. Fractal, news and sentiment features must be separate challengers with walk-forward evidence. Append every issued JSON forecast; never revise vintages. Research only, not financial advice.
+Research only; not financial advice and not a trading/execution system.
