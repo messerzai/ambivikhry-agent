@@ -38,6 +38,10 @@ class Forecast5mTests(unittest.TestCase):
         self.assertIn("heuristic_probability_below_level_24h", result["downside_risk"])
         self.assertGreaterEqual(result["downside_risk"]["heuristic_probability_below_level_24h"], 0.0)
         self.assertLessEqual(result["downside_risk"]["heuristic_probability_below_level_24h"], 1.0)
+        tail = result["downside_risk"]["severe_tail_scenario"]
+        self.assertEqual(tail["shock_pct"], -6.0)
+        self.assertEqual(tail["scenario_price_usdt"], round(result["reference_price_usdt"] * 0.94, 2))
+        self.assertIsInstance(tail["crosses_level"], bool)
         for model in result["models"]:
             self.assertEqual(len(model["points"]), 24)
             prices = [p["point_usdt"] for p in model["points"]]
