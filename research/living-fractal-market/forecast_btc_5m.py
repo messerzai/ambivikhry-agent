@@ -12,7 +12,8 @@ import urllib.request
 BASES = ("https://data-api.binance.vision", "https://api.binance.com",
          "https://api1.binance.com", "https://api-gcp.binance.com")
 INTERVAL_MS = 300_000
-MODEL_VERSION = "LFM-5m-Multiscale-Council-0.1"
+MODEL_VERSION = "LFM-5m-Downside-Aware-Council-0.2"
+DOWNSIDE_LEVEL_USDT = 70000.0
 
 
 def _request_rows(limit=1000, timeout=12):
@@ -109,12 +110,29 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
                   max(statistics.mean(x["quote_volume"] for x in rows[-144:]), 1e-12))
     flow_hour = _clamp(imbalance * _clamp(rel_volume, 0.25, 3.0) * 0.00035, -0.0007, 0.0007)
 
+    # Explicit downside diagnostics. These are risk features, not proof of a crash.
+    recent_high_24h = max(closes[-288:])
+    drawdown_24h = ref / recent_high_24h - 1.0
+    negative_returns = [min(x, 0.0) for x in returns[-288:]]
+    downside_sigma_5m = math.sqrt(statistics.mean(x*x for x in negative_returns))
+    downside_sigma_hour = max(0.00015, downside_sigma_5m * math.sqrt(12))
+    downside_momentum_hour = statistics.mean(returns[-12:]) * 12
+    downside_pressure = (
+        0.45 * min(trend_hour, 0.0)
+        + 0.20 * min(flow_hour, 0.0)
+        + 0.15 * min(reversion_hour, 0.0)
+        + 0.20 * min(downside_momentum_hour, 0.0)
+    )
+    # Only activates on negative evidence; capped to avoid extrapolating a crash indefinitely.
+    downside_stress_hour = _clamp(downside_pressure * 1.8, -0.0035, 0.0)
+
     models = {
         "RandomWalk": lambda h: 0.0,
         "Momentum5m": lambda h: trend_hour * math.exp(-(h-1)/5.0),
         "MeanReversion5m": lambda h: reversion_hour * (1.0-math.exp(-h/8.0)),
         "VolatilityRegime5m": lambda h: ensemble_hour * math.exp(-(h-1)/7.0) + reversion_hour*(1.0-math.exp(-h/10.0)),
         "TakerFlow5m": lambda h: flow_hour * math.exp(-(h-1)/2.5),
+        "DownsideStress5m": lambda h: downside_stress_hour * math.exp(-(h-1)/18.0),
         "LFM5mEnsemble": lambda h: (0.45*trend_hour*math.exp(-(h-1)/6.0)
                                      + 0.30*reversion_hour*(1.0-math.exp(-h/9.0))
                                      + 0.25*flow_hour*math.exp(-(h-1)/3.0))
@@ -154,10 +172,28 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
             "relative_quote_volume_1h": rel_volume, "hourly_sigma_estimate": hourly_sigma,
             "bounded_trend_signal_per_hour": trend_hour,
             "mean_reversion_signal_per_hour": reversion_hour,
-            "taker_flow_signal_per_hour": flow_hour
+            "taker_flow_signal_per_hour": flow_hour,
+            "drawdown_from_24h_high": drawdown_24h,
+            "downside_sigma_hour": downside_sigma_hour,
+            "downside_momentum_per_hour": downside_momentum_hour,
+            "downside_stress_signal_per_hour": downside_stress_hour,
+            "downside_level_usdt": DOWNSIDE_LEVEL_USDT
+        },
+        "downside_risk": {
+            "level_usdt": DOWNSIDE_LEVEL_USDT,
+            "stress_model_24h_point_usdt": round(ref * math.exp(sum(
+                downside_stress_hour * math.exp(-(h-1)/18.0) for h in range(1, 25)
+            )), 2),
+            "heuristic_probability_below_level_24h": round(0.5 * (
+                1.0 + math.erf((
+                    math.log(DOWNSIDE_LEVEL_USDT/ref)
+                    - sum(downside_stress_hour * math.exp(-(h-1)/18.0) for h in range(1, 25))
+                ) / (downside_sigma_hour * math.sqrt(24) * math.sqrt(2))
+            )), 4),
+            "method": "Normal-tail approximation using downside semivolatility and a decaying, evidence-gated downside drift; uncalibrated, not a market-implied probability."
         },
         "models": model_outputs,
-        "warning": ("Experimental research forecasts, not validated predictors or financial advice. "
+        "warning": ("Experimental research forecasts, not validated predictors or financial advice. Downside breach probability is an uncalibrated stress diagnostic, not a calibrated probability. "
                     "P90 ranges are Gaussian-style approximations and are NOT calibrated prediction intervals. "
                     "BTC/USDT is not identical to BTC/USD. No trading or order execution.")
     }
