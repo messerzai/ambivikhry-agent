@@ -181,9 +181,16 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
         },
         "downside_risk": {
             "level_usdt": DOWNSIDE_LEVEL_USDT,
+            "distance_to_level_pct": round((DOWNSIDE_LEVEL_USDT / ref - 1.0) * 100.0, 3),
             "stress_model_24h_point_usdt": round(ref * math.exp(sum(
                 downside_stress_hour * math.exp(-(h-1)/18.0) for h in range(1, 25)
             )), 2),
+            "severe_tail_scenario": {
+                "shock_pct": -6.0,
+                "scenario_price_usdt": round(ref * 0.94, 2),
+                "crosses_level": ref * 0.94 < DOWNSIDE_LEVEL_USDT,
+                "interpretation": "Illustrative abrupt 6% downside shock, not a point forecast and not assigned a probability."
+            },
             "heuristic_probability_below_level_24h": round(0.5 * (
                 1.0 + math.erf((
                     math.log(DOWNSIDE_LEVEL_USDT/ref)
