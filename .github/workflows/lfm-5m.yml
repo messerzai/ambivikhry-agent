@@ -1,0 +1,41 @@
+name: LFM 5m BTC research forecast
+
+on:
+  push:
+    branches:
+      - research/living-fractal-market
+    paths:
+      - "research/living-fractal-market/**"
+      - ".github/workflows/lfm-5m.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: research/living-fractal-market
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run offline unit tests
+        working-directory: research/living-fractal-market
+        run: python -m unittest -v test_forecast_btc_5m.py
+      - name: Run live public-data forecast
+        run: python research/living-fractal-market/forecast_btc_5m.py --json > forecast_5m.json
+      - name: Upload forecast artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lfm-5m-btc-forecast
+          path: forecast_5m.json
+          if-no-files-found: error
+          retention-days: 14
