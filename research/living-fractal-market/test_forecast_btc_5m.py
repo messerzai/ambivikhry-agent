@@ -25,7 +25,7 @@ def make_raw(n=1000, now=None):
 
 
 class Forecast5mTests(unittest.TestCase):
-    def test_filters_open_candle_and_emits_six_models_24_points(self):
+    def test_filters_open_candle_and_emits_seven_models_24_points(self):
         now = dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
         raw = make_raw(now=now)
         raw.append([int(now.timestamp()*1000), "1", "1", "1", "1", "1",
@@ -33,7 +33,11 @@ class Forecast5mTests(unittest.TestCase):
         rows = parse_rows(raw, now=now)
         result = build_forecast(rows, issued_at=now)
         self.assertEqual(len(rows), 1000)
-        self.assertEqual(len(result["models"]), 6)
+        self.assertEqual(len(result["models"]), 7)
+        self.assertIn("DownsideStress5m", [m["model"] for m in result["models"]])
+        self.assertIn("heuristic_probability_below_level_24h", result["downside_risk"])
+        self.assertGreaterEqual(result["downside_risk"]["heuristic_probability_below_level_24h"], 0.0)
+        self.assertLessEqual(result["downside_risk"]["heuristic_probability_below_level_24h"], 1.0)
         for model in result["models"]:
             self.assertEqual(len(model["points"]), 24)
             prices = [p["point_usdt"] for p in model["points"]]
