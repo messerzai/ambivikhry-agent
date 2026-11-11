@@ -1,70 +1,89 @@
 # Competitor landscape and reuse policy
 
-Last reviewed: 2026-11-10
-Target: BTC/USD, hourly observations, horizons +1 to +24 hours.
-Branch: `research/living-fractal-market`
+Last reviewed: 2026-11-11  
+Target: BTC/USD hourly observations and +1 to +24 hour horizons.  
+Research branch: research/living-fractal-market
 
 ## Purpose
 
-Build a fair, forward-blind comparison set for the Living Fractal Market champion. A model is a competitor only when its forecast is timestamped before the target period, its data cutoff is known, and the asset, venue, and forecast horizons can be aligned. Published backtests and marketing claims are useful discovery leads, not live leaderboard scores.
+Build a fair, forward-blind comparison set for the Living Fractal Market champion. A competitor is rankable only when the forecast is timestamped before its target, the information cutoff is known, and asset, venue, quote currency, target clock and horizon can be aligned. Published backtests, model cards and marketing claims are discovery evidence—not live leaderboard scores. The phrase “living/non-repeating fractal” remains a research metaphor, not an established market law.
 
-## Initial candidate registry
+## Candidate registry
 
-| Candidate | Family | Potential role | Evidence / limitations | Reuse status |
-|---|---|---|---|---|
-| ARIMA / ETS / random walk | Statistical | Mandatory simple baselines | Transparent, inexpensive; likely hard to beat at short horizons | Implement independently; common methods |
-| N-BEATS / N-HiTS | Neural forecasting | Strong learned baselines | Benchstreet exposes direct/recursive implementations; its reported winner claims require independent reproduction | Audit exact repository license before copying |
-| PatchTST / TFT | Transformer / multi-horizon | Multivariate and covariate challengers | Relevant architectures; test on BTC-specific chronological splits | Audit code and weights separately |
-| Amazon Chronos / Chronos-2 | Time-series foundation model | Zero-shot and fine-tuned challenger | Quantile forecasts can support probabilistic scoring; model checkpoint terms must be checked individually | Do not assume code license covers weights |
-| Google TimesFM | Time-series foundation model | Zero-shot challenger | Public research implementation and checkpoints; versions may carry different terms | Verify exact checkpoint and code license before use |
-| FoundationForecast | Model integration framework | Common adapter for several foundation models | Unified interface supports forecasting and evaluation; framework reports Apache-2.0, while plugged-in model licenses differ | Framework marked candidate for reuse; preserve Apache-2.0 notices |
-| CrunchDAO Synth / crunch-synth | Probabilistic competition | External benchmark / evaluation design | Public documentation describes 1h and 24h prediction rounds and CRPS-based scoring; access, rules and submission eligibility must be checked | Methodology may be studied; no code copied pending license audit |
-| CryptoOracle | Public forecast ledger | Human-readable external reference | Publicly describes locked forecasts and reports a historical comparison where last-price baseline beat TimesFM; verify raw ledger and scoring before comparison | Reference only; no code copied |
-| BitPredict | Public predictor leaderboard | Possible human/algorithmic competitor | Public page advertises free competition and 24h calls; data access and timestamp comparability need verification | No participation until rules and API terms are checked |
-| Crowdsource | Public prediction competitions | Possible external contest | Public site lists live competitions including BTC/USD next-hour; automated participation, scoring details and terms need verification | No submissions until rules are audited |
+| Candidate / project | Family and target | Reproducibility and evidence checked 2026-11-11 | Comparability / status |
+|---|---|---|---|
+| Random walk / last price | Statistical baseline; BTC/USDT or BTC/USD, +1…+24h | Deterministic and cheap; our mandatory primary reference | Internal baseline; always score |
+| ARIMA / ETS / zero-drift / volatility-aware | Statistical baselines; hourly BTC | Reproducible with pinned data and parameters; no crypto-specific advantage assumed | Internal challengers; required controls |
+| Amazon Chronos-2 | 120M zero-shot foundation model; univariate/multivariate and covariates; quantile output | Official card claims general zero-shot benchmark performance on FEV-Bench, GIFT-Eval and Chronos Benchmark II; no BTC-specific evidence on the card. Official code and weights are Apache-2.0 at the checked sources. | Strong external challenger; requires pinned checkpoint, runtime test and chronological BTC evaluation |
+| Google TimesFM 2.5 | 200M foundation model; quantile forecast, long context | Official model card lists Apache-2.0 weights and links ICML 2024 paper; no BTC-specific benchmark proof on the card | Candidate; code and weights are separately checked as Apache-2.0 |
+| Google TimesFM 3.0 | 330M foundation model; multivariate/covariate-capable | Official HF card lists timesfm-non-commercial-license-v1.0; code repository remains Apache-2.0. Weights are not suitable for commercial/production use under the current card. | Research-only license review; exclude from any commercial/production product unless terms change and are reviewed |
+| Nixtla NeuralForecast: N-BEATS, N-HiTS, TFT, PatchTST | Trainable neural forecasting library | Official repository lists these models and Apache-2.0 code. No pretrained crypto checkpoint is supplied by the library itself; training and tuning must be done without leakage. | Candidate family; train locally against same rolling origins and baselines |
+| FoundationForecast | Foundation-model adapter/evaluation framework | Apache-2.0 repository; plugged-in model and weight terms remain separate | Candidate for an adapter only after dependency and model-specific license audit |
+| Benchstreet | Financial time-series examples: ARIMA, N-BEATS, TimesFM, Chronos, MLP, LSTM, GRU, CNN, TCN | MIT code at checked HEAD. README says its examples use 20 years of S&P 500 daily closes and explicitly says it is not an objective benchmark; it calls N-BEATS the winner, but this is not evidence for BTC hourly forecasting. | Useful implementation/reference lead; not a comparable result. No code or weights copied |
+| CrunchDAO Synth | Live probabilistic competition; BTC among assets; 1h and 24h horizons | Official docs describe full return-density forecasts, CRPS scoring, multiple temporal resolutions and a 40-second inference budget. Official crunch-synth repository is at v0.16.0 commit 679dfc2; no LICENSE file found at that commit. | Methodology/shadow benchmark only. No code copied and no external submission attempted |
+| CryptoOracle | Public hourly forecast journal; BTC/ETH/SOL, +24h and +72h | Public site says TimesFM 2.5 consumes 512 completed hourly closes and locks forecasts. Its frozen 17-Sep-2026 exploratory study reports 365 daily origins per asset/horizon: BTC +24h mean absolute log-return error ×100 = 1.712 vs 1.627 for last-price baseline; nominal 80% band coverage = 77.3%. It explicitly concludes no forecasting advantage demonstrated. | Closest public 24h research comparator, but not directly rankable against our 24-step hourly trajectory loss. Live JSON records were not parsed in this run |
+| BitPredict | Human/public predictor leaderboard; BTC UP/DOWN over 24h | Site advertises immutable timestamped receipts and automatic settlement; calls are directional rather than price distributions. The live board did not expose a stable set of receipts in this review. | Direction-only shadow reference; not comparable to normalized MAE/CRPS. No automated participation |
+| AI Predicts Bitcoin | Daily panel of 10 LLMs; +7d/+30d/+90d/+180d/+360d | Public daily predictions and monthly reports; its 7-day score is based on relative absolute price error. Latest surfaced page dated 2026-11-10. Not an hourly forecast system. | Long-horizon context only; not rankable against BTC hourly or 24h |
+| Crowdsource | Public prediction competitions | Candidate retained from prior discovery; no independently verifiable, matching BTC/USD hourly record or automated-submission terms confirmed in this pass | Unverified; no submission |
+
+## External evidence worth tracking
+
+### CryptoOracle
+
+Public overview and forecast journal:
+- https://cryptooracle.moinsen.dev/
+- https://cryptooracle.moinsen.dev/forecasts/
+- https://cryptooracle.moinsen.dev/data/research.json
+- Source repository: https://github.com/moinsen-dev/crypto-oracle
+
+The published 17-Sep-2026 historical snapshot reports the TimesFM 2.5 BTC +24h error as 5.2% higher than persistence (1.712 vs 1.627 on mean absolute log-return error ×100) and nominal 80% interval coverage of 77.3%. This is a useful negative result: a large foundation model can lose to the last observed price. The experiment has 365 daily historical origins, while the live journal says forecasts are issued hourly; overlapping hourly origins are not independent market events. Do not mix the historical snapshot with the current prospective ledger.
+
+### CrunchDAO Synth
+
+Official rules and current competition directory:
+- https://docs.crunchdao.com/real-time-competitions/competitions/synth
+- https://hub.crunchdao.com/competitions
+- https://github.com/crunchdao/crunch-synth
+
+The competition scores full predictive densities using CRPS, with a 7-day rolling leaderboard. This suggests a future probabilistic challenger and a CRPS side-metric. It is not directly comparable to our current point forecasts and uncalibrated Gaussian-style P90 ranges. Participation was not attempted: the competition uses a platform account and USDC/mining-reward structure, and automated participation and all account/commitment conditions were not established as compatible with this project's no-external-commitment rule.
 
 ## First implementation order
 
-1. Lock a data contract: exchange/venue, UTC candle boundaries, missing-candle policy, cutoff timestamp and revision policy.
-2. Implement random walk, zero-drift return, drift and volatility-aware baselines.
-3. Add N-BEATS/N-HiTS and a compact tree/linear model as reproducible local challengers.
-4. Add Chronos and TimesFM adapters only after checking the exact code, checkpoint, and use terms.
-5. Add sentiment/news features as a separate ablation, never as a hidden advantage unavailable to competitors.
-6. Mirror external competitions with an internal shadow leaderboard before attempting any external submission.
-7. Use probabilistic metrics (CRPS or pinball loss, interval coverage and width) alongside the frozen primary loss.
+1. Keep random walk, zero-drift, drift, ARIMA/ETS and volatility-aware baselines as mandatory controls.
+2. Add Chronos-2 as the first foundation-model challenger after pinning its exact model-hub revision and testing CPU/GPU resource use.
+3. Add TimesFM 2.5 separately; do not infer TimesFM 3.0 weight rights from the shared source-code license.
+4. Train N-BEATS/N-HiTS/PatchTST/TFT on identical rolling-origin splits; report tuning budget and seed.
+5. Add a distributional challenger with calibrated quantiles or a full density; evaluate CRPS/pinball loss and coverage.
+6. Add microstructure features only when the same venue and point-in-time feed are available; keep spot taker-buy volume distinct from order-book depth and futures flow.
+7. Add news/sentiment as a separate ablation with publication, collection and availability timestamps.
+8. Mirror external competitions in a shadow leaderboard before considering any submission.
 
 ## Fair-comparison contract
 
-For every competitor record: model and version; source URL; forecast issue time; data cutoff; asset and venue; horizon; point or distribution forecast; actual target; scoring method; sample size; and whether the result is a genuine forward forecast, a walk-forward backtest, or an in-sample result. Do not rank incomparable records together.
+For every external record store: project/model and immutable revision; asset; venue; quote currency; issue time; data cutoff; target timestamps; point or distribution output; actual target; scoring method; sample size; and whether the result is forward, rolling-origin backtest, in-sample, or promotional. Do not rank incomparable records together. Overlapping hourly origins must not be treated as independent successes.
 
 ## License and provenance policy
 
-Public availability is not permission to copy. Before reuse, inspect the exact repository license and, separately, the model-weight, dataset, tokenizer, and API terms. Record:
-- project/repository and immutable commit or release;
-- authors and canonical source URL;
-- SPDX license identifier or explicit "no license found";
-- date checked and the exact component reused;
-- required attribution, copyright and license notices;
-- modifications and dependency versions;
-- copyleft/source-disclosure obligations and distribution implications;
-- unresolved compatibility questions.
+Public availability is not permission to copy. Before reuse, inspect the exact source-code license and separately inspect model weights, datasets, tokenizers, benchmark data and API terms. Pin an immutable commit/revision, preserve notices, record copied paths and modifications, and check copyleft/source-disclosure and commercial restrictions. If terms are absent or unclear, do not copy; implement independently from cited public concepts/papers. The register in THIRD_PARTY_LICENSES.md is an engineering provenance aid, not legal advice.
 
-Do not copy code or assets with no license, unclear terms, non-commercial restrictions incompatible with the intended use, or incompatible license obligations. In those cases, cite the public idea/paper and implement an independent clean-room version. Preserve original notices for every reused component. This register is an engineering provenance aid, not legal advice.
+## Source index
 
-## Initial public discovery sources
-
+- Chronos-2 model card: https://huggingface.co/amazon/chronos-2
+- Chronos code: https://github.com/amazon-science/chronos-forecasting
+- TimesFM 2.5 model card: https://huggingface.co/google/timesfm-2.5-200m-pytorch
+- TimesFM 3.0 model card: https://huggingface.co/google/timesfm-3.0-pytorch
+- TimesFM source: https://github.com/google-research/timesfm
+- NeuralForecast: https://github.com/Nixtla/neuralforecast
 - FoundationForecast: https://github.com/TimeCopilot/foundationforecast
-- Benchstreet financial forecasting benchmark: https://github.com/puffinsoft/benchstreet
-- CrunchDAO Synth model competition code: https://github.com/crunchdao/crunch-synth
-- TimeLM side-by-side foundation-model demo: https://github.com/cloudy-kz/TimeLM
-- CryptoOracle public forecast ledger: https://cryptooracle.moinsen.dev/
-- BitPredict public prediction leaderboard: https://www.bitpredict.io/
-- Crowdsource public prediction competitions: https://crowdsource.sh/
-- Synth competition documentation: https://docs.crunchdao.com/real-time-competitions/competitions/synth
+- Benchstreet: https://github.com/puffinsoft/benchstreet
+- BitPredict: https://www.bitpredict.io/
+- AI Predicts Bitcoin: https://www.aipredictsbitcoin.com/
+- Crowdsource: https://crowdsource.sh/
 
-## Open questions for the next pass
+## Open questions
 
-- Which candidates provide downloadable, immutable historical forecasts suitable for independent scoring?
-- Which exact model checkpoints are commercially reusable, and which are research/non-commercial only?
-- Can we reproduce the strongest published results on strictly chronological BTC data without leakage?
-- Do multifractal, sentiment and news features improve forecast distributions beyond simple baselines after transaction-agnostic scoring?
+- Which external public ledgers expose complete machine-readable point-in-time forecasts, not only aggregate backtests?
+- Can Chronos-2 or TimesFM 2.5 beat persistence on BTC at 1h and 24h after identical rolling-origin evaluation?
+- Does a genuine multifractal statistic survive IAAFT and finite-size nulls in rolling windows, and does it add forecast value after controlling for volatility and regime?
+- Do point-in-time sentiment/news features add anything beyond event-time, volatility and liquidity baselines?
+- Can a calibrated density beat persistence and a volatility-aware density under CRPS without using external contest accounts or rewards?
