@@ -43,7 +43,7 @@ From the repository root:
     python research/living-fractal-market/forecast_btc_5m.py
     python research/living-fractal-market/forecast_btc_5m.py --json > forecast_5m.json
 
-This module uses the public Binance Spot market-data endpoint (no API key), with fallback public hosts. It loads up to 1,000 five-minute candles, excludes the still-forming candle, and abstains on insufficient history, gaps, stale data, malformed OHLCV, or endpoint failure. It emits 24 hourly target points from five-minute features and six challengers: RandomWalk, Momentum5m, MeanReversion5m, VolatilityRegime5m, TakerFlow5m, and LFM5mEnsemble.
+This module uses the public Binance Spot market-data endpoint (no API key), with fallback public hosts. It loads up to 1,000 five-minute candles, excludes the still-forming candle, and abstains on insufficient history, gaps, stale data, malformed OHLCV, or endpoint failure. It emits 24 hourly target points from five-minute features and seven challengers: RandomWalk, Momentum5m, MeanReversion5m, VolatilityRegime5m, TakerFlow5m, DownsideStress5m, and LFM5mEnsemble. The 0.3 quality gate also requires the latest expected fully closed 5m candle; a missing trailing candle is rejected even if the remaining data is less than 15 minutes old.
 
 The TakerFlow feature uses reported taker-buy volume, not order-book depth or a full order-flow reconstruction. All models are experimental. The Gaussian-style P90 bands are uncalibrated and must not be interpreted as statistically validated coverage.
 
