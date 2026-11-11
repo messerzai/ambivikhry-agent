@@ -87,3 +87,18 @@ Public availability is not permission to copy. Before reuse, inspect the exact s
 - Does a genuine multifractal statistic survive IAAFT and finite-size nulls in rolling windows, and does it add forecast value after controlling for volatility and regime?
 - Do point-in-time sentiment/news features add anything beyond event-time, volatility and liquidity baselines?
 - Can a calibrated density beat persistence and a volatility-aware density under CRPS without using external contest accounts or rewards?
+
+
+## Latest competitor status check — 2026-11-11
+
+### CryptoOracle public forecast journal — updated snapshot
+
+The public journal's latest surfaced record is **14 October 2026, 05:14 CEST**; the page says it normally updates about every 15 minutes, so by this review it is stale by roughly 28 days. The same surfaced snapshot reports 619 settled hourly forecasts over about 27 calendar days, 366/619 direction matches, 488/619 outcomes inside a nominal 80% band, and mean miss 1.34 log-return points versus 1.32 for the “price stays the same” baseline. The journal explicitly warns that hourly forecasts overlap and do not represent independent market events.
+
+- **Comparability:** closest public BTC +24h hourly TimesFM reference found, but it predicts an endpoint rather than our full 24-step hourly trajectory. Its current public page is stale; do not treat the aggregate figures as a current live score or combine them with the earlier 17-Sep historical snapshot.
+- **Method/controls:** the public method says forecasts are frozen before target time, settled on Binance BTC/USDT hourly closes, and cross-checked against Coinbase/Kraken USD closes with same-hour USDT/USD conversion. It describes a separate residual-calibration shadow and a separate FinBERT news experiment; neither is a directly comparable result for our model.
+- **Evidence quality:** useful transparent ledger design and a warning against counting overlapping origins as independent. The public page is JavaScript-driven; its visible static page exposes the public JSON link but not the complete rows in this review. No machine-readable individual forecast records were scored here.
+- **License:** the current source repository README describes TimesFM 2.5 and the public research system, but no root LICENSE or LICENSE.md was present at the checked repository root. No code or weights copied. The checkpoint's own model-card license is a separate object; the official TimesFM 2.5 model card lists Apache-2.0, but no checkpoint was downloaded or reused.
+- **Checked sources:** https://cryptooracle.moinsen.dev/forecasts/ ; https://github.com/moinsen-dev/crypto-oracle ; https://huggingface.co/google/timesfm-2.5-200m-pytorch
+
+**Leaderboard decision:** retain CryptoOracle as an external shadow comparator, not a ranked competitor. It is not sufficiently fresh and its endpoint-only score does not match our 24-hour hourly path loss. No external submission or account was created.
