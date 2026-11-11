@@ -61,7 +61,7 @@ Source: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.
 - The 5-minute prototype already reads public Binance Spot BTCUSDT klines without an API key and emits seven models, including DownsideStress5m. QUICKSTART incorrectly documented six and omitted DownsideStress5m.
 - The 5-minute parser checked continuity between received rows and allowed a 15-minute age. It could accept a missing most-recent closed candle because the test fixture itself omitted the immediately preceding closed bar. A stricter latest-expected-candle check and a regression test are added in this run.
 - The workflow file contained schedule and workflow_dispatch, but GitHub requires those triggers' workflow file to exist on the default branch. Because this branch must remain isolated and main must not change, those triggers are removed; the branch workflow remains push-triggered. The daily research automation is separate.
-- Public search snippets returned 5-minute candles stamped 2026-11-11 13:10 while the run's UTC time was 07:04. Those rows are future-dated relative to the run and rejected. A Coinbase public candle endpoint returned a raw JSON page that the browser could not expose as rows. No 300+ bar, timestamp-consistent live series was available for a valid forecast.
+- Binance's official REST documentation confirms that public market-data-only requests should use data-api.binance.vision and that kline timestamps are milliseconds: https://developers.binance.com/en/docs/products/spot/rest-api. The prototype endpoint is public and requires no API key. Public search snippets returned 5-minute candles stamped 2026-11-11 13:10 while the run's UTC time was 07:04. Those rows are future-dated relative to the run and rejected. A Coinbase public candle endpoint returned a raw JSON page that the browser could not expose as rows. No 300+ bar, timestamp-consistent live series was available for a valid forecast.
 - No valid 24-hour forecast was issued, no forecast vintage was appended, and no previous vintage could be evaluated. No durable append-only forecast ledger currently exists; its schema/policy is documented separately.
 - No third-party code, model weights or datasets were copied.
 
@@ -75,3 +75,12 @@ Source: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.
 ## Next experiment
 
 Complete the 5m latest-bar quality-gate regression test; then obtain a synchronized, closed Binance Spot series and compare the seven 5m challengers on identical rolling origins. In parallel, build a full-density/quantile challenger for CRPS and a Chronos-2 baseline only after pinning its HF revision. Keep multifractal, sentiment and news features as separate ablations.
+
+
+## Implementation and test results
+
+- The 5-minute prototype quality gate was tightened to require the latest expected fully closed 5-minute candle, not merely a recent last timestamp.
+- The synthetic fixture now ends at the correct latest closed candle; a new regression test removes that final candle and requires abstention.
+- Offline unit suite executed locally from the exact branch source: 5 tests passed, 0 failed. Coverage includes forecast shape (7 models × 24 horizons), open-candle exclusion, OHLC rejection, internal gaps, trailing missing candle and stale data.
+- GitHub combined status for the latest repository commit returned no status entries at review time; therefore no GitHub Actions success is claimed. The push-triggered workflow is configured, but its run result was not available through the current connector.
+- The branch remains isolated and is 30 commits ahead of main; no main changes or merges were made.
