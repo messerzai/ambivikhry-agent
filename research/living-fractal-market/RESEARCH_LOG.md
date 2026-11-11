@@ -86,3 +86,65 @@ Complete the 5m latest-bar quality-gate regression test; then obtain a synchroni
 - Offline unit suite executed locally from the exact branch source: 5 tests passed, 0 failed. Coverage includes forecast shape (7 models × 24 horizons), open-candle exclusion, OHLC rejection, internal gaps, trailing missing candle and stale data.
 - GitHub combined status for the latest repository commit returned no status entries at review time; therefore no GitHub Actions success is claimed. The push-triggered workflow is configured, but its run result was not available through the current connector.
 - The branch remains isolated and is 30 commits ahead of main; no main changes or merges were made.
+
+
+## Daily literature scan — 2026-11-11
+
+### 4. Rolling multifractal evidence across fiat venues — peer-reviewed
+
+Kim, Lee & Choi, “Comparative Analysis of Cryptocurrency Market Efficiency and Local Features Using MF-DFA and DCC-GARCH,” *Fractal and Fractional* 10(6), 353, published 23 May 2026, DOI: 10.3390/fractalfract10060353.
+
+- **Data/method:** daily closes and returns from 1 Jan 2018 to 30 Sep 2025; 11 BTC/ETH/XRP/BCH fiat pairs across Upbit (KRW), Bitfinex/Coinbase (USD) and Bitbank (JPY); rolling MF-DFA and DCC-GARCH. The paper uses 99 phase-randomized surrogates and rolling windows of 200/250/300 observations.
+- **Reported result:** generalized Hurst curves and singularity spectra are multifractal in the sample; the original spectrum widths exceed the phase-randomized surrogate means, with reported z-scores 6.72–10.91 and rank-based one-tailed p=0.010 (the minimum attainable resolution with 99 surrogates). The paper also reports time-varying cross-market correlations.
+- **Limitations:** daily rather than intraday data; only 11 pairs and one selected venue per currency market; ETH/JPY excluded; results depend on q-range, window length and DCC-GARCH specification; source data are available from the corresponding author on reasonable request. The paper does not test incremental BTC hourly forecast skill. Its surrogate result is diagnostic evidence about this sample, not a universal proof of intrinsic or “living” fractality.
+- **Research implication:** useful support for a rolling MF-DFA diagnostic and sensitivity grid, but not a reason to add spectrum width to the live forecast before a leakage-safe ablation. Compare phase-randomized results with IAAFT and finite-size nulls in our own data rather than treating one surrogate family as definitive.
+
+Source: https://www.mdpi.com/2504-3110/10/6/353
+
+### 5. Intraday seasonality is a necessary control for five-minute flow signals — peer-reviewed
+
+Hansen, Kim & Kimbrough, “Periodicity in Cryptocurrency Volatility and Liquidity,” *Journal of Financial Econometrics* 22(1), 224–251 (2024), DOI: 10.1093/jjfinec/nbac034.
+
+- **Data/method:** high-frequency BTC and ETH data from Binance and Coinbase Pro (centralized exchanges) and Uniswap V2 (DEX); analysis of volatility and volume patterns by weekday, hour and within-hour interval.
+- **Reported result:** systematic periodicity in volatility and volume across all three time scales; the authors report that patterns strengthened over time and that price formation mainly occurred on CEXs while DEX price adjustment could be slower.
+- **Limitations:** the public abstract does not provide enough detail to reconstruct the complete estimator or current regime; the work documents periodicity, not a ready-made BTC direction forecast. Its sample/venue effects should not be assumed stationary.
+- **Research implication:** any five-minute TakerFlow or volume-pressure challenger should be tested against time-of-week and intrahour seasonal baselines. A raw taker-buy imbalance can otherwise proxy recurring activity schedules rather than new directional information.
+
+Source: https://doi.org/10.1093/jjfinec/nbac034
+
+### 6. Jump clustering matters for tail calibration — peer-reviewed
+
+Saef, Nagy, Sizov & Härdle, “Understanding temporal dynamics of jumps in cryptocurrency markets: evidence from tick-by-tick data,” *Digital Finance* 6(4), 605–638 (2024), DOI: 10.1007/s42521-024-00116-1.
+
+- **Data/method:** tick-by-tick observations for six major cryptocurrencies quoted against Tether across seven exchanges over nearly 2.5 years; high-frequency econometric jump detection and temporal clustering analysis.
+- **Reported result:** jumps occur on up to 58% of trading days in the sample; negative jumps dominate in frequency and size; jump occurrence clusters and displays intraday/time-of-week patterns, especially for BTC and ETH.
+- **Limitations:** the repository abstract does not expose all implementation details; the reported percentage is “up to” across the sample, not a BTC-only unconditional probability; the paper itself calls for better co-jump methods. Jump clustering does not establish that the next jump is forecastable.
+- **Research implication:** the current Gaussian-style P90 bands are not adequate tail claims. Keep them explicitly uncalibrated; next probabilistic challenger should compare Gaussian, Student-t and simple jump-mixture residual distributions under chronological coverage and proper-score tests.
+
+Source: https://doi.org/10.1007/s42521-024-00116-1 ; repository record: https://edoc.hu-berlin.de/items/6b0d7ba2-029a-4ea3-b783-0a8fba314835
+
+### 7. Order-book information is not represented by candle taker-buy volume — working-paper evidence
+
+Alexander, Heck, Kaeck & Riordan, “Order Flow Impact and Price Formation in Centralized Crypto Exchanges,” SSRN working paper (posted 19 July 2024; SSRN abstract record 4867599).
+
+- **Abstract-level claim:** analysis of Bitcoin order types on Coinbase and Binance reports that limit-order submissions and cancellations are more frequent than market orders and have a larger total contribution to price discovery; high-frequency cross-venue integration can break down.
+- **Evidence status/limitations:** SSRN working paper, not treated here as peer-reviewed; only the abstract record was accessible in this review, so detailed model specification and robustness were not independently inspected.
+- **Research implication:** preserve the strict distinction in our code/docs: spot kline taker-buy base volume is a coarse trade-flow proxy, not order-book imbalance, queue dynamics or full signed order flow. Do not label it L2 or order-flow reconstruction.
+
+Source: https://papers.ssrn.com/sol3/abstract_id=4867599
+
+### 8. Public five-minute feed contract verified
+
+Binance's official Spot REST documentation states that public market-data-only requests should use `https://data-api.binance.vision`; kline endpoints return chronological rows and timestamps are milliseconds by default. The documentation also notes that the API is asynchronous and a delay in data updates is normal.
+
+- The branch's `forecast_btc_5m.py` already uses the market-data-only host first and fallback public hosts, requests up to 1,000 BTCUSDT 5m klines, excludes the forming candle, checks exact five-minute continuity and requires the latest expected closed bar.
+- This run's execution environment could not resolve external DNS, and the web browser could not fetch the raw Binance JSON. Therefore no actual 300–1,000-row current candle sample was obtained, no live model was executed, and no 24-hour forecast vintage was issued.
+- Do not treat the presence of a public endpoint as evidence that this run successfully retrieved it. A successful CI artifact would need to be inspected before reporting numeric predictions.
+
+Source: https://developers.binance.com/en/docs/products/spot/rest-api
+
+## Daily decisions and next experiment — 2026-11-11
+
+**Implemented:** literature and provenance findings appended to this log only. No model coefficients or forecast behavior changed because there is no fresh, validated forward sample and no evidence that these new features improve out-of-sample loss.
+
+**Next experiment:** add an hour-of-week/intrahour seasonal naive baseline and compare the seven five-minute challengers against it on identical, non-overlapping rolling origins; then test Gaussian vs Student-t vs jump-mixture residual intervals. Keep MF-DFA width, sentiment and news surprise as separate ablations. Require a point-in-time data snapshot, exact source/venue and minimum 30 completed daily vintages before any champion promotion or reward point.
