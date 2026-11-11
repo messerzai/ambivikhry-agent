@@ -52,7 +52,8 @@ Source: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.
 - NeuralForecast provides N-BEATS, N-HiTS, TFT and PatchTST implementations under Apache-2.0 code terms; no pretrained crypto checkpoint is implied.
 - Benchstreet is MIT, but its own README says it is not an objective benchmark and describes S&P 500 daily data, not BTC hourly data.
 - CryptoOracle is the closest public +24h hourly forecast ledger located. Its published 2026-09-17 exploratory snapshot reports TimesFM 2.5 BTC +24h mean absolute log-return error ×100 of 1.712 versus 1.627 for last price, with 77.3% coverage for a nominal 80% interval. This is a historical backtest, not a current live score; overlapping hourly forecasts are not independent.
-- BitPredict offers timestamped human UP/DOWN 24h receipts, not point-price forecasts. AI Predicts Bitcoin forecasts 7d to 360d daily, not hourly. Neither was entered or ranked.
+- BitPredict offers free timestamped human UP/DOWN 24h receipts, not point-price forecasts; the public app showed no markets and no terms authorizing automated submissions were confirmed. AI Predicts Bitcoin publishes daily 7d/30d/90d/180d/360d model-panel predictions, not hourly. Its 2026-11-10 short-term page simultaneously says 200 predictions are graded and gives an accuracy-unlock date of 2026-04-08, an internal date inconsistency; no accuracy score is accepted. Neither was entered or ranked.
+- Sources: https://www.bitpredict.io/ ; https://app.bitpredict.io/ ; https://www.aipredictsbitcoin.com/short-term
 - CrunchDAO Synth has public 1h/24h probabilistic rules and CRPS scoring, but participation conditions and external-account/reward obligations were not established as compatible with this project's constraints. No submission was made.
 
 ## Data and code audit
