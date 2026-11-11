@@ -12,11 +12,11 @@ Cho et al., “Cryptocurrency markets as an evolving complex system: stylized fa
 
 Source: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.2026031/full
 
-Drożdż et al., “Multifractality and Its Sources in the Digital Currency Market,” Future Internet 17(10), 470 (2025), DOI 10.3390/fi17100470. The paper applies MFCCA/MF-DFA and a method intended to disentangle temporal correlations from distributional effects. The authors describe the interaction of long-range dependence and heavy tails and explicitly identify direct risk-management implications as future work. This is descriptive/diagnostic evidence, not evidence that multifractal features improve BTC forecasts.
+Drożdż et al., “Multifractality and Its Sources in the Digital Currency Market,” Future Internet 17(10), 470 (2025), DOI 10.3390/fi17100470. The paper applies MFCCA/MF-DFA to 1-minute Binance BTC/USDT and ETH/USDT data from 2018-01-01 through 2024-12-31 (3,682,080 observations). Its source-decomposition procedure finds temporal correlations to be the primary source of multifractality; heavy tails broaden the spectrum conditionally when correlations are present, rather than acting as an independent additive source. This is descriptive/diagnostic evidence, not evidence that multifractal features improve BTC forecasts.
 
 Source: https://www.mdpi.com/1999-5903/17/10/470
 
-Choi, “Intrinsic multifractality and adaptive efficiency in Bitcoin: Disentangling sources of scaling complexity across market regimes,” Physica A 697 (2026), 131735, DOI 10.1016/j.physa.2026.131735. The bibliographic record and abstract-level summaries report approximately 774,000 five-minute BTC observations (Aug-2017 to Dec-2024), q-Gaussian rescaling, and a scaling crossover near 25 days. The Frontiers Perspective cites this result. The publisher full text was not accessible in this review, so treat the detailed result as an abstract-level replication lead, not independently reanalysed evidence.
+Choi, “Intrinsic multifractality and adaptive efficiency in Bitcoin: Disentangling sources of scaling complexity across market regimes,” Physica A 697 (2026), 131735, DOI 10.1016/j.physa.2026.131735. The abstract-level record reports approximately 774,000 five-minute BTC observations (Aug-2017 to Dec-2024), q-Gaussian rescaling, and a scaling crossover near 25 days separating a near-efficient short-time regime from a long-time anti-persistent regime, with singularity-spectrum width described as largely invariant across the crossover. It also reports a greater-than-half decline in its Market Deficiency Measure after the January 2024 spot ETF approval and a negative volatility/complexity coupling. The publisher full text was not accessible in this review, so treat these as abstract-level claims requiring replication, not independently reanalysed evidence.
 
 Sources: https://ideas.repec.org/a/eee/phsmap/v697y2026ics0378437126004711.html ; https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.2026031/full
 
@@ -40,9 +40,9 @@ Bieganowski & Ślepaczuk, “Explainable Patterns in Cryptocurrency Microstructu
 
 Source: https://arxiv.org/abs/2602.00776
 
-Choi, “Testing detailed balance in daily cryptocurrency markets: irreversibility in range–volume dynamics, and none detectable in candlestick shape,” Frontiers in Physics (2026). In 22 USDT pairs from one venue, the abstract reports no detected first-order detailed-balance violation in candlestick shape, but range–volume dynamics reject detailed balance in 12 of 17 held-out assets under the stated design. This is a useful counterexample to blanket “non-repeating” claims: irreversibility depends on the state representation, sample size and test. Daily bars and one venue limit direct application to 5-minute forecasts.
+Choi, “Testing detailed balance in daily cryptocurrency markets: irreversibility in range–volume dynamics, and none detectable in candlestick shape,” Frontiers in Physics (2026). In 22 USDT pairs from one venue, the abstract reports no detected first-order detailed-balance violation in candlestick shape, but range–volume dynamics reject detailed balance in 12 of 17 held-out assets under the stated design. This is a useful counterexample to blanket “non-repeating” claims: irreversibility depends on the state representation, sample size and test. The authors report 44 non-rejections for normalized candlestick shape, versus rejection in 12 of 17 held-out assets for range-volume states. Crucially, their methods section says block-permutation surrogates are invalid for this transition-count statistic and IAAFT is structurally invalid for the shape encoding because it breaks exact within-bar constraints. Thus IAAFT is not a universal null; null construction must respect each feature representation. Daily bars and one venue limit direct application to 5-minute forecasts.
 
-Source: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.1977979/abstract
+Source: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.1977979/full
 
 ## Competitor and public-forecast findings
 
