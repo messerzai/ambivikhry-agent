@@ -8,8 +8,8 @@ from forecast_btc_5m import build_forecast, parse_rows
 def make_raw(n=1000, now=None):
     now = now or dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
     end = int(now.timestamp() * 1000)
-    # Most recent candle closes exactly 5 minutes before now.
-    last_open = end - 10 * 60_000
+    # The latest fully closed candle is the interval immediately before now.
+    last_open = end - 5 * 60_000
     rows = []
     price = 70000.0
     for i in range(n):
@@ -54,6 +54,12 @@ class Forecast5mTests(unittest.TestCase):
         raw = make_raw()
         del raw[500]
         with self.assertRaisesRegex(ValueError, "gap"):
+            parse_rows(raw, now=dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc))
+
+    def test_rejects_missing_latest_closed_candle(self):
+        raw = make_raw()
+        raw.pop()
+        with self.assertRaisesRegex(ValueError, "latest expected closed"):
             parse_rows(raw, now=dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc))
 
     def test_rejects_stale_data(self):
