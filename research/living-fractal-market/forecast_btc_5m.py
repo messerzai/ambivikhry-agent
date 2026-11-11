@@ -12,7 +12,7 @@ import urllib.request
 BASES = ("https://data-api.binance.vision", "https://api.binance.com",
          "https://api1.binance.com", "https://api-gcp.binance.com")
 INTERVAL_MS = 300_000
-MODEL_VERSION = "LFM-5m-Downside-Aware-Council-0.2"
+MODEL_VERSION = "LFM-5m-Downside-Aware-Council-0.3"
 DOWNSIDE_LEVEL_USDT = 70000.0
 
 
@@ -21,7 +21,7 @@ def _request_rows(limit=1000, timeout=12):
     errors = []
     for base in BASES:
         url = base + "/api/v3/klines?" + query
-        request = urllib.request.Request(url, headers={"User-Agent": "LivingFractalMarket/5m-0.1"})
+        request = urllib.request.Request(url, headers={"User-Agent": "LivingFractalMarket/5m-0.3"})
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 return json.loads(response.read().decode("utf-8")), base
@@ -67,6 +67,15 @@ def parse_rows(raw, now=None, min_rows=300):
     age_ms = now_ms - rows[-1]["close_ms"]
     if age_ms > 15 * 60_000:
         raise ValueError(f"latest closed 5m candle stale ({age_ms/60000:.1f} minutes)")
+    expected_last_open_ms = (now_ms // INTERVAL_MS) * INTERVAL_MS - INTERVAL_MS
+    if rows[-1]["open_ms"] != expected_last_open_ms:
+        lag_intervals = (expected_last_open_ms - rows[-1]["open_ms"]) // INTERVAL_MS
+        raise ValueError(
+            "latest expected closed 5m candle missing or mismatched "
+            f"(last_open_ms={rows[-1]['open_ms']}, "
+            f"expected_open_ms={expected_last_open_ms}, "
+            f"lag_intervals={lag_intervals})"
+        )
     return rows
 
 
