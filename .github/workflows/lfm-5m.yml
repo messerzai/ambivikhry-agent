@@ -1,5 +1,7 @@
 name: LFM 5m BTC research forecast
 
+# Intentionally push-only: GitHub schedule and workflow_dispatch require this
+# workflow file on the default branch. The research branch stays isolated.
 on:
   push:
     branches:
@@ -7,9 +9,6 @@ on:
     paths:
       - "research/living-fractal-market/**"
       - ".github/workflows/lfm-5m.yml"
-  schedule:
-    - cron: "17 */6 * * *"
-  workflow_dispatch:
 
 permissions:
   contents: read
