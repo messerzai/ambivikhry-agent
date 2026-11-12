@@ -102,3 +102,19 @@ The public journal's latest surfaced record is **14 October 2026, 05:14 CEST**; 
 - **Checked sources:** https://cryptooracle.moinsen.dev/forecasts/ ; https://github.com/moinsen-dev/crypto-oracle ; https://huggingface.co/google/timesfm-2.5-200m-pytorch
 
 **Leaderboard decision:** retain CryptoOracle as an external shadow comparator, not a ranked competitor. It is not sufficiently fresh and its endpoint-only score does not match our 24-hour hourly path loss. No external submission or account was created.
+
+
+## Additional competitor watch — checked 2026-11-12
+
+| Project | Method / target | Reproducibility and evidence | Comparability decision |
+|---|---|---|---|
+| [webTimesFM](https://github.com/vishalmysore/webTimesFM) | Browser inference for TimesFM 2.5 and Chronos-2 via ONNX Runtime Web, WebGPU/WASM | Code HEAD `ffbdec38f5d86a84e0bd274534ac91129db5c7b5`; Apache-2.0 code. Its 18-Oct-2026 ten-series comparison reports Bitcoin 30-day MAE: TimesFM 2.5 6,949; Chronos-2 7,272; no-change 7,153. The README says point counts are hidden and ten series are a small test, not a benchmark. ONNX model artifacts have separate model-card terms. | BTC-specific exploratory lead only. Frequency, exact forecast origins, horizon and raw ledger are not sufficiently exposed; not rankable against hourly BTC/USD path loss. No code/weights copied. |
+| [FelixClements/prism](https://github.com/FelixClements/prism) | Chronos/TimesFM, wavelets and on-chain features; BTC 3–14 day swing forecasts, daily Coinbase data | HEAD `782115532b08033692e747e3b1b57d0da3e9928d`; repository has an AGPL-3.0 license. README describes a walk-forward scoreboard but also references scripts from external agent skills outside the repository. Model weights have separate terms. | Not an hourly candidate; potentially useful methodology reference. No code or weights copied; copyleft/network-use obligations require legal review before any derivative use. |
+| [TensorLink-AI/ephemeris-mcp](https://github.com/TensorLink-AI/ephemeris-mcp) | MCP wrapper for Chronos-2, TimesFM 2.5, Toto 2, TiRex-2, IBM Granite models and an accuracy-weighted ensemble | HEAD `263b60b704e1cff855036a62ef1541ec45d33d57`; MIT bridge code. README reports TIME MASE 0.639 vs 0.638 leader and GIFT-Eval CRPS 0.4662 vs seasonal naive; these are general benchmark claims, not BTC-specific scores. Hosted inference requires an API key and pay-per-forecast. Model licenses are separate. | Shadow watch only; no paid API call or account. General benchmark results cannot be ranked against BTC hourly forecasts. |
+| [BrainEdge](https://brainedge.tech/) | BTC/USD, ETH/USD and XRP/USD short-horizon directional probabilities | Visible page claims 659 out-of-sample days and BTC directional accuracy 49.6%; page timestamp is 2026-10-23 07:13 UTC. No raw forecast ledger or matching 24-step price path was available in the checked view. | Unranked and stale by 20 days at this review. Do not treat aggregate directional accuracy as a comparable price forecast. |
+
+### Interpretation of new candidates
+
+The only BTC-specific numerical comparison among these additions is webTimesFM's small 30-day test, where TimesFM 2.5 is modestly better than its no-change baseline and Chronos-2 is worse. Because the frequency, origin details and raw errors are not disclosed in the surfaced summary, this is not evidence of BTC hourly skill. PRISM has a useful walk-forward architecture but a different 3–14 day target. Ephemeris exposes more foundation-model variants but is a paid service and has no BTC-specific result verified here. BrainEdge's visible scoreboard is too stale and too aggregate for a fair ranking.
+
+No new competitor qualifies for the internal champion leaderboard. Keep Chronos-2 and TimesFM 2.5 as the preferred locally runnable foundation-model challengers, with exact checkpoint revisions and weights licenses pinned before use.
