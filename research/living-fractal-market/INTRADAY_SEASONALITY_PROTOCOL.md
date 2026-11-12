@@ -20,7 +20,7 @@ The “living/non-repeating fractal” metaphor remains a hypothesis-generating 
 
 - Primary series: Binance Spot BTCUSDT 5m OHLCV, with UTC open and close timestamps, venue and quote currency preserved.
 - Separate replication series: Binance USDⓈ-M BTCUSDT perpetual 5m bars. Never splice Spot and Perpetual rows or use a futures signal as if it were spot data.
-- Prefer 90 days of continuous data; 28 days is exploratory only. A 5m hour-of-week has 2,016 phase cells, so short samples leave too few repeats per cell. Store raw responses and retrieval timestamps immutably.
+- Prefer 90 days of continuous data; 28 days is exploratory only. A five-minute-of-week phase grid has 2,016 slots (four weekly repeats in 28 days, about 12–13 in 90 days), so short samples leave too few repeats per slot. Store raw responses and retrieval timestamps immutably.
 - Exclude forming candles. Reject duplicate/out-of-order timestamps, gaps, invalid OHLCV, unknown timezone, stale tail bars and venue/contract changes.
 - For one-minute boundary or queue/order-book claims, obtain trade or depth data. Five-minute klines cannot resolve within-bar microstructure at one-minute resolution.
 
