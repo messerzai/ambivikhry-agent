@@ -200,3 +200,14 @@ A public Binance Spot BTCUSDT 5m page at https://dboqo.com/en/data/kline/?interv
 - Branch remains 47 commits ahead of main and 0 behind at the start of this run. No merge or main-branch write occurred.
 
 **Next experiment:** acquire at least 8 weeks (preferably 90 days) of timestamp-verified 5m Binance Spot data, with a separate matched Perpetual dataset. Test hour-of-week, 15-minute phase and five-minute bar-phase controls against random-walk, volatility-aware and seasonal-naive baselines on identical non-overlapping origins. Treat fine one-minute effects as out of scope until trade-level data are available. Then run phase-feature ablations and multiplicity-aware walk-forward evaluation; do not add any feature to the forecast champion on descriptive evidence alone.
+
+
+### Repository commits for the 2026-11-12 scan
+
+- Research log and literature findings: `f823c3262b574ade3e240083ed199a90c80e948a`
+- Competitor watch update: `37a832c36b2370eb72adbc9c961bff024c1714cc`
+- Third-party license audit: `80b4e037c5aa83a64f04c224ec7e07c5f0196752`
+- Intraday-seasonality protocol: `de2c05e58f468320794904b90c4d42a5a13aca31`
+- Protocol sample-count clarification: `e5d3becb0c33452bd92a80b8dc812eefcd339372`
+
+All commits were written only to `research/living-fractal-market`; no commit was made to `main`.
