@@ -148,3 +148,55 @@ Source: https://developers.binance.com/en/docs/products/spot/rest-api
 **Implemented:** literature and provenance findings appended to this log only. No model coefficients or forecast behavior changed because there is no fresh, validated forward sample and no evidence that these new features improve out-of-sample loss.
 
 **Next experiment:** add an hour-of-week/intrahour seasonal naive baseline and compare the seven five-minute challengers against it on identical, non-overlapping rolling origins; then test Gaussian vs Student-t vs jump-mixture residual intervals. Keep MF-DFA width, sentiment and news surprise as separate ablations. Require a point-in-time data snapshot, exact source/venue and minimum 30 completed daily vintages before any champion promotion or reward point.
+
+
+## Daily literature and competitor scan — 2026-11-12
+
+Starting branch HEAD: 19aec7b1964a23e7d55527e14e16f477e5748f43. Scope remains research/living-fractal-market only; main was not modified.
+
+### 9. Clock-phase periodicity is a new microstructure control — arXiv preprint
+
+Kim & Hansen, “The Quarter-Hour Effect: Periodic Algorithmic Trading and Return Predictability in Cryptocurrency Futures,” arXiv:2607.09426 (revised July 2026; preprint, not treated as peer-reviewed evidence).
+
+- **Data/method:** trade data for six Binance perpetual contracts; a clock-phase-resolved Autocorrelation Map examines order-flow and return dependence around minute, five-minute and quarter-hour boundaries.
+- **Abstract-level reported result:** volatility and volume bursts recur at 1-minute, 5-minute and 15-minute marks; trade-size roundness falls during those bursts. The authors report out-of-sample predictability in opening returns and that opening order imbalance predicts returns over 4–12 hours, with much weaker effects at finer clock-time frequencies.
+- **Limitations:** the accessible record is the abstract; the study is on perpetual futures, not Binance Spot BTC/USDT; it does not establish that spot kline taker-buy volume contains the same signal or that the effect is stable in the current regime.
+- **Research implication:** add UTC clock-phase controls to a future test, but keep spot and perpetual series separate. Five-minute OHLCV can test bar-phase and 15-minute phase effects only; one-minute boundary/order-book effects require timestamped trades or depth data. Do not label candle taker-buy volume as full order-flow imbalance.
+
+Source: https://arxiv.org/abs/2607.09426 ; abstract mirror: https://econpapers.repec.org/paper/arxpapers/2607.09426.htm
+
+### 10. Sampling frequency and finite-sample bias affect Hurst estimates — arXiv preprint
+
+Takaishi, “Multifractality and sample size influence on Bitcoin volatility patterns,” arXiv:2511.03314 (November 2025; preprint).
+
+- **Data/method:** Bitcoin realized-volatility series; the abstract studies the finite-sample effect of sampling interval Δ on the Hurst exponent and performs multifractal analysis.
+- **Abstract-level reported result:** estimated Hurst exponent decreases as Δ increases; a finite-sample ansatz fits the relationship; extrapolated Δ→0 values are below 1/2 (described as rough volatility). The abstract reports about 1% relative error for five-minute realized volatility and weaker multifractality in realized volatility than in price returns.
+- **Limitations:** preprint; the current review verified the abstract record, not a full independent replication. This is an estimator/sampling result, not a BTC forecast or proof of a unique market-generating process.
+- **Research implication:** never compare H(q), Hurst or spectrum width across frequencies without recording sample length and applying finite-size/sampling sensitivity checks. Keep return-based and realized-volatility-based multifractal diagnostics separate.
+
+Source: https://arxiv.org/abs/2511.03314 ; abstract mirror: https://econpapers.repec.org/paper/arxpapers/2511.03314.htm
+
+### 11. Public five-minute feed check
+
+Binance's official market-data-only documentation confirms that public Spot REST klines are available without an API key from data-api.binance.vision and that public WebSocket market-data streams are available from data-stream.binance.vision.
+
+Source: https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md
+
+A public Binance Spot BTCUSDT 5m page at https://dboqo.com/en/data/kline/?interval=5m&market=spot exposed only the last 40 rows in the browser view. Its displayed timestamps had no explicit timezone in the extracted page, and the latest row appeared to be the still-forming interval. The raw official Binance JSON endpoint could not be retrieved in this execution environment. Forty rows are also below the prototype's 300-candle minimum and far below the proposed seasonality sample. These rows were not converted into UTC, not passed to the model, and not used for a forecast.
+
+### 12. Competitor watch additions
+
+- **webTimesFM** (https://github.com/vishalmysore/webTimesFM; code HEAD ffbdec38f5d86a84e0bd274534ac91129db5c7b5): browser-side TimesFM 2.5 and Chronos-2 comparison using ONNX/WebGPU/WASM. Its 18-Oct-2026 ten-series table reports Bitcoin 30-day MAE 6,949 for TimesFM 2.5, 7,272 for Chronos-2 and 7,153 for “no change”. The page says series point counts are hidden and explicitly calls ten series a small test, not a benchmark. Frequency, origin-level records and a matching BTC hourly target are not exposed; retain as a weak BTC-specific research lead, not a rankable competitor.
+- **FelixClements/prism** (https://github.com/FelixClements/prism; HEAD 782115532b08033692e747e3b1b57d0da3e9928d): a walk-forward Bitcoin forecasting repository using daily Coinbase data, Chronos/TimesFM, wavelet and on-chain features, with a 3–14 day swing target. Its README notes that some scripts are supplied by external agent skills outside the repository, limiting standalone reproducibility. It is not an hourly comparator.
+- **TensorLink-AI/ephemeris-mcp** (https://github.com/TensorLink-AI/ephemeris-mcp; HEAD 263b60b704e1cff855036a62ef1541ec45d33d57): MIT-licensed bridge exposing Chronos-2, TimesFM 2.5, Toto 2, TiRex-2 and IBM Granite-family forecasts. Its published TIME/GIFT-Eval figures are general benchmark claims, not BTC-specific evidence. Hosted inference requires an API key and is pay-per-forecast; no key, paid call or external account was used.
+- **BrainEdge** (https://brainedge.tech/): public BTC/USD directional dashboard claims 659 out-of-sample days and 49.6% BTC directional accuracy, but its visible page says last updated 2026-10-23. It is stale as of this review and does not expose a complete point-price forecast ledger or our 24-step hourly loss; retain as an unranked shadow reference only.
+
+### Daily decisions — 2026-11-12
+
+- Added a pre-registered intraday-seasonality protocol as a research document; no forecast coefficients or production behavior changed.
+- No valid live forecast was issued: no timestamp-consistent, sufficiently long Spot BTCUSDT series was retrieved. No forecast vintage was appended; no previous vintage exists to evaluate.
+- No code, model weights, dataset, tokenizer or third-party implementation was copied. No external API key, account, paid inference or contest submission was used.
+- No new code tests were required or run because this change is documentation-only. The last recorded offline 5m suite result remains 5 passed / 0 failed from the prior run; it is not a fresh run for this date. GitHub status checks currently return no entries, so no CI pass is claimed.
+- Branch remains 47 commits ahead of main and 0 behind at the start of this run. No merge or main-branch write occurred.
+
+**Next experiment:** acquire at least 8 weeks (preferably 90 days) of timestamp-verified 5m Binance Spot data, with a separate matched Perpetual dataset. Test hour-of-week, 15-minute phase and five-minute bar-phase controls against random-walk, volatility-aware and seasonal-naive baselines on identical non-overlapping origins. Treat fine one-minute effects as out of scope until trade-level data are available. Then run phase-feature ablations and multiplicity-aware walk-forward evaluation; do not add any feature to the forecast champion on descriptive evidence alone.
