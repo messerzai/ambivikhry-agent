@@ -39,3 +39,15 @@ No third-party code, model weights, datasets, tokenizers or media assets were co
 7. Re-audit before distributing binaries, checkpoints, containers, hosted services or paid products.
 
 This register is an engineering provenance checklist, not a legal opinion. Ambiguous or high-impact licensing questions require qualified review.
+
+
+## Additional license audit — 2026-11-12
+
+| Component | Exact source/version checked | Code license | Weights / data / service terms | Reuse decision |
+|---|---|---|---|---|
+| FelixClements/prism | https://github.com/FelixClements/prism, HEAD `782115532b08033692e747e3b1b57d0da3e9928d`; LICENSE blob `0ad25db4bd1d86c452db3f9602ccdbe172438f52` | AGPL-3.0; exact license text inspected. Section 13 contains a remote-network source-offer requirement for modified covered works. | Chronos/TimesFM checkpoints and any external data retain their own terms; no model revision or dataset license was reused or inferred. | No code copied. Treat copyleft and network-service implications as a legal-review item before any derivative or deployment. |
+| TensorLink-AI/ephemeris-mcp | https://github.com/TensorLink-AI/ephemeris-mcp, HEAD `263b60b704e1cff855036a62ef1541ec45d33d57`; LICENSE blob `fea01da603e86eb5829055fe3cd1a99c7cadec0f` | MIT; copyright notice: Ephemeris, 2026. | The repository explicitly says each hosted model retains its own license. Hosted forecasts require an API key and are pay-per-use; no model checkpoint, dataset or paid service was used. | No code or weights copied; no API key/account created and no paid call made. |
+| vishalmysore/webTimesFM | https://github.com/vishalmysore/webTimesFM, HEAD `ffbdec38f5d86a84e0bd274534ac91129db5c7b5`; LICENSE blob `d645695673349e3947e8e5ae42332d0ac3164cd7` | Apache-2.0; exact LICENSE inspected. | ONNX checkpoints are hosted separately at VishalMysore/timesfm-2.5-200m-onnx-web and VishalMysore/chronos-2-onnx-web. Their exact immutable model-card revisions, conversion provenance and weight terms were not audited. | No code or ONNX weights copied. Re-audit model cards and pin revisions before any reuse. |
+| BrainEdge | https://brainedge.tech/; public dashboard inspected 2026-11-12 | No source repository/license identified in the checked public page. | Forecast data/API terms not independently established. | Public claims used only as an unranked reference; no code/data copied. |
+
+No third-party source code, model weights, tokenizers, datasets or benchmark artifacts were copied in this review. Public model/website access was not treated as a reuse grant. This register is an engineering provenance aid, not legal advice.
