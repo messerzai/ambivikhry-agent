@@ -310,3 +310,29 @@ The final target hour opens at 2026-11-14T07:00:00Z and closes at 07:59:59.999Z.
 The 0.3 output exposed a semantic ambiguity: its severe-tail field marked a level as “crossed” whenever the scenario endpoint was below it, even if the reference price was already below the level. Version 0.4 now records whether the reference is already below the threshold, the signed reference-vs-level percentage, and whether the scenario ends below it. The crossing flag is true only for a move from at/above the threshold to below it. The heuristic probability is explicitly labelled as a terminal-state estimate, not a first-passage probability. Two new tests cover already-below and true-crossing cases.
 
 No forecast parameters were tuned and no predictive skill is inferred from this semantic correction.
+
+
+### 21. LFM-5m 0.4 live run and semantic regression tests — 2026-11-13
+
+GitHub Actions run 43390773073 completed successfully on branch HEAD f96cabdf94c9c8e231a7c7f81a3fb229162605a9. The offline 5m suite passed **11/11 tests**, including two new threshold-state tests; live public-data forecast and artifact upload both succeeded.
+
+- Issue time: 2026-11-13T08:07:42.649816Z.
+- Data cutoff: 2026-11-13T08:04:59.999Z.
+- Binance Spot BTCUSDT 5m; 999 closed candles; reference 68,665.21 USDT.
+- The 70,000 USDT level was already breached: reference_vs_level_pct = -1.907%.
+- LFM5mEnsemble +24h: 68,422.33 USDT; uncalibrated P90 65,480.71–71,496.09.
+- DownsideStress5m +24h: 65,467.16 USDT; uncalibrated P90 62,652.59–68,408.17.
+- RandomWalk +24h: 68,665.21 USDT; uncalibrated P90 65,713.15–71,749.89.
+- Momentum5m +24h: 68,030.99; MeanReversion5m: 68,979.86; VolatilityRegime5m: 68,477.27; TakerFlow5m: 68,672.03 USDT.
+
+The 0.4 heuristic terminal-state estimate below 70,000 is 0.9986, but it is uncalibrated and not a probability of a new downward crossing. The reference is already below the level. The illustrative -6% scenario ends at 64,545.30 USDT; it is not a probabilistic forecast.
+
+The 0.4 target grid starts at 2026-11-13T09:00:00Z and ends at 2026-11-14T08:00:00Z; the final target candle closes at 08:59:59.999Z on Nov 14. No full 24-hour evaluation is yet available. The 0.3 and 0.4 vintages on Nov 13 overlap by 23 hours and must not be counted as independent daily samples.
+
+The separate repository-wide tests workflow again failed before pytest because pip install -e . encountered setuptools flat-layout auto-discovery of top-level packages chess, research and ambivikhry. This is outside the research branch's intended scope; no root packaging files were changed.
+
+### 22. Data sufficiency and forecast classification
+
+The 999 closed 5m candles span only about 3.47 days. They are enough for the current 5m prototype's minimum data gate, but not enough to estimate 90-day seasonal phase effects or a robust week-of-hour profile. No seasonal feature was added.
+
+This is an hourly-target forecast generated from 5m inputs for Binance Spot BTCUSDT. It is not a validated BTC/USD hourly champion. No champion promotion, calibrated interval claim, external leaderboard rank or virtual point is justified.
