@@ -286,3 +286,27 @@ The workflow trigger was narrowed to model code, its tests, the daily trigger ma
 - The daily marker triggers a fresh workflow run. The new run's artifact must be inspected and archived before any current numeric forecast is reported.
 
 **Next experiment:** compare the 5m council with a volatility-aware and seasonal-naive baseline on identical non-overlapping origins; then test Student-t and jump-mixture interval calibration. Add R-RISI only if a legal and point-in-time data path is documented. Keep round-number levels as scenario thresholds, not technical barriers.
+
+
+### 19. Fresh public-data run — 2026-11-13
+
+GitHub Actions run 43389711067 completed successfully on branch HEAD dcd26af142ce33da65a86ee4212ba56d50a77e48. The 5m offline suite passed **9/9 tests**; the live public-data forecast step and artifact upload also succeeded.
+
+- Issue time: 2026-11-13T07:59:32.881650Z.
+- Cutoff: 2026-11-13T07:54:59.999Z.
+- Binance Spot BTCUSDT 5m; 999 closed candles; reference 68,640.54 USDT.
+- The 70,000 USDT threshold was already above the reference price: reference was about 1.94% below the threshold. Therefore the threshold had already been crossed before issue time.
+- LFM5mEnsemble +24h: 68,421.59 USDT; uncalibrated P90 65,482.66–71,492.42.
+- DownsideStress5m +24h: 65,659.95 USDT; uncalibrated P90 62,839.64–68,606.84.
+- RandomWalk +24h: 68,640.54 USDT; uncalibrated P90 65,692.21–71,721.20.
+- Momentum5m +24h: 68,043.79; MeanReversion5m: 68,968.47; VolatilityRegime5m: 68,496.08; TakerFlow5m: 68,648.58 USDT.
+
+The model's heuristic terminal probability below 70,000 was 0.9979. Because the reference was already below 70,000, this is not a probability of a future downward crossing. The estimate is uncalibrated and must not be treated as a market-implied probability. The -6% scenario price was 64,522.11 USDT, but it is a deterministic illustrative shock, not a probabilistic forecast.
+
+The final target hour opens at 2026-11-14T07:00:00Z and closes at 07:59:59.999Z. No full 24-hour evaluation is yet available. The 2026-11-12 vintage also remains pending until its final target candle closes.
+
+### 20. Downside-threshold semantics corrected in 0.4
+
+The 0.3 output exposed a semantic ambiguity: its severe-tail field marked a level as “crossed” whenever the scenario endpoint was below it, even if the reference price was already below the level. Version 0.4 now records whether the reference is already below the threshold, the signed reference-vs-level percentage, and whether the scenario ends below it. The crossing flag is true only for a move from at/above the threshold to below it. The heuristic probability is explicitly labelled as a terminal-state estimate, not a first-passage probability. Two new tests cover already-below and true-crossing cases.
+
+No forecast parameters were tuned and no predictive skill is inferred from this semantic correction.

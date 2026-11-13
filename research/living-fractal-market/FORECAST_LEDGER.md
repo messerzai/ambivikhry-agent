@@ -5,7 +5,7 @@ Branch: research/living-fractal-market
 
 ## Current state
 
-One valid experimental BTC/USDT vintage was emitted by the 5m research workflow on 2026-11-12 and is now archived below. It is a 5m-input / hourly-target challenger, not a validated champion or a BTC/USD feed. Its final hourly target close was not yet available at the 2026-11-13 07:56:59Z review cutoff, so no full-vintage score is recorded. No calibrated intervals or champion status are claimed.
+Two valid experimental BTC/USDT vintages were emitted by the 5m research workflow on 2026-11-12 and 2026-11-13 and are archived below. It is a 5m-input / hourly-target challenger, not a validated champion or a BTC/USD feed. The 2026-11-12 vintage's final hourly target close was not yet available at the 2026-11-13 07:56:59Z review cutoff; the 2026-11-13 vintage is also awaiting its future target closes. No full-vintage score is recorded. No calibrated intervals or champion status are claimed.
 
 ## Append-only storage contract
 
@@ -63,5 +63,26 @@ The current GitHub Actions artifact has 14-day retention and is not a durable ap
 - **Archived gzip SHA-256:** 7b586d6c46e300e683e1fdc8337cceb0c92d954385e24f047610b1e202d79e10.
 - **Target range:** 2026-11-12T09:00:00Z through 2026-11-13T08:00:00Z (hourly candle open times; final candle closes at 08:59:59.999Z).
 - **Evaluation status:** pending at the review cutoff; no score or virtual points awarded.
+
+The compressed file is the lossless gzip of the exact workflow artifact's forecast_5m.json. Verify with gzip -dc and compare the uncompressed SHA-256 above. Never replace this vintage; add any correction as a separate dated record.
+
+
+### 2026-11-13 — Binance Spot BTCUSDT 5m council 0.3
+
+- **Immutable archive:** forecasts/2026-11-13/2026-11-13T07-59-32.881650Z_BTCUSDT_BinanceSpot_LFM-5m-0.3.json.gz
+- **Original workflow:** https://github.com/messerzai/ambivikhry-agent/actions/runs/43389711067 (artifact ID 14020251808; original artifact retention ends 2026-11-27).
+- **Model/source commit:** dcd26af142ce33da65a86ee4212ba56d50a77e48.
+- **Vintage ID:** lfm5m-20261113T075932.881650Z-BTCUSDT-binance-spot-council-0.3.
+- **Issue time UTC:** 2026-11-13T07:59:32.881650Z.
+- **Data cutoff UTC:** 2026-11-13T07:54:59.999Z.
+- **Source:** https://data-api.binance.vision/api/v3/klines ; symbol BTCUSDT; interval 5m; Binance Spot.
+- **Reference:** 68,640.54 USDT; 999 closed 5m candles.
+- **Models:** RandomWalk, Momentum5m, MeanReversion5m, VolatilityRegime5m, TakerFlow5m, DownsideStress5m, LFM5mEnsemble; 24 hourly target points each.
+- **Intervals:** Gaussian-style P90 only; explicitly uncalibrated and not eligible for tournament points.
+- **Raw JSON SHA-256:** 666f4218a9511cad61cd751b3d7e74e4f1dff35a24d86fb131ccbca5ed946c61.
+- **Archived gzip SHA-256:** a16efabd4da1557326f9a39797b536424e67b7819f6cbe612bd70a7cc50b1b03.
+- **Target range:** 2026-11-13T08:00:00Z through 2026-11-14T07:00:00Z (hourly candle open times; final candle closes at 07:59:59.999Z).
+- **Threshold state:** reference price was already 1.94% below 70,000 USDT. The model's 0.9979 heuristic is a terminal-state estimate, not a downward-crossing probability; it is uncalibrated and must not be read as a 99.79% market probability.
+- **Evaluation status:** pending; no score or virtual points awarded.
 
 The compressed file is the lossless gzip of the exact workflow artifact's forecast_5m.json. Verify with gzip -dc and compare the uncompressed SHA-256 above. Never replace this vintage; add any correction as a separate dated record.

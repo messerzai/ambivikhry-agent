@@ -12,7 +12,7 @@ import urllib.request
 BASES = ("https://data-api.binance.vision", "https://api.binance.com",
          "https://api1.binance.com", "https://api-gcp.binance.com")
 INTERVAL_MS = 300_000
-MODEL_VERSION = "LFM-5m-Downside-Aware-Council-0.3"
+MODEL_VERSION = "LFM-5m-Downside-Aware-Council-0.4"
 DOWNSIDE_LEVEL_USDT = 70000.0
 
 
@@ -202,11 +202,22 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
             "stress_model_24h_point_usdt": round(ref * math.exp(sum(
                 downside_stress_hour * math.exp(-(h-1)/18.0) for h in range(1, 25)
             )), 2),
+            "reference_below_level": ref < DOWNSIDE_LEVEL_USDT,
+            "reference_vs_level_pct": round((ref / DOWNSIDE_LEVEL_USDT - 1.0) * 100.0, 3),
+            "probability_event": "terminal_price_below_level_not_first_passage",
+            "probability_calibrated": False,
+            "interpretation": (
+                "Reference price is already below the threshold; this is an uncalibrated terminal-state estimate, not a downward-crossing probability."
+                if ref < DOWNSIDE_LEVEL_USDT else
+                "This is an uncalibrated terminal-state estimate, not a first-passage or downward-crossing probability."
+            ),
             "severe_tail_scenario": {
                 "shock_pct": -6.0,
                 "scenario_price_usdt": round(ref * 0.94, 2),
-                "crosses_level": ref * 0.94 < DOWNSIDE_LEVEL_USDT,
-                "interpretation": "Illustrative abrupt 6% downside shock, not a point forecast and not assigned a probability."
+                "reference_already_below_level": ref < DOWNSIDE_LEVEL_USDT,
+                "ends_below_level": ref * 0.94 < DOWNSIDE_LEVEL_USDT,
+                "crosses_level": ref >= DOWNSIDE_LEVEL_USDT and ref * 0.94 < DOWNSIDE_LEVEL_USDT,
+                "interpretation": "Illustrative abrupt 6% downside shock; crossing is true only when the reference starts at/above the threshold and the scenario ends below it. Not a point forecast and not assigned a probability."
             },
             "heuristic_probability_below_level_24h": round(0.5 * (
                 1.0 + math.erf((
@@ -214,10 +225,10 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
                     - sum(downside_stress_hour * math.exp(-(h-1)/18.0) for h in range(1, 25))
                 ) / (downside_sigma_hour * math.sqrt(24) * math.sqrt(2))
             )), 4),
-            "method": "Normal-tail approximation using downside semivolatility and a decaying, evidence-gated downside drift; uncalibrated, not a market-implied probability."
+            "method": "Normal-tail approximation for terminal price below the threshold using downside semivolatility and a decaying, evidence-gated downside drift; uncalibrated, not a market-implied or first-passage probability."
         },
         "models": model_outputs,
-        "warning": ("Experimental research forecasts, not validated predictors or financial advice. Downside breach probability is an uncalibrated stress diagnostic, not a calibrated probability. "
+        "warning": ("Experimental research forecasts, not validated predictors or financial advice. The below-level probability is an uncalibrated terminal-state estimate, not a crossing probability; if the reference is already below the level, the breach has already occurred. "
                     "P90 ranges are Gaussian-style approximations and are NOT calibrated prediction intervals. "
                     "BTC/USDT is not identical to BTC/USD. No trading or order execution.")
     }

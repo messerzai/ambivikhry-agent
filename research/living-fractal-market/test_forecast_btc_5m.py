@@ -33,6 +33,7 @@ class Forecast5mTests(unittest.TestCase):
         rows = parse_rows(raw, now=now)
         result = build_forecast(rows, issued_at=now)
         self.assertEqual(len(rows), 1000)
+        self.assertEqual(result["model_version"], "LFM-5m-Downside-Aware-Council-0.4")
         self.assertEqual(len(result["models"]), 7)
         self.assertIn("DownsideStress5m", [m["model"] for m in result["models"]])
         self.assertIn("heuristic_probability_below_level_24h", result["downside_risk"])
@@ -91,6 +92,32 @@ class Forecast5mTests(unittest.TestCase):
         raw[100][10] = str(float(raw[100][7]) * 1.01)
         with self.assertRaisesRegex(ValueError, "total quote volume"):
             parse_rows(raw, now=dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc))
+
+    def test_below_level_is_terminal_state_not_a_new_crossing(self):
+        now = dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
+        rows = parse_rows(make_raw(now=now), now=now)
+        for row in rows:
+            for key in ("open", "high", "low", "close"):
+                row[key] *= 0.95
+        result = build_forecast(rows, issued_at=now)
+        risk = result["downside_risk"]
+        self.assertTrue(risk["reference_below_level"])
+        self.assertLess(risk["reference_vs_level_pct"], 0.0)
+        self.assertEqual(risk["probability_event"], "terminal_price_below_level_not_first_passage")
+        self.assertFalse(risk["severe_tail_scenario"]["crosses_level"])
+        self.assertTrue(risk["severe_tail_scenario"]["ends_below_level"])
+
+    def test_scenario_crosses_level_only_when_starting_above(self):
+        now = dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
+        rows = parse_rows(make_raw(now=now), now=now)
+        for row in rows:
+            for key in ("open", "high", "low", "close"):
+                row[key] *= 1.04
+        result = build_forecast(rows, issued_at=now)
+        risk = result["downside_risk"]
+        self.assertFalse(risk["reference_below_level"])
+        self.assertTrue(risk["severe_tail_scenario"]["crosses_level"])
+        self.assertTrue(risk["severe_tail_scenario"]["ends_below_level"])
 
     def test_target_grid_is_next_full_hour_and_shared(self):
         now = dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
