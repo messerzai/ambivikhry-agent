@@ -7,7 +7,9 @@ on:
     branches:
       - research/living-fractal-market
     paths:
-      - "research/living-fractal-market/**"
+      - "research/living-fractal-market/forecast_btc_5m.py"
+      - "research/living-fractal-market/test_forecast_btc_5m.py"
+      - "research/living-fractal-market/DAILY_RUN_TRIGGER.md"
       - ".github/workflows/lfm-5m.yml"
 
 permissions:

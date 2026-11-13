@@ -118,3 +118,27 @@ The public journal's latest surfaced record is **14 October 2026, 05:14 CEST**; 
 The only BTC-specific numerical comparison among these additions is webTimesFM's small 30-day test, where TimesFM 2.5 is modestly better than its no-change baseline and Chronos-2 is worse. Because the frequency, origin details and raw errors are not disclosed in the surfaced summary, this is not evidence of BTC hourly skill. PRISM has a useful walk-forward architecture but a different 3–14 day target. Ephemeris exposes more foundation-model variants but is a paid service and has no BTC-specific result verified here. BrainEdge's visible scoreboard is too stale and too aggregate for a fair ranking.
 
 No new competitor qualifies for the internal champion leaderboard. Keep Chronos-2 and TimesFM 2.5 as the preferred locally runnable foundation-model challengers, with exact checkpoint revisions and weights licenses pinned before use.
+
+
+## Daily watchlist review — 2026-11-13
+
+### New research/data references (not all are forecast competitors)
+
+| Project / source | Method, asset and horizon | Evidence / reproducibility | Decision |
+|---|---|---|---|
+| ECB R-RISI — Wagner & Metzler, Working Paper 3276 (2026-08-24) | Daily Reddit retail sentiment, LLM sentiment/topic labels, engagement-weighted aggregation; broad market and crypto-related subreddits. Not a direct BTC price model. | Official ECB abstract describes 2015–Apr 2026 data and next-day price information, especially S&P 500 in market declines. Raw data and platform permissions were not audited here. | Add as a candidate daily sentiment reference only; no data or code reused. |
+| Mispria public crypto market tracker | Polymarket BTC/ETH/SOL/XRP up/down markets at 5m, 15m and 1h; Brier scoring of market-implied probability and its Student-t model. | Page reports 158,074 windows from 2026-08-07 through 2026-11-11, snapshot 2026-11-12 08:02 UTC. BTC: market/model Brier 0.0560/0.0601 at 5m, 0.0357/0.0377 at 15m, 0.0282/0.0267 at 1h. Settlement uses Chainlink 60s TWAP for 5m/15m and Binance hourly candle for 1h. | Useful external probability benchmark, not comparable to our point-price MAE or 24h trajectory. No rank or points awarded. |
+| The Brier Index | Public daily point/percentile/chance forecasts for BTC and six other coins at 1-, 7- and 30-day horizons; OpenTimestamps SHA-256 commitments. | Ledger explains verification procedure and preserves corrections; page says last updated 2026-11-08 and is not live. Some early records were stamped after the 1-day close. | Strong timestamp-integrity design reference; horizons and freshness do not match our hourly experiment. |
+| CryptoOracle | TimesFM-based hourly model for BTC/ETH/SOL; 24h/72h forecasts, 512 completed hourly closes, news annotation separated from numerical price forecasts. | Public page reports a 365-origin historical BTC 24h backtest: mean absolute log-return error 1.712 vs 1.627 for last-price persistence (+5.2% higher error); nominal 80% band coverage 77.3%. It also exposes a live journal/public JSON, but the live JSON did not render in this review. | Keep as an important shadow comparator and methodological reference; historical backtest is not a current matched submission. |
+| likely.sh | BTC/USDT deadline-specific touch probabilities, 15m/30m/8h/daily/weekly studies. | Current page load returned no active studies and was waiting for Binance completed-minute data; a search snapshot had estimates last updated 2026-11-08. | Stale/unavailable in this review; no ranking. |
+
+Sources:
+- ECB R-RISI: https://www.ecb.europa.eu/pub/pdf/scpwps/ecb.wp3276~3ba8565a13.en.pdf
+- Mispria: https://mispria.com/markets
+- The Brier Index: https://www.brierindex.com/ledger/
+- CryptoOracle overview and journal: https://cryptooracle.moinsen.dev/ ; https://cryptooracle.moinsen.dev/forecasts/
+- likely.sh: https://likely.sh/
+
+### Comparable-forecast rule
+
+No newly inspected external record supplies all of the following simultaneously: BTC spot venue and quote currency matching Binance BTCUSDT, exact issue time and information cutoff, 24 hourly target closes, and a preserved point-price path with intervals. Mispria is binary-market probability, Brier Index is 1/7/30-day, CryptoOracle's public live JSON is dynamically rendered and its published aggregate backtest is not a same-origin live comparator, and likely.sh is currently unavailable. All remain in the shadow watchlist; none enters the ranked external leaderboard.

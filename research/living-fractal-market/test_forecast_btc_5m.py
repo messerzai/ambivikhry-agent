@@ -74,5 +74,38 @@ class Forecast5mTests(unittest.TestCase):
             parse_rows(raw, now=dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc))
 
 
+    def test_rejects_misaligned_close_timestamp(self):
+        raw = make_raw()
+        raw[100][6] = raw[100][0] + 299998
+        with self.assertRaisesRegex(ValueError, "close timestamp"):
+            parse_rows(raw, now=dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc))
+
+    def test_rejects_negative_trade_count(self):
+        raw = make_raw()
+        raw[100][8] = -1
+        with self.assertRaisesRegex(ValueError, "negative trade count"):
+            parse_rows(raw, now=dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc))
+
+    def test_rejects_taker_buy_quote_above_total_quote(self):
+        raw = make_raw()
+        raw[100][10] = str(float(raw[100][7]) * 1.01)
+        with self.assertRaisesRegex(ValueError, "total quote volume"):
+            parse_rows(raw, now=dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc))
+
+    def test_target_grid_is_next_full_hour_and_shared(self):
+        now = dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
+        rows = parse_rows(make_raw(now=now), now=now)
+        result = build_forecast(rows, issued_at=now)
+        expected = dt.datetime(2026, 11, 10, 13, 0, tzinfo=dt.timezone.utc)
+        for model in result["models"]:
+            targets = [dt.datetime.fromisoformat(p["target_utc"].replace("Z", "+00:00")) for p in model["points"]]
+            self.assertEqual(len(targets), 24)
+            self.assertEqual(targets[0], expected)
+            self.assertTrue(all((b-a).total_seconds() == 3600 for a, b in zip(targets, targets[1:])))
+        common = [p["target_utc"] for p in result["models"][0]["points"]]
+        for model in result["models"][1:]:
+            self.assertEqual([p["target_utc"] for p in model["points"]], common)
+
+
 if __name__ == "__main__":
     unittest.main()

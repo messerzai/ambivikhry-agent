@@ -55,6 +55,12 @@ def parse_rows(raw, now=None, min_rows=300):
     if any(b-a != INTERVAL_MS for a, b in zip(times, times[1:])):
         raise ValueError("5m candle gap detected")
     for r in rows:
+        if r["open_ms"] % INTERVAL_MS != 0:
+            raise ValueError("5m open timestamp is not UTC-aligned")
+        if r["close_ms"] != r["open_ms"] + INTERVAL_MS - 1:
+            raise ValueError("invalid 5m close timestamp")
+        if r["trades"] < 0:
+            raise ValueError("negative trade count")
         values = [r[k] for k in ("open", "high", "low", "close", "volume", "quote_volume", "taker_buy_base", "taker_buy_quote")]
         if not all(math.isfinite(x) for x in values):
             raise ValueError("non-finite OHLCV value")
@@ -64,6 +70,8 @@ def parse_rows(raw, now=None, min_rows=300):
             raise ValueError("inconsistent OHLC candle")
         if r["taker_buy_base"] > r["volume"] * 1.000001:
             raise ValueError("taker-buy volume exceeds total base volume")
+        if r["taker_buy_quote"] > r["quote_volume"] * 1.000001:
+            raise ValueError("taker-buy quote volume exceeds total quote volume")
     age_ms = now_ms - rows[-1]["close_ms"]
     if age_ms > 15 * 60_000:
         raise ValueError(f"latest closed 5m candle stale ({age_ms/60000:.1f} minutes)")

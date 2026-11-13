@@ -211,3 +211,78 @@ A public Binance Spot BTCUSDT 5m page at https://dboqo.com/en/data/kline/?interv
 - Protocol sample-count clarification: `e5d3becb0c33452bd92a80b8dc812eefcd339372`
 
 All commits were written only to `research/living-fractal-market`; no commit was made to `main`.
+
+
+## Daily research and pipeline audit — 2026-11-13
+
+Starting branch HEAD: 75cbc8bebc42e91033713263e338ada4c0848e95. Scope remains research/living-fractal-market only. The branch was 53 commits ahead of main and 0 behind at review time; main was not changed.
+
+### 13. Sub-second periodicity is supported by a peer-reviewed market-microstructure study
+
+Shynkevich, “Trading Periodicity and Algorithmic Divide in Cryptocurrency Markets,” Journal of Futures Markets 46(5), 904–930; first published 2026-02-18; DOI 10.1002/fut.70089.
+
+- **Data/method:** sub-second trading-activity data for Bitcoin and Ethereum spot and perpetual futures on a major cryptocurrency exchange.
+- **Reported result:** periodic activity is associated with agency algorithms taking liquidity in spot and proprietary algorithms taking liquidity in perpetual futures. Periodic bursts increase volatility and transaction costs, but the study reports no significant adverse price impact. A large share of price discovery occurs during proprietary-algorithm activity.
+- **Limitations:** the data are sub-second and available from the author on reasonable request; this is not a directly reproducible public 5m BTC/USDT dataset and does not establish a 5m directional forecasting edge.
+- **Research implication:** 5m phase features are only coarse proxies for a finer microstructure process. Activity bursts must not be interpreted as directional signals without trade/depth data and out-of-sample tests.
+
+Source: https://onlinelibrary.wiley.com/doi/10.1002/fut.70089
+
+### 14. Round-number clustering does not imply reliable support or resistance
+
+Choi, “Strong clustering and weak barriers at round numbers in Bitcoin markets,” Research in International Business and Finance 90 (2026), DOI 10.1016/j.ribaf.2026.103494.
+
+- **Data/method:** abstract reports more than seven years of Binance one-minute transaction data and tests price clustering, barrier properties and machine-learning classification around round numbers.
+- **Reported result:** prices cluster at round numbers more than under random price formation, but the numbers show weak barrier properties; classifier accuracy is reported as indistinguishable from random guessing.
+- **Limitations:** publisher full text was paywalled in this review; the checked evidence is the bibliographic record and abstract, not an independent replication.
+- **Research implication:** 70,000 USDT remains a predeclared stress threshold only. It must not be described as support/resistance or assigned a breach probability from round-number psychology.
+
+Source: https://doi.org/10.1016/j.ribaf.2026.103494 ; abstract record: https://EconPapers.repec.org/RePEc:eee:riibaf:v:90:y:2026:i:c:s0275531926002217
+
+### 15. A new public retail-sentiment indicator is a feature lead, not a BTC forecast competitor
+
+Wagner & Metzler, “When the Crowd Speaks: AI-based retail investor sentiment indicator with Reddit data,” ECB Working Paper No. 3276, 2026-08-24.
+
+- **Data/method:** Reddit posts from major investing and crypto-related subreddits, 2015 through April 2026; ChatGPT 5.1 labels sentiment and topics; daily positive/negative aggregation is weighted by engagement and standardized using a rolling one-year z-score.
+- **Reported result:** the authors report statistically significant short-term information for market prices, with the relationship particularly relevant to next-day S&P 500 returns during market declines.
+- **Limitations:** the result is not a BTC-specific 5m/1h forecast. Daily aggregation is too coarse for a direct intraday signal. Post availability, platform terms, sampling bias, language coverage and model-label reproducibility require separate review.
+- **Research implication:** add R-RISI as a candidate external sentiment reference for a daily BTC feature ablation only after its data and reuse terms are checked. Do not scrape or copy its data in this cycle.
+
+Source: https://www.ecb.europa.eu/pub/pdf/scpwps/ecb.wp3276~3ba8565a13.en.pdf
+
+### 16. Cross-asset tail synchronization is a risk diagnostic, not a point forecast
+
+Zouari, Alon & Shtudiner, “Heterogeneous collective criticality in cryptocurrency volatility: Scaling collapse, tail synchronization, and cascade amplification,” Chaos, Solitons & Fractals 211 (2026), DOI 10.1016/j.chaos.2026.118809.
+
+- **Data/method:** abstract reports hourly and daily BTC, ETH and SOL volatility, with S&P 500 and EUR/USD contrast series; coupled critical-boundary framework, circular-block intervals, circular-shift/block-shuffle/factor-residual nulls, and GARCH-family filtering.
+- **Reported result:** BTC is described as boundary-adjacent, with its block interval crossing the critical value; crypto tail co-exceedances remain above the stated null envelopes; short-horizon volatility-of-volatility preserves cascade amplification.
+- **Limitations:** full text was paywalled in this review; claims are abstract-level and estimator/time-scale sensitivity is explicitly reported. No forecast skill is established.
+- **Research implication:** consider tail-synchronization diagnostics as a separate risk-state ablation; never convert a criticality label into a crash probability without calibrated prospective validation.
+
+Source: https://doi.org/10.1016/j.chaos.2026.118809 ; abstract record: https://EconPapers.repec.org/RePEc:eee:chsofr:v:211:y:2026:i:p1:s0960077926009501
+
+### 17. Forecast artifact and CI provenance recovered
+
+GitHub Actions run 43179787161 (“LFM 5m BTC research forecast”) completed successfully on 2026-11-12 at 08:03 UTC. Both the offline 5m unit-test step and the live public-data forecast step succeeded. Artifact ID 13925638014 contained the raw JSON forecast.
+
+- **Vintage:** issued 2026-11-12T08:03:03.240211Z; data cutoff 2026-11-12T07:59:59.999Z; Binance Spot BTCUSDT 5m; 999 closed candles; reference 73,660.61 USDT; model version LFM-5m-Downside-Aware-Council-0.3; source https://data-api.binance.vision/api/v3/klines; model source commit 75cbc8bebc42e91033713263e338ada4c0848e95.
+- **Models:** RandomWalk, Momentum5m, MeanReversion5m, VolatilityRegime5m, TakerFlow5m, DownsideStress5m and LFM5mEnsemble; each produced 24 hourly target points. The P90 bands are explicitly uncalibrated.
+- **Archival:** the original JSON is preserved losslessly as a gzip-compressed append-only file under forecasts/2026-11-12/. The compressed and uncompressed SHA-256 hashes are recorded in FORECAST_LEDGER.md.
+- **Evaluation:** the final target hour opens at 2026-11-13T08:00:00Z and closes at 08:59:59.999Z. At the 2026-11-13 07:56:59Z review cutoff, the final target had not closed; the full 24-point vintage is therefore not yet scored. No partial score is substituted for the frozen 24-hour primary evaluation.
+
+A separate repository-wide tests workflow, run 43179787283, failed before pytest: pip install -e . stopped because setuptools auto-discovered multiple flat-layout top-level packages (chess, research, ambivikhry). Python 3.11/3.12/3.13 jobs failed at packaging; Python 3.10 was cancelled; pytest did not run. This is a repository packaging/CI issue, not a failure of the 5m forecast test step. Root packaging was left untouched to preserve the research-branch scope.
+
+### 18. Data-quality hardening
+
+The 5m parser now additionally requires UTC-aligned candle opens, the exact inclusive Binance close timestamp (open + 299,999 ms), non-negative trade counts and taker-buy quote volume no greater than total quote volume. New unit tests cover these checks and require all model paths to share the same 24-point UTC hourly target grid beginning at the next full hour.
+
+The workflow trigger was narrowed to model code, its tests, the daily trigger marker and the workflow itself. Forecast archives and ledger-only commits do not recursively launch another run. The daily marker is intended to trigger one fresh public-data run during each scheduled research cycle.
+
+### Daily decisions — 2026-11-13
+
+- No external code, weights, tokenizers or datasets were copied. Paper results were used as cited research leads only; no new license obligations were introduced.
+- No external competitor produced a forecast verified on the same BTC venue, cutoff, issue time and 24 hourly targets as this branch. Public binary-probability dashboards and daily/24h model journals remain separate shadow references.
+- No champion is promoted. The 5m council is experimental, and its Gaussian-style P90 bands are not calibrated.
+- The daily marker triggers a fresh workflow run. The new run's artifact must be inspected and archived before any current numeric forecast is reported.
+
+**Next experiment:** compare the 5m council with a volatility-aware and seasonal-naive baseline on identical non-overlapping origins; then test Student-t and jump-mixture interval calibration. Add R-RISI only if a legal and point-in-time data path is documented. Keep round-number levels as scenario thresholds, not technical barriers.
