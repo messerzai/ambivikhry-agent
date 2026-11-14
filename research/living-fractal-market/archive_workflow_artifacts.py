@@ -78,19 +78,11 @@ def list_workflow_runs(
 ) -> list[dict[str, Any]]:
     query = urllib.parse.urlencode({"branch": branch, "per_page": 100})
     url = f"{API}/repos/{repo}/actions/workflows/{workflow_file}/runs?{query}"
-    deadline = time.time() + 180
-    runs: list[dict[str, Any]] = []
-    while True:
-        payload = api_json(url, token)
-        runs = [
-            run for run in payload.get("workflow_runs", [])
-            if run.get("head_branch") == branch
-        ]
-        exact = [run for run in runs if run.get("head_sha") == head_sha]
-        if exact or time.time() >= deadline:
-            break
-        time.sleep(5)
-
+    payload = api_json(url, token)
+    runs = [
+        run for run in payload.get("workflow_runs", [])
+        if run.get("head_branch") == branch
+    ]
     exact = [run for run in runs if run.get("head_sha") == head_sha]
     if exact:
         deadline = time.time() + 300
@@ -110,6 +102,9 @@ def list_workflow_runs(
             if run.get("status") == "completed" and run.get("conclusion") == "success"
         ]
 
+    # Archive-only marker commits do not have a forecast/evaluation run on
+    # their own SHA. Fall back immediately to recent completed runs instead
+    # of waiting three minutes for an impossible exact match.
     return [
         run for run in runs
         if run.get("status") == "completed" and run.get("conclusion") == "success"
