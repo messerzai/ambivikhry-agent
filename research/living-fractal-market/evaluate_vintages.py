@@ -51,11 +51,16 @@ def _slug(value: str) -> str:
 
 
 def make_vintage_id(forecast: dict[str, Any]) -> str:
-    issued = str(forecast["issued_at_utc"]).replace("-", "").replace(":", "").replace(".", "")
+    issued = str(forecast["issued_at_utc"])
     asset = str(forecast.get("asset", "BTCUSDT")).replace("/", "")
     venue = _slug(str(forecast.get("venue", "binance-spot")))
-    version = _slug(str(forecast.get("model_version", "unknown")))
-    return f"lfm5m-{issued}-{asset}-{venue}-{version}"
+    model_version = str(forecast.get("model_version", "unknown")).lower()
+    version_tag = (
+        "council-" + model_version.rsplit("council-", 1)[1]
+        if "council-" in model_version
+        else _slug(model_version)
+    )
+    return f"lfm5m-{issued}-{asset}-{venue}-{version_tag}"
 
 
 def load_forecast_archive(path: Path) -> tuple[dict[str, Any], bytes, str]:
@@ -278,6 +283,34 @@ def volatility_capped_slow_drift_baseline(
     return points
 
 
+def threshold_event_diagnostic(
+    forecast: dict[str, Any],
+    actual_closes: list[float],
+) -> dict[str, Any] | None:
+    risk = forecast.get("downside_risk", {})
+    diagnostics = forecast.get("diagnostics", {})
+    level_value = risk.get("level_usdt", diagnostics.get("downside_level_usdt"))
+    probability_value = risk.get("heuristic_probability_below_level_24h")
+    if level_value is None or probability_value is None:
+        return None
+    level = float(level_value)
+    probability = float(probability_value)
+    if not (math.isfinite(level) and level > 0 and math.isfinite(probability) and 0 <= probability <= 1):
+        return None
+    observed = bool(actual_closes[-1] < level)
+    reference = float(forecast["reference_price_usdt"])
+    return {
+        "event": "terminal_hourly_close_below_level",
+        "level_usdt": level,
+        "reference_already_below_level": reference < level,
+        "heuristic_probability_uncalibrated": probability,
+        "observed_terminal_outcome": observed,
+        "brier_diagnostic_only": (probability - float(observed)) ** 2,
+        "is_first_passage_probability": False,
+        "interpretation": "One-vintage diagnostic only; the source probability is explicitly uncalibrated and receives no tournament credit.",
+    }
+
+
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
@@ -293,8 +326,8 @@ def evaluate_vintage(
     forecast, forecast_bytes, archive_sha = load_forecast_archive(path)
     target_grid = validate_forecast(forecast)
     vintage_id = make_vintage_id(forecast)
-    evaluation_record = evaluation_root / f"{vintage_id}.json"
-    if evaluation_record.exists():
+    evaluation_records = list(evaluation_root.rglob(f"{vintage_id}.json")) if evaluation_root.exists() else []
+    if evaluation_records:
         return {"status": "already_evaluated", "vintage_id": vintage_id, "archive": str(path)}
 
     final_close = target_grid[-1] + timedelta(hours=1) - timedelta(milliseconds=1)
@@ -376,6 +409,7 @@ def evaluate_vintage(
         "target_grid_open_utc": [iso_utc(value) for value in target_grid],
         "target_grid_final_close_utc": iso_utc(final_close),
         "actual_hourly_closes_usdt": actual_closes,
+        "threshold_event_diagnostic": threshold_event_diagnostic(forecast, actual_closes),
         "baseline_results": baseline_results,
         "model_results_ranked_by_primary_loss": model_results,
         "primary_metric": {
@@ -446,10 +480,21 @@ def main() -> int:
         "evaluated": [],
         "pending": [],
         "already_evaluated": [],
+        "duplicates": [],
         "failed": [],
     }
     for path in candidates:
+        if path.name.endswith(".json.gz"):
+            counterpart = path.with_name(path.name[:-len(".json.gz")] + ".artifact.zip")
+            if counterpart.exists():
+                manifest["duplicates"].append({
+                    "archive": str(path),
+                    "canonical_archive": str(counterpart),
+                })
+                continue
         try:
+            forecast, _, _ = load_forecast_archive(path)
+            vintage_id = make_vintage_id(forecast)
             outcome = evaluate_vintage(path, args.forecast_root, args.evaluation_root, args.output_dir, now)
             manifest[outcome["status"]].append(outcome)
         except Exception as exc:
