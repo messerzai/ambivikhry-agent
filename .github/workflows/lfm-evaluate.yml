@@ -1,0 +1,41 @@
+name: LFM completed-vintage evaluation
+
+on:
+  push:
+    branches:
+      - research/living-fractal-market
+    paths:
+      - research/living-fractal-market/evaluate_vintages.py
+      - research/living-fractal-market/test_evaluate_vintages.py
+      - research/living-fractal-market/DAILY_RUN_TRIGGER.md
+      - .github/workflows/lfm-evaluate.yml
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test evaluation logic
+        run: python -m unittest discover -s research/living-fractal-market -p 'test_evaluate_vintages.py' -v
+      - name: Evaluate completed forecast vintages
+        run: >-
+          python research/living-fractal-market/evaluate_vintages.py
+          --forecast-root research/living-fractal-market/forecasts
+          --evaluation-root research/living-fractal-market/evaluations
+          --output-dir evaluation-out
+      - name: Upload evaluation and exact actual-data artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lfm-completed-vintage-evaluation
+          path: evaluation-out/
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 6
+          overwrite: false

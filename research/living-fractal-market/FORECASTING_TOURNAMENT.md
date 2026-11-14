@@ -4,7 +4,7 @@ This is the forecasting and self-improvement protocol for the Living Fractal Mar
 
 ## Objective
 
-The current champion model must publish a timestamped forecast for the next 24 hours of BTC/USD, with one forecast point per hour (hours +1 through +24). Forecasts are evaluated only after the corresponding market data becomes available. A model earns **research reward points** when it beats the agreed baselines under the scoring rules below. Rewards are virtual benchmark points and promotion in the model tournament—not money, tokens, or permission to trade.
+The current champion model must publish a timestamped forecast for the next 24 hours of BTC/USD, with one forecast point per hour (hours +1 through +24). Forecasts are evaluated only after the corresponding market data becomes available. A model earns research reward points when it beats the agreed baselines under the scoring rules below. Rewards are virtual benchmark points and promotion in the model tournament—not money, tokens, or permission to trade.
 
 ## Forecast contract
 
@@ -12,7 +12,7 @@ Every forecast record must include:
 - issue timestamp in UTC and exact data cutoff;
 - asset and price source / venue or documented composite;
 - reference price at issue time;
-- 24 hourly target timestamps and predicted BTC/USD prices;
+- 24 hourly target timestamps and predicted prices in the declared quote currency;
 - preferably 50% and 90% prediction intervals for each hour;
 - model name, version, code commit, feature set and training-data cutoff;
 - short explanation of dominant signals and uncertainty;
@@ -23,16 +23,23 @@ The model must not silently revise a forecast after issue. Corrections are separ
 ## Evaluation and reward
 
 For each completed forecast:
-1. Align each prediction to the first valid hourly close at or after its target timestamp, using the declared price source.
-2. Calculate MAE and sMAPE/WAPE for price levels, plus MAE for log returns. State denominator conventions and handle near-zero values safely.
-3. Score directional accuracy for each hourly return relative to the issue-time reference and previous forecast hour.
-4. Score interval coverage and sharpness for 50% / 90% intervals; use a proper interval or quantile score so excessively wide intervals are not rewarded.
-5. Compare with at least: (a) random-walk / last-price baseline, (b) drift-free return baseline, and (c) a simple volatility-aware baseline.
-6. Aggregate results over non-overlapping daily forecast vintages and report all horizons separately (1h…24h), plus an overall score.
 
-**Reward rule:** award 1 virtual point for a forecast vintage that beats the random-walk baseline on pre-registered primary loss, while maintaining calibrated intervals and no critical data leakage. Award an additional 1 point if it also beats the strongest simple baseline. Deduct no points for honest abstention due to missing or corrupted data; record abstentions separately. A model that wins must do so over a minimum of 30 completed daily vintages before it can become champion. Use a rolling leaderboard and show sample size and confidence intervals; do not crown a winner from one lucky day.
+1. Align each prediction to the hourly candle whose open timestamp exactly equals the forecast target timestamp. Score that candle's close from the declared venue and quote currency. Do not silently substitute a different venue, quote currency or nearest bar.
+2. Calculate price-level MAE and sMAPE/WAPE as descriptive secondary metrics. The primary metric is normalized MAE of hourly log-price forecasts:
+   - raw log MAE = mean over h=1…24 of abs(log(predicted_close_h) - log(actual_close_h));
+   - nMAE = raw log MAE / sigma_hour;
+   - sigma_hour is the point-in-time hourly_sigma_estimate frozen in the original forecast diagnostics at issue time. It must not be recomputed from target-period outcomes. If it is absent, non-finite or non-positive, report raw log MAE but mark the primary score unavailable.
+3. Report directional accuracy in two forms: sign of each predicted/actual price change relative to the issue-time reference, and sign of each hour-to-hour change relative to the preceding forecast/actual close.
+4. Report empirical P50/P90 interval coverage and mean interval width when those quantiles exist. Intervals are not considered calibrated merely because a model labels them P50 or P90. Calibration must be demonstrated on prior chronological vintages. Use proper interval/quantile scores when the required quantiles exist.
+5. Compare with at least:
+   - RandomWalkLastPrice: reference price repeated at all 24 horizons;
+   - DriftFreeReturn: equivalent zero-return / last-price point path;
+   - VolatilityCappedSlowDrift: drift = clip(slow_12h_log_return_per_hour, -0.25*sigma_hour, +0.25*sigma_hour); point_h = reference * exp(drift*h); a descriptive P90 envelope is point_h * exp(±1.64485362695*sigma_hour*sqrt(h)). The drift and sigma must come from the frozen issue-time diagnostics. This is a simple control, not a market-implied distribution or calibrated interval.
+6. Aggregate only over non-overlapping daily forecast vintages. Report every horizon, overall loss, sample size and uncertainty. The 24 horizons within one vintage are serially dependent and are not 24 independent daily samples.
 
-Primary loss: normalized MAE of hourly log-price forecasts averaged over 24 horizons. Direction and interval metrics are secondary gates, not substitutes. Freeze scoring definitions before the test period. Report uncertainty and use paired comparisons / bootstrap confidence intervals where feasible.
+**Reward rule:** award 1 virtual point for a forecast vintage that beats RandomWalkLastPrice on the pre-registered primary loss, while maintaining calibrated intervals and no critical data leakage. Award an additional 1 point if it also beats the strongest simple baseline. Uncalibrated intervals make a vintage ineligible for points even when its point loss is lower. Honest abstention due to missing or corrupted data receives no penalty; record abstentions separately. A model must win over at least 30 completed, non-overlapping daily vintages before it can become champion. Use paired comparisons and bootstrap confidence intervals where feasible; do not crown a winner from one lucky day.
+
+Freeze scoring definitions before the test period. Do not normalize by realized target-period volatility or any other target-period quantity. Report the exact denominator and source for every score.
 
 ## Version tournament and self-improvement
 
