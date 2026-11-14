@@ -35,3 +35,36 @@ No new result meets the matching contract of BTC spot venue, quote currency, exa
 - RQA article: https://link.springer.com/article/10.1186/s40854-026-00940-x
 - Dallas Fed working paper 2605: https://www.dallasfed.org/research/papers/2026/wp2605
 - Collective criticality abstract record: https://econpapers.repec.org/article/eeechsofr/v_3a211_3ay_3a2026_3ai_3ap1_3as0960077926009501.htm
+
+
+## Daily watchlist expansion — 2026-11-14 (sentiment, news, statistical and microstructure)
+
+| Candidate / source | Method, data and horizon | Reported evidence | Reproducibility / comparability | Status |
+|---|---|---|---|---|
+| Chikhi et al., ARFIMA-GAS/EGAS/AEGAS (Czech JEF 2026) | Daily BTC prices in five fiat quotes from Coincheck, 2018-06–2024-06; rolling daily return/volatility forecasts | Paper reports GAS-family models outperform random walk over 2024-06-11–2024-08-28; skewed Student-t, leverage and jumps | Published paper/PDF available; no code found in checked page. Daily and short holdout; not hourly Binance Spot. | Statistical daily-scale challenger blueprint only |
+| Wang, Huang & Liao, VMD + deep learning (Finance Research Letters 2026) | Hourly BTC data 2016-01–2025-06; VMD with CNN and other deep models | Abstract says VMD improves performance across architectures and VMD-CNN is best | Full text paywalled; abstract does not state exact horizon, full scores, split details or code. | Multi-scale challenger lead; not yet reproducible |
+| Haroon, RAML (arXiv:2607.23370, 2026-07-25) | BTC-USD hourly OHLCV + Reddit FinBERT; 3h/6h directional classification; 3,491 aligned rows | AUC 0.5084 at 3h and 0.4902 at 6h; test window 1,345 observations (Jul–Sep 2025) | Preprint, no code license/repository identified. AUC near/below chance; full-sample vs training-only volatility threshold is inconsistent in the paper. Not a price-path forecast. | Unranked sentiment challenger/reference; reproduce only with a leakage audit |
+| Bieganowski & Ślepaczuk, CatBoost microstructure (arXiv:2602.00776, 2026-01-31) | Binance Futures perpetual LOB/trades at 1s, 2022-01–2025-10; 3s mid-price returns; five assets | Authors report stable feature rankings and SHAP shapes across assets; time-series CV and execution backtests | Preprint; no matching Spot BTC hourly forecasts; no repository/code license identified in checked arXiv page. | L2/OFI feature reference only |
+| Takaishi, QCL volatility (arXiv:2609.04569, 2026-09-03) | 5m BTC data -> daily realized volatility; single-qubit circuit; MF-DFA on synthetic series | Abstract reports qualitative reproduction of some multifractal/rough-volatility signatures | Preprint; not a price-path benchmark and no runnable implementation/license identified in checked record. | Volatility diagnostic only |
+| Choi, intrinsic multifractality (Physica A 697, 131735, 2026) | ~774k BTC 5m observations, 2017-08–2024-12; q-Gaussian rescaling | Abstract reports ~25-day scaling crossover and adaptive-efficiency changes around ETF approval | Peer-reviewed journal record; full text not accessible in this review; no code/data replication. | MF-DFA/q-Gaussian diagnostic candidate |
+| Huynh, news/sentiment interaction (JBEF 101183, 2026) | 5m top-100 crypto data, 2014–2021; US macro announcements; daily TRMI sentiment | Abstract reports bullish sentiment attenuates macro-news return response ~16% and turnover response ~24% per SD | Journal abstract checked; historical multi-asset sample, not BTC-only; no matching forecast ledger. | Event-window interaction hypothesis |
+| Akbar, human vs automated social signals (Studies in Economics and Finance, 2026-05-06) | >16m BTC tweets; human-like/automation-like groups; returns and GARCH-X variance | Abstract reports polarity/hype/anxiety do not predict returns; attention improves variance model and reacts to price shocks | Abstract-only; full text/code unavailable in this review. | Attention/volatility hypothesis, not direction model |
+| Han, Liu & Sui, Dallas Fed WP 2605 (2026-03-02) | Bitcointalk social graph/posts 2012–2022, linked wallet subsample; CoinAPI hourly BTC returns and daily risk measures | Working paper distinguishes peer sentiment from contagion intensity; latter predicts volatility/volume/crashes; cumulative net contagion is discussed separately in return analysis | Preliminary working paper; historic forum-specific data and RavenPack/CoinAPI dependencies limit reproducibility. | Network-contagion risk-feature hypothesis |
+| Shynkevich, periodic trading (J Futures Markets, first published 2026-02-18) | Subsecond BTC/ETH Spot and perpetual trading activity | Abstract reports periodic bursts raise volatility/costs but no significant adverse price impact | Published journal article; data available from author on request; no public ledger. | Supports seasonal/liquidity controls, not automatic directional alpha |
+
+### Interpretation and ranking
+
+None of these sources provides a timestamped Binance Spot BTCUSDT 24-step hourly price path matching our issue time, cutoff and scoring contract. They remain unranked. ARFIMA-GAS and VMD-CNN are the most relevant model-architecture challengers for offline reproduction; RAML and the attention/news papers inform causal feature ablations; LOB CatBoost is too fine-grained and futures-specific for the current forecast target. No external rank or virtual point is awarded.
+
+### Sources
+
+- ARFIMA-GAS/AEGAS: https://doi.org/10.32065/CJEF.2026.01.03
+- VMD/deep learning: https://doi.org/10.1016/j.frl.2026.109776
+- RAML: https://arxiv.org/abs/2607.23370
+- Explainable microstructure: https://arxiv.org/abs/2602.00776
+- QCL/MF-DFA: https://arxiv.org/abs/2609.04569
+- Choi multifractality: https://doi.org/10.1016/j.physa.2026.131735
+- News/sentiment interaction: https://doi.org/10.1016/j.jbef.2026.101183
+- Human vs automated signals: https://doi.org/10.1108/SEF-12-2025-0942
+- Dallas Fed WP 2605: https://www.dallasfed.org/research/papers/2026/wp2605
+- Trading periodicity: https://doi.org/10.1002/fut.70089
