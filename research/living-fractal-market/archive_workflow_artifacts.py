@@ -376,16 +376,34 @@ def archive_evaluation_run(
 
 
 def git_commit_and_push(root: Path, branch: str) -> bool:
-    def run(*args: str) -> None:
-        subprocess.run(args, cwd=root, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    def run(*args: str) -> str:
+        completed = subprocess.run(
+            args, cwd=root, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, text=True,
+        )
+        if completed.returncode != 0:
+            detail = (completed.stdout or "")[-6000:]
+            raise RuntimeError(
+                f"command failed ({completed.returncode}): {' '.join(args)}\n{detail}"
+            )
+        return completed.stdout or ""
+
     run("git", "config", "user.name", "github-actions[bot]")
     run("git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com")
-    run("git", "add", "research/living-fractal-market/forecasts",
+    candidates = (
+        "research/living-fractal-market/forecasts",
         "research/living-fractal-market/evaluations",
-        "research/living-fractal-market/FORECAST_LEDGER.md")
+        "research/living-fractal-market/FORECAST_LEDGER.md",
+    )
+    existing_paths = [path for path in candidates if (root / path).exists()]
+    if not existing_paths:
+        return False
+    # Empty directories are not tracked by Git. Add only paths that exist so a
+    # run with no evaluation records can still archive its forecast artifact.
+    run("git", "add", "-A", "--", *existing_paths)
     status = subprocess.run(
         ["git", "diff", "--cached", "--quiet"], cwd=root,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     )
     if status.returncode == 0:
         return False
