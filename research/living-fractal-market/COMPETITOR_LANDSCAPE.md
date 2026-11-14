@@ -142,3 +142,19 @@ Sources:
 ### Comparable-forecast rule
 
 No newly inspected external record supplies all of the following simultaneously: BTC spot venue and quote currency matching Binance BTCUSDT, exact issue time and information cutoff, 24 hourly target closes, and a preserved point-price path with intervals. Mispria is binary-market probability, Brier Index is 1/7/30-day, CryptoOracle's public live JSON is dynamically rendered and its published aggregate backtest is not a same-origin live comparator, and likely.sh is currently unavailable. All remain in the shadow watchlist; none enters the ranked external leaderboard.
+
+
+## Additional risk-state challenger — checked 2026-11-14
+
+| Project / paper | Method and target | Evidence and data | Reproducibility / comparison | Status |
+|---|---|---|---|---|
+| Li, Zhong & Li (2026), Entropy 28(10), 1096 | GSADF/BSADF + LR, KNN, SVM, DT, RF, XGBoost, LightGBM, ANN, LSTM and three probability ensembles; daily BTC explosive-state occurrence/continuation at 1/3/7 days | Daily Investing.com BTC 2016-01 to 2026-04; Yahoo Finance BTC/USD robustness; 30 episodes / 455 bubble days. 7-origin purge, training-only SMOTE, moving-block bootstrap and MCS. Multiple models remain in the 90% MCS; 7-day recall remains limited. | Peer-reviewed, full article available, but processed data only on request and no code repository linked. Daily state classification, not hourly point-price forecasting. Article CC BY 4.0; raw data terms remain separate. | Daily risk-state shadow challenger only; no external rank in hourly price-path tournament. Source: https://www.mdpi.com/1099-4300/28/10/1096 |
+| Karagiorgis & Ballis (2026), Journal of Futures Markets 46(8), 1440–1452 | Time-varying skewness–kurtosis plane; hourly realized higher moments from 1-minute BTC spot/perpetual returns | Binance minute data 2020-10 to 2022-09; 34,854 hourly observations. Positive convex S² association; volume–kurtosis link stronger in futures and sensitive to winsorization. | Data on request; no public code/data license identified. Risk diagnostic, not price forecast. Full-sample log-volume demeaning in baseline is not point-in-time safe. | Higher-moment risk-state reference; no implementation or data reused. Source: https://onlinelibrary.wiley.com/doi/full/10.1002/fut.70117 |
+
+## Public forecast ledger refresh — 2026-11-14
+
+- CoinPredict BTC 24h: its public page was updated 2026-11-14 04:58 UTC. The visible 24h call was model 1d-20261105-0358, issued 2026-11-13 00:00 UTC, base $71,431, nominal 80% range $69,756–$73,129, confidence 52%, expiry 2026-11-14. The page reports 20 graded BTC 24h calls: 75% in range, 55% direction, median miss 0.9%. This is a scalar terminal-price forecast, now expired at this review time; it does not provide a matching 24-point hourly path. The separate aggregate track record has 6,710 24h calls across assets, not 6,710 BTC calls. Do not combine the denominators. Sources: https://coinpredict.net/price-prediction/bitcoin ; https://coinpredict.net/track-record
+- SignalTrace Lab: search-index snapshot dated 2026-11-13 reported 46.8% up / 53.2% down at 2026-11-13 00:00 UTC, but the opened page showed an older 2026-11-10 edition (47.0% up / 53.0% down). Treat the newer snippet as unverified, not a current ledger entry. Source: https://signaltracelab.com/en/bitcoin/
+- Satori Signals: a search snippet showed a Nov-14 01:00 UTC consensus, but the opened public page and forecasts page did not expose the same current row; detailed forecasts require a token holding or subscription. No account, token or paid access was used. Do not rank the snippet. Source: https://satorisignals.app/
+
+No external record in this refresh supplies a same-origin Binance Spot BTCUSDT 24-step hourly price path and calibrated intervals. No external rank or LFM research points awarded.
