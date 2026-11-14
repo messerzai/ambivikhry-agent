@@ -16,6 +16,12 @@ The “living/non-repeating fractal” metaphor remains a hypothesis-generating 
 2. Hansen, Kim & Kimbrough, “Periodicity in Cryptocurrency Volatility and Liquidity,” *Journal of Financial Econometrics* 22(1), 224–251 (2024), DOI 10.1093/jjfinec/nbac034. Their BTC/ETH CEX and Uniswap study reports weekday, hourly and within-hour periodicity in volatility and volume. It motivates seasonal controls, not a ready-made direction signal.
 3. Takaishi, “Multifractality and sample size influence on Bitcoin volatility patterns,” arXiv:2511.03314 (November 2025, preprint). Its abstract reports finite-sample/sampling-interval effects in Bitcoin realized-volatility Hurst estimates and weaker multifractality in realized volatility than in returns. This motivates frequency-specific finite-size checks.
 
+
+
+4. Shynkevich, “Trading Periodicity and Algorithmic Divide in Cryptocurrency Markets,” *Journal of Futures Markets* 46(5), 904–930 (first published 2026-02-18), DOI 10.1002/fut.70089. The published abstract reports subsecond periodicity in BTC/ETH Spot and perpetual futures; periodic activity bursts increase volatility and transaction costs but do not cause significant adverse price impact. Data are available from the author on reasonable request. This is a counterpoint to the July 2026 quarter-hour futures preprint and supports treating clock phase first as a volatility/liquidity control, not as a directional alpha claim. Source: https://doi.org/10.1002/fut.70089
+
+**Interpretation guardrail:** evidence of periodic volume/volatility does not imply predictable signed returns. The Spot and Perpetual samples, sampling frequencies and market mechanisms must be tested separately.
+
 ## Data contract
 
 - Primary series: Binance Spot BTCUSDT 5m OHLCV, with UTC open and close timestamps, venue and quote currency preserved.
