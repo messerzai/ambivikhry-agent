@@ -1,0 +1,41 @@
+name: LFM immutable artifact archiver
+
+on:
+  push:
+    branches:
+      - research/living-fractal-market
+    paths:
+      - research/living-fractal-market/ARCHIVE_RUN_TRIGGER.md
+      - research/living-fractal-market/DAILY_RUN_TRIGGER.md
+      - research/living-fractal-market/evaluate_vintages.py
+      - research/living-fractal-market/test_evaluate_vintages.py
+      - .github/workflows/lfm-archive.yml
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: lfm-archive-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/living-fractal-market
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download and preserve exact workflow artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          python research/living-fractal-market/archive_workflow_artifacts.py
+          --repo "${{ github.repository }}"
+          --branch research/living-fractal-market
+          --head-sha "${{ github.sha }}"
