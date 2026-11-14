@@ -102,13 +102,10 @@ def list_workflow_runs(
             if run.get("status") == "completed" and run.get("conclusion") == "success"
         ]
 
-    # Archive-only marker commits do not have a forecast/evaluation run on
-    # their own SHA. Fall back immediately to recent completed runs instead
-    # of waiting three minutes for an impossible exact match.
-    return [
-        run for run in runs
-        if run.get("status") == "completed" and run.get("conclusion") == "success"
-    ][:20]
+    # Never substitute unrelated historical runs for the requested source
+    # commit. An archive-only trigger may name its source SHA in
+    # ARCHIVE_RUN_TRIGGER.md; if no exact run exists, report no matching run.
+    return []
 
 
 def find_artifact(repo: str, run_id: int, artifact_name: str, token: str) -> dict[str, Any] | None:
@@ -424,14 +421,23 @@ def main() -> int:
     if not ledger_path.exists():
         raise FileNotFoundError(ledger_path)
 
+    source_head_sha = args.head_sha
+    archive_marker = args.root / "research/living-fractal-market/ARCHIVE_RUN_TRIGGER.md"
+    if archive_marker.exists():
+        marker_text = archive_marker.read_text(encoding="utf-8")
+        match = re.search(r"^Source head SHA:\\s*([0-9a-f]{40})\\s*$", marker_text, re.MULTILINE)
+        if match:
+            source_head_sha = match.group(1)
+
     summary: dict[str, Any] = {
+        "source_head_sha": source_head_sha,
         "archived_forecasts": [],
         "archived_evaluations": [],
         "skipped": [],
         "errors": [],
     }
     forecast_runs = list_workflow_runs(
-        args.repo, args.branch, FORECAST_WORKFLOW, args.head_sha, token
+        args.repo, args.branch, FORECAST_WORKFLOW, source_head_sha, token
     )
     for run in forecast_runs:
         try:
@@ -449,7 +455,7 @@ def main() -> int:
             })
 
     evaluation_runs = list_workflow_runs(
-        args.repo, args.branch, EVALUATION_WORKFLOW, args.head_sha, token
+        args.repo, args.branch, EVALUATION_WORKFLOW, source_head_sha, token
     )
     for run in evaluation_runs:
         try:
