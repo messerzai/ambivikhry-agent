@@ -51,3 +51,12 @@ This register is an engineering provenance checklist, not a legal opinion. Ambig
 | BrainEdge | https://brainedge.tech/; public dashboard inspected 2026-11-12 | No source repository/license identified in the checked public page. | Forecast data/API terms not independently established. | Public claims used only as an unranked reference; no code/data copied. |
 
 No third-party source code, model weights, tokenizers, datasets or benchmark artifacts were copied in this review. Public model/website access was not treated as a reuse grant. This register is an engineering provenance aid, not legal advice.
+
+
+## Literature and implementation provenance audit — 2026-11-14
+
+- Reviewed source papers/preprints and abstracts on ARFIMA-GAS/AEGAS, VMD-CNN, regime-aware sentiment fusion, social-network contagion, macro-news/sentiment interactions, human-vs-automated attention, high-frequency order-book features, multifractal diagnostics and quantum-circuit volatility modelling.
+- No source repository code, model weights, tokenizers, datasets, raw social posts, order-book data, paid feeds or benchmark artifacts were downloaded or copied for reuse in this cycle.
+- For papers without a public code repository or explicit data-use terms, no reuse permission is inferred. The Dallas Fed paper references Bitcointalk, CoinAPI and RavenPack data; these are not treated as a freely reusable bundle. The Huynh and Akbar full texts were not accessible in this review, so only publisher-abstract claims are recorded. The RAML and CatBoost microstructure preprints had no repository/license identified in the checked arXiv records.
+- No software license or model-weight license is asserted for a paper merely because its abstract/PDF is publicly readable. Any future code, model, dataset or API reuse requires an exact immutable version and separate license/terms audit before copying.
+- No legal conclusion is offered. Unclear data-platform terms and article-specific reuse rights remain for qualified review if future implementation requires them.
