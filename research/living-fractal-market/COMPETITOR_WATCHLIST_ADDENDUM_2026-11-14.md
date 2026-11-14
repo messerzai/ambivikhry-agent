@@ -68,3 +68,28 @@ None of these sources provides a timestamped Binance Spot BTCUSDT 24-step hourly
 - Human vs automated signals: https://doi.org/10.1108/SEF-12-2025-0942
 - Dallas Fed WP 2605: https://www.dallasfed.org/research/papers/2026/wp2605
 - Trading periodicity: https://doi.org/10.1002/fut.70089
+
+
+## Public forecast-ledger check — 2026-11-14
+
+| System | Public evidence checked | Asset / horizon | Reproducibility and caveats | Shadow-board decision |
+|---|---|---|---|---|
+| CoinPredict | Public track record reports 6,710 graded 24h calls across assets, 54% directional accuracy and 83% in its 80% range; BTC page reports 18 graded BTC 24h calls, 56% direction, 77.8% in-range and 0.9% median base-case miss. Methodology describes a volatility range model plus a cross-coin gradient-boosted direction model; hourly signals are a separate model. | BTC 24h and other horizons; separate 1h calls | Public, versioned ledger and methodology. BTC sample is only 18 calls. Latest BTC 24h snapshot visible is model 1d-20261105-0358, made 2026-11-11 00:00 UTC and expiring 2026-11-12; page updated 2026-11-12 06:30 UTC. No current 24-step hourly path. | Best current public-ledger candidate for future terminal-price comparison, but not comparable to the 2026-11-14 issue time. No rank assigned. |
+| Satori Signals | Accuracy page reports BTC last-30-days 237 forecasts, 50.6% direction, 1.07% average error (same as no-change baseline), and 75.5% inside the network's central 80% range; checked on 11 days. | BTC next 24h crowd consensus | Public accuracy summary, but only 11 checked days in the displayed 30-day period; landing-page sample is stale. Full forecasts require holding 1,000 SATORIEVR or paying $5/month. No token, payment or account was used. | Track read-only as crowd benchmark; not eligible for participation or ranking. |
+| SignalTrace Lab | Public 24h page displays 47.0% up / 53.0% down, historical upward frequency 48.2%, 2,536 historical comparisons, and explicitly labels it an uncalibrated baseline. Opened page edition is 2026-11-10, reference time 2026-11-10 00:00 UTC; search index showed a newer-looking snippet, so the page itself was treated as authoritative. | BTC 24h direction probability | No current calibrated probability error or preserved price path in the checked page. Stale at review time and not a price-path forecast. | Unranked, stale probability reference only. |
+| BitPredict | BTC 24h page describes timestamped UP/DOWN member calls, free participation and public accuracy leaderboard; the displayed member split is 71% UP / 29% DOWN as of 2026-11-02 15:39 UTC (87 calls). | BTC 24h binary human/member calls | The displayed split is stale and is not a current model forecast. Account registration is required to submit; automated-participation terms were not verified. | No submission or account creation. Keep as a human-crowd watchlist candidate. |
+| CoinPredict current homepage / cached snippets | Search snippet and live page disagreed: the snippet displayed a populated hourly board, while the opened page showed “no call this hour” and “waiting for first market snapshot”; the separate track-record page was populated. | BTC and multi-asset hourly / 24h | Dynamic/cached page inconsistency; rely only on the opened, versioned track-record and methodology pages, not the conflicting homepage snippet. | Preserve discrepancy in audit notes; do not infer a current BTC hourly signal. |
+| Coinbase prediction markets | Public page showed BTC hourly/15-minute threshold contracts and implied probabilities, including a Nov 14 contract snapshot. | Event thresholds, not full price paths | Market-implied probabilities include liquidity/market-price effects and are not a forecasting model or a fixed 24-hour BTC close. No trading or order placement. | Possible read-only market-implied event benchmark, not model leaderboard. |
+
+### Source URLs (checked 2026-11-14)
+
+- CoinPredict track record: https://coinpredict.net/track-record
+- CoinPredict BTC forecast: https://coinpredict.net/price-prediction/bitcoin
+- CoinPredict methodology: https://coinpredict.net/methodology
+- Satori accuracy: https://satorisignals.app/accuracy
+- Satori forecasts/access: https://satorisignals.app/forecasts
+- SignalTrace BTC outlook: https://signaltracelab.com/en/bitcoin/
+- BitPredict BTC next 24h: https://www.bitpredict.io/predictions/bitcoin/next-24-hours
+- Coinbase prediction markets: https://www.coinbase.com/predictions/crypto/BTC/Hourly
+
+No external forecast is scored against LFM until the exact asset/venue, issue time, information cutoff, expiry convention and target path can be aligned. A crowd percentage, market-implied event probability or backtest aggregate is not interchangeable with an hourly price path.
