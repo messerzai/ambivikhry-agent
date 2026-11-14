@@ -382,3 +382,42 @@ This review adds a separate behavioral/news ablation protocol. No sentiment, att
 - Coinbase's prediction-market page displays BTC hourly/15-minute threshold contracts. These are market-implied event probabilities, not a model forecast of a 24h price path; no trading was performed. Source: https://www.coinbase.com/predictions/crypto/BTC/Hourly
 
 Dynamic page discrepancy: CoinPredict's homepage search snippet showed a populated hourly board, while the opened page showed no call for the current hour; its separate track-record page remained populated. The live/opened source and versioned ledger were preferred over cached snippets. No new external score is comparable to the current LFM vintage.
+
+
+## Research review — 2026-11-14, run 4
+
+### Higher-moment tail risk in Bitcoin spot and perpetual futures
+
+Karagiorgis and Ballis (first published 2026-05-28), “Time-Varying Skewness–Kurtosis Dynamics in Bitcoin Markets,” Journal of Futures Markets 46(8), 1440–1452, DOI: https://doi.org/10.1002/fut.70117.
+
+The paper uses minute-by-minute Binance BTC spot and BTCUSDT perpetual data from 2020-10-01 through 2022-09-30 (2,102,398 minute observations), constructing hourly realized skewness and Pearson kurtosis. It requires at least 50 valid observations per hour and excludes zero-volume hours rather than forward-filling. A quadratic skewness–kurtosis regression with HAC errors (24 lags) is compared with a time-varying state-space/Kalman specification. The squared-skewness coefficient is about 1.53 in both spot and futures. Unexpected volume is positively associated with kurtosis in futures but not significantly in spot; the cross-market interaction is positive. Crucially, the volume association changes sign under 0.5/99.5 winsorization, indicating concentration in extreme-return episodes. The authors explicitly interpret results as conditional associations, not causal effects. Data are available from the corresponding author on request; no public code or dataset license was identified.
+
+Point-in-time caution: the paper's baseline unexpected-volume definition subtracts a full-sample mean of log-volume. That is not safe for a live predictor. Our independent implementation must use only trailing/past data (e.g. a rolling 24-hour expected-volume estimate), and must keep Spot and Perpetual separate. The paper's one-minute input is also essential: twelve 5-minute returns per hour are not a defensible substitute for sixty one-minute returns when estimating hourly skewness and kurtosis.
+
+Source: https://onlinelibrary.wiley.com/doi/full/10.1002/fut.70117
+
+### Daily probabilistic explosive-state forecasting
+
+Li, Jian-Rong, Guang-Yan Zhong, and Jiang-Cheng Li (2026-10-08), “Forecasting Explosive Bubble Regimes in Bitcoin Time Series with Multi-Step Ensemble Learning,” Entropy 28(10), 1096, DOI: https://doi.org/10.3390/e28101096.
+
+The peer-reviewed article uses daily Investing.com BTC data from 2016-01-01 to 2026-04-09, with Yahoo Finance BTC/USD as a cross-source robustness series. GSADF/BSADF labels identify 30 uninterrupted explosive-state episodes (455 days). Nine classifiers (LR, KNN, SVM, DT, RF, XGBoost, LightGBM, ANN, LSTM) and three probability ensembles are evaluated for 1-, 3-, and 7-day occurrence/continuation labels. The design purges seven forecast origins at temporal boundaries, confines SMOTE to training samples, and uses moving-block bootstrap/MCS uncertainty analysis. No single model dominates. At 1 day, the constrained least-squares ensemble has the lowest reported MSE; at 3 and 7 days logistic regression does. The 90% MCS retains multiple models at all horizons. Only 43 positive labels occur in the 1-day final test and 77 in the 7-day final test; the best 7-day recall is about 0.51. The target combines new bubble onset and continuation, so it is not an onset-only detector and is not a 24-step hourly price forecaster. Processed data are available from the corresponding author upon request; raw data are attributed to Investing.com/Yahoo Finance. No source-code repository is linked in the article.
+
+Decision: add as a separate daily probabilistic risk-state challenger, not to the BTC hourly price-path leaderboard. A future clean-room GSADF implementation must use point-in-time recursive windows and independently sourced data. Do not use full-sample transformations in live features.
+
+Sources: https://www.mdpi.com/1099-4300/28/10/1096 ; https://pmc.ncbi.nlm.nih.gov/articles/PMC13703411/
+
+### High-frequency cross-asset network structure
+
+Shukla, Shubhangam, Mahesh Peyyala, and Abhijit Chakraborty (2026-06-24), “Time-dependent weighted directed networks of cryptocurrency interaction from high-frequency returns,” arXiv:2606.25466.
+
+The preprint constructs one-minute VWAP and volume series from Kraken trade-level data (2020–2025), partitions them into 275 non-overlapping weekly windows, estimates pairwise Granger-causality links with BIC lag selection (maximum 10) and Benjamini–Hochberg FDR control at 5%, and describes time-varying cross-asset network centrality. This is a market-interaction diagnostic, not a BTC price forecast. Its text normalizes returns using full-sample means and standard deviations; those transformations must not be copied into a point-in-time feature pipeline without refitting strictly inside each training window. The preprint's code/data reuse terms were not established.
+
+Source: https://arxiv.org/abs/2606.25466
+
+### Research decisions
+
+- Add hourly realized skewness/kurtosis as a future risk-state diagnostic only, and only from one-minute data with explicit valid-observation thresholds.
+- Add trailing-only volume surprise, never full-sample demeaning.
+- Keep spot and perpetual series separate; do not infer spot BTC/USD price-path alpha from futures-only or cross-asset network findings.
+- Keep GSADF bubble-state probabilities at daily 1/3/7-day horizons, separate from hourly price forecasts.
+- No new forecast feature, model weight, source code, dataset, token, or external API was reused in this review.
