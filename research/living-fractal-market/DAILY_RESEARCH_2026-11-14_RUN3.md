@@ -50,3 +50,14 @@ No third-party assets were copied. Code/model-weight/data terms remain separate 
 5. Keep all new features diagnostic until they beat random walk and volatility-aware controls on the primary price-path loss.
 
 No trades, orders, transfers or execution credentials were used. Research only; not financial advice.
+
+
+## External public forecaster watch — 2026-11-14
+
+- **CoinPredict:** its public ledger shows 6,710 graded 24h calls across assets (54% direction, 83% in its 80% range). The BTC page shows 18 BTC 24h calls, 56% direction, 77.8% in-range, 0.9% median miss; latest visible BTC call was made 2026-11-11 00:00 UTC and expired Nov12. Useful future terminal-price comparator, but small BTC sample and no matching current hourly path.
+- **Satori Signals:** 237 BTC forecasts in the displayed last-30-day sample, 50.6% direction, 1.07% average error equal to no-change baseline, 75.5% inside its central 80% range; only 11 days checked. Access to full forecasts requires token holding or subscription; read-only only.
+- **SignalTrace Lab:** 24h BTC probability 47% up / 53% down vs historical up frequency 48.2%, explicitly uncalibrated and stale (opened issue time Nov10 00:00 UTC). A newer search snippet conflicted with the page, so not used.
+- **BitPredict:** public human-member 24h calls are timestamped, but the displayed 71% UP / 29% DOWN split is from Nov2 15:39 UTC; not current. No registration or automated submission.
+- **Coinbase prediction markets:** read-only hourly/15-minute threshold probabilities are an event-market reference, not a full BTC price-path forecast.
+
+No external forecast is scored against the Nov14 LFM vintage because issue times, target paths and cutoffs do not match. No token, paid service, account, wager or external commitment was used.
