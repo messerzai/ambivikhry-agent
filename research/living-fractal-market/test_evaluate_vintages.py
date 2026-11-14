@@ -8,6 +8,7 @@ from evaluate_vintages import (
     score_path,
     validate_actual_rows,
     volatility_capped_slow_drift_baseline,
+    threshold_event_diagnostic,
 )
 
 
@@ -66,6 +67,20 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(parse_utc("2026-11-12T09:00:00Z").tzinfo, timezone.utc)
         with self.assertRaisesRegex(ValueError, "lacks UTC offset"):
             parse_utc("2026-11-12T09:00:00")
+
+    def test_threshold_event_is_terminal_not_first_passage(self):
+        forecast = {
+            "reference_price_usdt": 73660.61,
+            "downside_risk": {
+                "level_usdt": 70000.0,
+                "heuristic_probability_below_level_24h": 0.0,
+            },
+        }
+        result = threshold_event_diagnostic(forecast, [73400.0] * 23 + [68717.47])
+        self.assertTrue(result["observed_terminal_outcome"])
+        self.assertFalse(result["reference_already_below_level"])
+        self.assertFalse(result["is_first_passage_probability"])
+        self.assertAlmostEqual(result["brier_diagnostic_only"], 1.0)
 
 
 if __name__ == "__main__":
