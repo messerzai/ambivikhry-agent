@@ -65,7 +65,7 @@ def request_bytes(url: str, token: str, accept: str = "application/vnd.github+js
     request = urllib.request.Request(
         url,
         headers={
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"token {token.strip()}",
             "Accept": accept,
             "X-GitHub-Api-Version": "2022-11-28",
             "User-Agent": "Ambivikhry-LFM-Artifact-Archiver/1.0",

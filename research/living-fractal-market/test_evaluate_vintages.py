@@ -18,12 +18,12 @@ class EvaluationTests(unittest.TestCase):
 
     def test_archive_marker_parses_source_head_sha(self):
         source_sha = "a" * 40
-        marker = f"# archive marker\\nSource head SHA: {source_sha}\\n"
+        marker = f"# archive marker\nSource head SHA: {source_sha}\n"
         self.assertEqual(source_head_sha_from_marker(marker), source_sha)
 
     def test_archive_marker_rejects_missing_or_malformed_source_sha(self):
-        self.assertIsNone(source_head_sha_from_marker("Source head SHA: not-a-sha\\n"))
-        self.assertIsNone(source_head_sha_from_marker("no source sha here\\n"))
+        self.assertIsNone(source_head_sha_from_marker("Source head SHA: not-a-sha\n"))
+        self.assertIsNone(source_head_sha_from_marker("no source sha here\n"))
 
     def test_perfect_path_has_zero_primary_loss_and_full_direction_accuracy(self):
         reference = 100.0
