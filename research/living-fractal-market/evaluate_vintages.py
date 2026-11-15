@@ -460,6 +460,26 @@ def evaluate_vintage(
     }
 
 
+def discover_forecast_archives(root: Path) -> tuple[list[Path], list[dict[str, str]]]:
+    """Prefer canonical workflow ZIPs and skip their redundant gzip mirrors."""
+    candidates = sorted(
+        set(root.rglob("*.json.gz")) | set(root.rglob("*.artifact.zip"))
+    )
+    selected: list[Path] = []
+    duplicates: list[dict[str, str]] = []
+    for path in candidates:
+        if path.name.endswith(".json.gz"):
+            counterpart = path.with_name(path.name[:-len(".json.gz")] + ".artifact.zip")
+            if counterpart.exists():
+                duplicates.append({
+                    "archive": str(path),
+                    "canonical_archive": str(counterpart),
+                })
+                continue
+        selected.append(path)
+    return selected, duplicates
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--forecast-root", type=Path, required=True)
@@ -470,8 +490,7 @@ def main() -> int:
 
     now = parse_utc(args.now) if args.now else datetime.now(timezone.utc)
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    candidates = sorted(set(args.forecast_root.rglob("*.json.gz")) |
-                        set(args.forecast_root.rglob("*.artifact.zip")))
+    candidates, duplicate_archives = discover_forecast_archives(args.forecast_root)
     manifest: dict[str, Any] = {
         "schema": "lfm.evaluation.manifest.v1",
         "evaluated_at_utc": iso_utc(now),
@@ -480,18 +499,10 @@ def main() -> int:
         "evaluated": [],
         "pending": [],
         "already_evaluated": [],
-        "duplicates": [],
+        "duplicates": duplicate_archives,
         "failed": [],
     }
     for path in candidates:
-        if path.name.endswith(".json.gz"):
-            counterpart = path.with_name(path.name[:-len(".json.gz")] + ".artifact.zip")
-            if counterpart.exists():
-                manifest["duplicates"].append({
-                    "archive": str(path),
-                    "canonical_archive": str(counterpart),
-                })
-                continue
         try:
             forecast, _, _ = load_forecast_archive(path)
             vintage_id = make_vintage_id(forecast)
