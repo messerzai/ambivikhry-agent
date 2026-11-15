@@ -182,6 +182,22 @@ def download_artifact(repo: str, artifact: dict[str, Any], token: str) -> bytes:
     return data
 
 
+def immutable_path_for_payload(
+    root: Path,
+    relative_path: str,
+    data: bytes,
+    discriminator: str,
+) -> str:
+    """Keep an existing immutable record; suffix conflicting duplicate payloads."""
+    path = root / relative_path
+    if not path.exists() or sha256_bytes(path.read_bytes()) == sha256_bytes(data):
+        return relative_path
+    candidate = Path(relative_path)
+    return str(candidate.with_name(
+        f"{candidate.stem}.artifact-{slug(discriminator)}{candidate.suffix}"
+    ))
+
+
 def write_immutable(root: Path, relative_path: str, data: bytes) -> tuple[bool, str]:
     path = root / relative_path
     digest = sha256_bytes(data)
@@ -388,6 +404,19 @@ def archive_evaluation_run(
             actual_rel = f"research/living-fractal-market/evaluations/{date}/{expected_id}_actual_binance_spot_1h.json"
             manifest_rel = f"research/living-fractal-market/evaluations/{date}/manifest_{stamp}.json"
 
+            # A later evaluation run may repeat the same vintage with a different
+            # evaluated_at timestamp. Preserve that exact payload under an
+            # artifact-specific path rather than overwriting the first record.
+            eval_json_rel = immutable_path_for_payload(
+                root, eval_json_rel, eval_bytes, str(artifact["id"])
+            )
+            actual_rel = immutable_path_for_payload(
+                root, actual_rel, actual_bytes, str(artifact["id"])
+            )
+            manifest_rel = immutable_path_for_payload(
+                root, manifest_rel, manifest_bytes, str(artifact["id"])
+            )
+
             _, archive_sha = write_immutable(root, eval_archive_rel, zip_bytes)
             _, eval_sha = write_immutable(root, eval_json_rel, eval_bytes)
             _, actual_sha = write_immutable(root, actual_rel, actual_bytes)
@@ -399,7 +428,9 @@ def archive_evaluation_run(
             archived_records.append({
                 "vintage_id": expected_id,
                 "evaluation_archive": eval_archive_rel,
+                "evaluation_json": eval_json_rel,
                 "evaluation_sha256": eval_sha,
+                "actual_data": actual_rel,
                 "actual_data_sha256": actual_sha,
                 "ledger_updated": ledger_changed,
             })
