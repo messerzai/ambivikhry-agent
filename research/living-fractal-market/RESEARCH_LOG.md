@@ -462,3 +462,81 @@ Source: https://doi.org/10.1016/j.jbef.2026.101183
 - No sentiment, news, macro-surprise or new multifractal feature was added to a forecast model.
 - No external code, model weights, tokenizers, datasets, raw social posts, API credentials or paid services were used.
 - The next empirical priority remains a source-data snapshot for every 5m vintage, followed by the seasonality baseline and only then point-in-time news/sentiment ablations.
+
+
+## Research review — 2026-11-15, follow-up run 4 (08:33 UTC)
+
+### 1. Scaling, multifractal falsification and market clocks
+
+Cho, Kim, Kim, Noh and Lee, “Cryptocurrency markets as an evolving complex system: stylized facts, scaling, and complexity,” *Frontiers in Physics* 14 (published 2026-10-29), DOI https://doi.org/10.3389/fphy.2026.2026031, is a peer-reviewed Perspective rather than a new forecast benchmark. It argues that scaling exponents, entropy and efficiency measures vary with regime, sampling and market organization. Its proposed minimum standard for genuine multifractality is to compare MF-DFA with shuffled, phase-randomized and IAAFT surrogates; compute finite-size confidence bands from length- and marginal-matched ensembles; report scaling-range/crossover uncertainty; and test q-range sensitivity. It also recommends matched rolling comparisons across assets and venues.
+
+Decision: preserve the existing MF-DFA diagnostic, but add IAAFT and phase-randomized nulls plus finite-size confidence bands before interpreting any nonlinear component. Treat calendar-time versus activity-time as a separate experiment. No fractal feature is enabled in a forecast. “Living/non-repeating fractal” remains a hypothesis-generating metaphor, not an established market law.
+
+Source: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.2026031/full
+
+### 2. Regime-dependent volatility forecasting
+
+Wafi, El-Halaby and Aboul-Dahab, “Regime-dependent bitcoin volatility forecasting under alternative information sets: evidence from econometric, deep learning, and hybrid models,” *Digital Finance* 8, 63 (published 2026-10-26), DOI https://doi.org/10.1007/s42521-026-00229-9. The paper uses 2,722 balanced daily observations (2018-02-01 to 2025-07-19), rolling one-step-ahead conditional-volatility forecasts, nested technical / technical-plus-sentiment / technical-plus-sentiment-and-blockchain information sets, QLIKE as primary loss, and Diebold–Mariano comparisons. Its reported best specification changes by regime: LSTM-T is numerically best in normal periods but statistically indistinguishable from TGARCH and Hybrid_GARCH_T; different GARCH–LSTM hybrids lead in different crises.
+
+Limitations: the target is daily volatility, not an hourly BTC price path; results are regime- and information-set-dependent; the authors explicitly caution against universal model-superiority claims. The linked replication repository advertises code/data but has no LICENSE file in the inspected default-branch root, so no code or data were copied.
+
+Decision: add this as a daily-volatility challenger and methodological reference for nested information-set ablations, not to the hourly price-path leaderboard.
+
+Sources: https://link.springer.com/article/10.1007/s42521-026-00229-9 ; https://github.com/Wafi-Finance/Regime-Dependent-Bitcoin-Volatility-Forecasting
+
+### 3. Event-time BTC/USD order-book forecasting
+
+Raffaelli, Cestari, Marazzina and Formentin, “Forecasting Bitcoin price movements using multivariate Hawkes processes and limit order book data,” *Decisions in Economics and Finance* (published 2026-04-17), DOI https://doi.org/10.1007/s10203-026-00570-z. The paper compares HawkesTime (multivariate Hawkes event timing plus a continuous-time output-error model driven by base imbalance) with HawkesSign (direct event/sign prediction) on BTC/USD limit-order-book event streams. The reported design uses temporally separated subsets and 50 sampled trading scenarios, with short training/test windows; it also reports a second BTC/USD regime and an ETH/USD robustness sample. The authors report stronger sign accuracy for HawkesTime than the HawkesSign and moving-average baselines.
+
+Limitations: this is next-event / next-mid-price-sign microstructure research, not a 24-hour hourly price-path forecast. The reported trading simulation is not independently reproduced here and must not be treated as live profitability evidence. The article itself notes spoofing/order-book manipulation as a potential limitation. The companion repository collects Bitfinex LOB data and trains/simulates multivariate Hawkes processes; its code is GPL-3.0. No code or raw order-book data were copied.
+
+Decision: retain as an event-time challenger only if a separately licensed, point-in-time L2 data pipeline becomes available. Do not infer that 5m OHLCV or taker-buy volume reconstructs LOB excitation or base imbalance.
+
+Sources: https://link.springer.com/article/10.1007/s10203-026-00570-z ; https://github.com/Learning2Control/MultivariateHawkesLOB
+
+### 4. Sentiment-augmented latent volatility
+
+Mukherjee, Giridharan, Li and Wu, “Fear Moves Markets: Sentiment-Augmented POMP for Volatility Modeling of Bitcoin Returns,” arXiv:2609.23250 (2026-09-19, preprint). The paper extends a Bretó partially observed Markov process by adding the Fear & Greed Index to latent volatility dynamics and Student-t observation noise. It uses daily BTC returns and FGI from 2020-01 to 2025-04, estimates with iterated filtering, and reports log-likelihood / particle-filter effective-sample-size comparisons against GARCH, stochastic volatility and the original Bretó model. The implementation uses 2,000 particles.
+
+Limitations: likelihood fit and filter stability are not the same as leakage-safe forward forecast accuracy; the paper does not establish incremental H24 price-path value. Its linked GitHub repository has no LICENSE file in the inspected root. No code, dataset or FGI series were copied.
+
+Decision: keep as a sentiment/volatility research challenger; require a chronological rolling evaluation and a licensed point-in-time sentiment source before considering any feature.
+
+Sources: https://arxiv.org/abs/2609.23250 ; https://github.com/abeyankargiridharan/Novel_Approach_to_Volatility_Analysis_on_Bitcoin_Returns
+
+### 5. Operational forecast and evaluation audit
+
+The daily marker already existed for 2026-11-15 (run marker `lfm-daily-20261115-0804z-r5`), and the branch already contained a successful forecast workflow and a separate completed-vintage evaluation/archive cycle. To avoid creating a second same-day vintage after archival, this review did not update `DAILY_RUN_TRIGGER.md` again.
+
+Verified forecast workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/43693158620, source checkout commit `10c8f7033a88ecb5533781e36144cf718d9997ec`. The offline 5m tests passed 11/11; live public-data retrieval/forecast passed; artifact upload passed. Artifact ID `14153835047`, ZIP SHA-256 `4f9af1f7dc4dd9bc9b47feaa91f8b27b33e302bf36f45d3f76491e001b488731`. Downloaded artifact was re-hashed locally; extracted `forecast_5m.json` SHA-256 `58663b5a5b7c76931bdbd3aab41941a1cf09f792795961b0f25bc95dbff5ff8c`, matching the repository ledger.
+
+Verified evaluation workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/43694193141; evaluation tests, matured-vintage evaluation and artifact upload all passed. The evaluation manifest records two new matured evaluations, two already-evaluated vintages, and two still-pending 2026-11-15 vintages. A corrupt gzip mirror for the 2026-11-13 07:59 vintage was correctly suppressed in favour of the canonical workflow ZIP; a regression test was added in commit cddf0ddb43455ff318c910d26f884bfc1ec497f2.
+
+Forecast JSON audit: schema `lfm.forecast.5m.v1`; 999 closed Binance Spot BTCUSDT 5m candles; issue 2026-11-15T08:09:18.020362Z; cutoff 2026-11-15T08:04:59.999000Z (258.0 seconds before issue); reference 64,078.57 USDT; 7 models × 24 common hourly targets from 2026-11-15T09:00:00Z through 2026-11-16T08:00:00Z. All points were finite and positive and all target grids matched. The lookback is only 83.25 hours, not the preferred 90 days.
+
+Schema gap: the emitted JSON does not explicitly include `input_interval`, `model_commit`, `vintage_id` or a separate retrieval timestamp. The immutable ledger supplies some of this provenance, but the JSON should be self-describing. Proposed next code change: add these fields and tests in a later cycle; do not mutate this archived vintage. The JSON's Gaussian-style P90 ranges are explicitly uncalibrated, so there are no calibrated 50%/90% intervals and no tournament points.
+
+### 6. Matured-vintage score summary
+
+Four 24-hour vintages are evaluated. LFM5mEnsemble normalized hourly log-price MAE versus random-walk and volatility-capped slow-drift baselines:
+
+| Issue UTC | LFM ensemble nMAE | Random walk nMAE | Volatility-aware nMAE | Result |
+|---|---:|---:|---:|---|
+| 2026-11-12 08:03 | 9.4641 | 9.0509 | 7.3504 | loses to both |
+| 2026-11-13 08:07 | 1.8265 | 1.9175 | 2.3634 | beats both |
+| 2026-11-13 07:59 | 1.7186 | 1.7426 | 2.5965 | beats both |
+| 2026-11-14 07:18 | 5.5006 | 5.2052 | 3.0107 | loses to both |
+
+Only 2 of 4 vintages beat the baselines, and the two Nov 13 forecasts overlap by about 23 hours. The 24 hourly targets within a vintage are serially dependent. P90 intervals remain uncalibrated; every evaluation awarded 0 virtual points. This is descriptive evidence only, not proof of skill and not a basis for champion promotion.
+
+The 2026-11-15 07:37 and 08:09 vintages remain pending until their final hourly closes on 2026-11-16 07:59:59.999Z and 08:59:59.999Z respectively. Do not score them early.
+
+### 7. Next experiment and safeguards
+
+1. Add explicit forecast JSON provenance fields (`input_interval`, `model_commit`, `vintage_id`, `retrieved_at_utc`) and regression tests without rewriting old artifacts.
+2. Build a paginated, immutable 90-day Spot 5m dataset; keep Spot and perpetual/L2 streams separate.
+3. Add seasonality and volatility-aware controls before testing MF-DFA, news or sentiment features.
+4. Keep Hawkes LOB, daily GARCH–LSTM, POMP and TimesFM as separate horizon/target challengers.
+5. Preserve the 30-completed-daily-vintage promotion threshold and calibrated-interval requirement.
+
+No model weights, source code, datasets, tokenizers, news feeds, social-media posts or paid APIs were copied or used. No trades, transfers or order execution occurred.
