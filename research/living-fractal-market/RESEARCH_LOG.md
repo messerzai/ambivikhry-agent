@@ -421,3 +421,44 @@ Source: https://arxiv.org/abs/2606.25466
 - Keep spot and perpetual series separate; do not infer spot BTC/USD price-path alpha from futures-only or cross-asset network findings.
 - Keep GSADF bubble-state probabilities at daily 1/3/7-day horizons, separate from hourly price forecasts.
 - No new forecast feature, model weight, source code, dataset, token, or external API was reused in this review.
+
+
+
+## Research review — 2026-11-15
+
+### Scaling, non-stationarity and multifractal falsification
+
+Cho, Kim, Kim, Noh and Lee (published 2026-10-29), “Cryptocurrency markets as an evolving complex system: stylized facts, scaling, and complexity,” *Frontiers in Physics* 14, 2026031, DOI 10.3389/fphy.2026.2026031. This is a peer-reviewed **Perspective**, not a new BTC forecast experiment. It argues that scaling exponents, entropy and efficiency measures depend on regime, venue, sampling and market organization rather than behaving as universal constants. Its five explicit research priorities are genuine multifractality, crash early warning, endogenous market clocks, systemic-risk networks and time irreversibility.
+
+The article's methodological warning is directly relevant to LFM: shuffled surrogates alone do not establish nonlinear multifractality. It recommends matched shuffled, phase-randomized and IAAFT surrogates, finite-size confidence bands, explicit scaling-range/crossover uncertainty, q-range sensitivity, and matched rolling windows across venues/assets. It also emphasizes that a visually fitted pre-crash pattern is not a real-time early-warning model; prospective evaluation must report lead time, false alarms, precision/recall, calibration and economic loss.
+
+Decision: strengthen the existing MF-DFA protocol with IAAFT, phase-randomized and distribution-matched finite-size nulls; report crossover uncertainty and q sensitivity; treat calendar-time versus activity-time as a separate experiment. No fractal feature is enabled in the forecast model. “Living/non-repeating fractal” remains a hypothesis-generating metaphor, not an established market law.
+
+Sources: https://www.frontiersin.org/journals/physics/articles/10.3389/fphy.2026.2026031/full ; https://doi.org/10.3389/fphy.2026.2026031
+
+### Retail sentiment: R-RISI and point-in-time data
+
+Wagner and Metzler, ECB Working Paper No. 3276 (2026-08-24), “When the Crowd Speaks: AI-based retail investor sentiment indicator with Reddit data,” and their ECB Blog post (2026-11-12), “Reading the room: what Reddit tells us about retail investor sentiment,” describe an engagement-weighted, daily sentiment indicator based on Reddit posts. The paper covers 2015–April 2026 and describes GPT-5.1 sentiment/topic classification. The public dashboard now documents 14 finance/investing/crypto communities, a confidence threshold of 0.70 for sentiment indicators, engagement weight ln(1 + displayed score) + ln(1 + comments), separate positive/negative totals, previous-365-day rolling standardization excluding the current UTC day, and positive-z minus negative-z aggregation. It also exposes 7-day and 30-day smoothing.
+
+Important version caveat: the current dashboard says the historical corpus used GPT-5.1 through December 2025, GPT-6.1 Sol from January 2026, and interim data from October 2026 uses Codex with GPT-6.1 Sol. This is not one homogeneous classifier vintage. The dashboard explicitly says R-RISI is a standardized sentiment-balance index, not a probability or return forecast, and that associations do not establish prediction or causality. The ECB blog describes next-day return associations, particularly for the S&P 500 during market downturns; the BTC-specific sub-indicator is a sentiment/price comparison, not an independently validated BTC hourly forecast.
+
+Data provenance and rights require care: the dashboard identifies Pushshift/Academic Torrents monthly archives and Reddit Data API interim collection, and asks users of research/report outputs to cite and inform the authors. No blanket redistribution or commercial-use license for raw Reddit content is inferred. No corpus, post text, labels, code, API or dashboard data was copied.
+
+Sources: https://www.ecb.europa.eu/pub/pdf/scpwps/ecb.wp3276~3ba8565a13.en.pdf ; https://www.ecb.europa.eu/press/blog/date/2026/html/ecb.blog20261112~a4c8b903d9.en.html ; https://dashboard.r-risi.workers.dev/
+
+### Macro-news surprise × sentiment at five-minute frequency
+
+Huynh (2026-06), “Tuning into the news: Sentiment-driven high-frequency movements in cryptocurrency markets,” *Journal of Behavioral and Experimental Finance* 50, article 101183, DOI 10.1016/j.jbef.2026.101183. The publisher abstract and accessible article text describe five-minute data for the top 100 cryptocurrencies from 2014-01-01 to 2021-12-31, volume-weighted CoinMarketCap prices across venues, scheduled U.S. macroeconomic announcements and daily Thomson Reuters MarketPsych cryptocurrency sentiment. The author reports immediate, category-dependent return and turnover reactions to macro announcements; one standard-deviation higher bullish sentiment is associated with about 16% lower return response and 24% lower turnover response to macro surprises. Robustness checks include alternative sentiment measures and releases from other major economies.
+
+Limitations: the sample ends in 2021, the asset universe is cross-sectional rather than BTC-only, sentiment is daily, and the reported event-response moderation is not a 24-step BTC price forecast. The publisher search record describes the article as open access under a Creative Commons license, but the exact license variant and any data/code reuse terms were not independently confirmed in this review. No article text, source code, TRMI data or CoinMarketCap dataset was copied.
+
+Decision: create a point-in-time event/sentiment design, but keep macro surprise, crypto-news novelty, sentiment and attention as separate feature families. Consensus snapshots must be frozen before release; sentiment engagement must use the snapshot observable at forecast time; no post-release revisions or future Reddit scores may leak into earlier features. See NEWS_SENTIMENT_PROTOCOL.md.
+
+Source: https://doi.org/10.1016/j.jbef.2026.101183
+
+### Research decisions and status
+
+- Added NEWS_SENTIMENT_PROTOCOL.md as a design-only document with event provenance, point-in-time cutoffs, pre-registered ablations, placebos, leakage tests and rights gates.
+- No sentiment, news, macro-surprise or new multifractal feature was added to a forecast model.
+- No external code, model weights, tokenizers, datasets, raw social posts, API credentials or paid services were used.
+- The next empirical priority remains a source-data snapshot for every 5m vintage, followed by the seasonality baseline and only then point-in-time news/sentiment ablations.
