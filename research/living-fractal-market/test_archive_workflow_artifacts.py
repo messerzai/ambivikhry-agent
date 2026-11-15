@@ -4,7 +4,7 @@ import urllib.error
 from email.message import Message
 from unittest.mock import MagicMock, patch
 
-from archive_workflow_artifacts import download_artifact
+from archive_workflow_artifacts import download_artifact, immutable_path_for_payload
 
 
 class ArchiveArtifactDownloadTests(unittest.TestCase):
@@ -37,6 +37,24 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
         self.assertIsNone(storage_request.get_header("Authorization"))
         self.assertIsNone(storage_request.get_header("Accept"))
         self.assertEqual(result, payload)
+
+    def test_conflicting_evaluation_payload_gets_artifact_specific_path(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            existing = root / "evaluation.json"
+            existing.write_bytes(b"first immutable evaluation")
+            same = immutable_path_for_payload(
+                root, "evaluation.json", b"first immutable evaluation", "141"
+            )
+            different = immutable_path_for_payload(
+                root, "evaluation.json", b"repeat with a new evaluated_at", "141"
+            )
+            self.assertEqual(same, "evaluation.json")
+            self.assertEqual(different, "evaluation.artifact-141.json")
+            self.assertEqual(existing.read_bytes(), b"first immutable evaluation")
 
     def test_artifact_digest_mismatch_is_rejected(self):
         payload = b"artifact"
