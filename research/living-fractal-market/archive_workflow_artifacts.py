@@ -51,6 +51,16 @@ def make_vintage_id(forecast: dict[str, Any]) -> str:
     return f"lfm5m-{issued}-{asset}-{venue}-{version_tag}"
 
 
+def source_head_sha_from_marker(marker_text: str) -> str | None:
+    """Return the exact source commit named by an archive marker, if valid."""
+    match = re.search(
+        r"^Source head SHA:\s*([0-9a-f]{40})\s*$",
+        marker_text,
+        re.MULTILINE,
+    )
+    return match.group(1) if match else None
+
+
 def request_bytes(url: str, token: str, accept: str = "application/vnd.github+json") -> bytes:
     request = urllib.request.Request(
         url,
@@ -425,9 +435,13 @@ def main() -> int:
     archive_marker = args.root / "research/living-fractal-market/ARCHIVE_RUN_TRIGGER.md"
     if archive_marker.exists():
         marker_text = archive_marker.read_text(encoding="utf-8")
-        match = re.search(r"^Source head SHA:\\s*([0-9a-f]{40})\\s*$", marker_text, re.MULTILINE)
-        if match:
-            source_head_sha = match.group(1)
+        parsed_source_sha = source_head_sha_from_marker(marker_text)
+        if parsed_source_sha is None:
+            raise ValueError(
+                "ARCHIVE_RUN_TRIGGER.md must contain a valid "
+                "'Source head SHA: <40-hex>' line"
+            )
+        source_head_sha = parsed_source_sha
 
     summary: dict[str, Any] = {
         "source_head_sha": source_head_sha,

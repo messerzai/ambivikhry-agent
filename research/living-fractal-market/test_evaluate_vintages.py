@@ -2,6 +2,8 @@ import math
 import unittest
 from datetime import datetime, timezone
 
+from archive_workflow_artifacts import source_head_sha_from_marker
+
 from evaluate_vintages import (
     INTERVAL_MS,
     parse_utc,
@@ -13,6 +15,16 @@ from evaluate_vintages import (
 
 
 class EvaluationTests(unittest.TestCase):
+
+    def test_archive_marker_parses_source_head_sha(self):
+        source_sha = "a" * 40
+        marker = f"# archive marker\\nSource head SHA: {source_sha}\\n"
+        self.assertEqual(source_head_sha_from_marker(marker), source_sha)
+
+    def test_archive_marker_rejects_missing_or_malformed_source_sha(self):
+        self.assertIsNone(source_head_sha_from_marker("Source head SHA: not-a-sha\\n"))
+        self.assertIsNone(source_head_sha_from_marker("no source sha here\\n"))
+
     def test_perfect_path_has_zero_primary_loss_and_full_direction_accuracy(self):
         reference = 100.0
         actual = [101.0 + i for i in range(24)]
