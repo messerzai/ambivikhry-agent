@@ -203,3 +203,15 @@ The canonical .artifact.zip preserves the exact workflow artifact bytes. The SHA
 - Asset / venue / quote: BTC/USDT / Binance Spot / USDT
 - Issue / cutoff UTC: 2026-11-15T08:09:18.020362Z / 2026-11-15T08:04:59.999000Z
 - Closed input candles: 999 at 5m; hourly targets: 24
+
+### 2026-11-14T07:18:16.591141Z — BTC/USDT — LFM-5m-Downside-Aware-Council-0.4
+- Workflow run: https://github.com/messerzai/ambivikhry-agent/actions/runs/43570452838
+- Run checkout commit: d8e817969f82c19d17ad4c8bd5b219e6fed2360e
+- Artifact ID: 14103948071 (name: lfm-5m-btc-forecast)
+- Exact ZIP archive: research/living-fractal-market/forecasts/2026-11-14/2026-11-14T07-18-16.591141Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip
+- Exact ZIP SHA-256: 64575163aa3c274adca5a134e02b394d524e73f8861bef632ee88c7cad4ffa2d
+- Exact extracted JSON: research/living-fractal-market/forecasts/2026-11-14/2026-11-14T07-18-16.591141Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json
+- Exact extracted JSON SHA-256: de5b1c4f52cccedfb8f071eb820c705f4d82f5b5f00273e42d88a2f43239512c
+- Asset / venue / quote: BTC/USDT / Binance Spot / USDT
+- Issue / cutoff UTC: 2026-11-14T07:18:16.591141Z / 2026-11-14T07:14:59.999000Z
+- Closed input candles: 999 at 5m; hourly targets: 24
