@@ -1,11 +1,14 @@
 import math
+import tempfile
 import unittest
+from pathlib import Path
 from datetime import datetime, timezone
 
 from archive_workflow_artifacts import source_head_sha_from_marker
 
 from evaluate_vintages import (
     INTERVAL_MS,
+    discover_forecast_archives,
     parse_utc,
     score_path,
     validate_actual_rows,
@@ -15,6 +18,23 @@ from evaluate_vintages import (
 
 
 class EvaluationTests(unittest.TestCase):
+
+    def test_canonical_zip_suppresses_corrupt_gzip_mirror(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            day = root / "2026-11-13"
+            day.mkdir()
+            gzip_mirror = day / "vintage.json.gz"
+            canonical_zip = day / "vintage.artifact.zip"
+            gzip_mirror.write_bytes(b"deliberately-corrupt-gzip")
+            canonical_zip.write_bytes(b"canonical-workflow-zip")
+
+            selected, duplicates = discover_forecast_archives(root)
+
+            self.assertEqual(selected, [canonical_zip])
+            self.assertEqual(len(duplicates), 1)
+            self.assertEqual(duplicates[0]["archive"], str(gzip_mirror))
+            self.assertEqual(duplicates[0]["canonical_archive"], str(canonical_zip))
 
     def test_archive_marker_parses_source_head_sha(self):
         source_sha = "a" * 40
