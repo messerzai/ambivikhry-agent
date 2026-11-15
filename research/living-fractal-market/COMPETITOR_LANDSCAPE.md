@@ -158,3 +158,31 @@ No newly inspected external record supplies all of the following simultaneously:
 - Satori Signals: a search snippet showed a Nov-14 01:00 UTC consensus, but the opened public page and forecasts page did not expose the same current row; detailed forecasts require a token holding or subscription. No account, token or paid access was used. Do not rank the snippet. Source: https://satorisignals.app/
 
 No external record in this refresh supplies a same-origin Binance Spot BTCUSDT 24-step hourly price path and calibrated intervals. No external rank or LFM research points awarded.
+
+
+
+## Competitor watch — checked 2026-11-15
+
+### BTC-Oracle: strong process reference, not a matched external forecast
+
+[barakacanbyte/btc-oracle](https://github.com/barakacanbyte/btc-oracle) — checked repository HEAD `41b1949c6fffb8aa23d2b2e1cabf7aa987b5d0a0` (last commit 2026-07-21). The README describes a single-user, self-hosted BTC-USD probabilistic system with five 24-hour log-return quantiles and P(up), hourly inference, immutable forecast records, live scoring, drift monitoring and a local-only dashboard.
+
+- **Model zoo:** persistence and historical-drift baselines; LightGBM quantile models; GARCH(1,1)-Student-t; causal HMM regime model; PatchTST; calibrated stacked ensemble.
+- **Data requirements:** Binance 1h/1d OHLCV, Binance Futures funding and open interest, Deribit DVOL, blockchain.com on-chain data, FRED macro series and alternative.me Fear & Greed. The README says news/FinBERT sentiment remains deferred. Open interest is only backfillable over a rolling 30-day window.
+- **Reported benchmark:** report generated 2026-07-18; 31 walk-forward folds, train 3y → purge 24h → test 60d → embargo 7d, 43,754 test hours. The reported production ensemble has directional accuracy 0.52571, pinball 0.00699 (slightly below B1 historical-drift 0.00710), Brier 0.25904 and ECE 0.09355; it beats the baseline on 19/31 folds (61%). Its published gate requires direction to beat both baselines on at least 70% of folds, pinball below both, Brier below 0.25 and both baselines, and ECE below 0.05. The README says every model fails all four gates. It further reports that the recent six-fold directional accuracy is below 50% for both candidate and incumbent (0.4862 vs 0.4904).
+- **Evidence quality:** source code, tests and detailed reports are present, but these are project-reported backtests; we did not independently reproduce the 43,754-hour run or inspect a public live forecast ledger. The API binds to localhost and is not a public prediction service.
+- **Comparability:** the public contract is an endpoint +24h quantile distribution, not the 24 hourly target-price path required by our frozen tournament. Its source stack is also not identical to a single Binance Spot BTCUSDT series. Keep it in the methodology shadow watchlist, not the ranked external leaderboard.
+- **Reproducibility cost:** Python 3.12, TimescaleDB, Prefect, MLflow, CPU PyTorch, multiple external data sources and long historical backfills. No model-weight artifacts were found in the inspected repository tree; weight terms would need a separate audit if supplied outside the repo.
+
+Sources: https://github.com/barakacanbyte/btc-oracle ; https://github.com/barakacanbyte/btc-oracle/blob/main/reports/zoo_gate.md ; https://github.com/barakacanbyte/btc-oracle/blob/main/reports/ablation_fs_v2.md ; https://github.com/barakacanbyte/btc-oracle/blob/main/srs/btc-forecast-system.md
+
+### Non-forecast sentiment/news references
+
+| Source | Method / frequency | Evidence and limitations | Tournament status |
+|---|---|---|---|
+| [ECB R-RISI](https://dashboard.r-risi.workers.dev/) | Daily engagement-weighted Reddit sentiment, topics and tickers; rolling 365-day standardization; 7d/30d smoothing | A sentiment measurement system, not a price forecaster. Paper/dashboard model vintages differ (GPT-5.1 historically; GPT-6.1 Sol / Codex in newer dashboard vintages). Data rights and point-in-time engagement snapshots require review. | Feature-research reference only; no forecast rank. |
+| Huynh (2026), [Tuning into the news](https://doi.org/10.1016/j.jbef.2026.101183) | Five-minute multi-crypto event study with daily TRMI sentiment and scheduled macro surprises | 2014–2021 top-100 cross-section; reported sentiment moderation of macro-news response, not BTC-only 24-step forecasts. | Feature-research reference only; no forecast rank. |
+
+### External leaderboard decision
+
+No newly inspected project supplies a fresh, independently verifiable, timestamped Binance Spot BTCUSDT 24-step hourly path with matching issue time, cutoff and calibrated intervals. BTC-Oracle's reported walk-forward endpoint forecast, ECB R-RISI, and Huynh's event-study coefficients are not comparable submissions. No external rank or research points awarded. Existing public systems (CoinPredict, Satori, SignalTrace, BitPredict, Mispria, The Brier Index, CryptoOracle, likely.sh and BrainEdge) remain in the shadow watchlist with their previously recorded freshness/comparability limitations.
