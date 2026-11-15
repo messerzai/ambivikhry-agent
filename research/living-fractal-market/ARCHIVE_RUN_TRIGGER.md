@@ -1,6 +1,6 @@
-# Archive trigger — 2026-11-14
+# Archive trigger — 2026-11-15
 
-Run marker: lfm-archive-20261114-0840z-r3
-Purpose: preserve exact successful LFM forecast and completed-vintage evaluation workflow artifacts in the research branch.
-Source head SHA: 886fd8a30b7f439d3eeb89570ab28bcfb0d77077
+Run marker: lfm-archive-20261115-0742z-r4
+Purpose: retry immutable archival for the exact successful daily forecast and evaluation runs from 2026-11-15.
+Source head SHA: 650fd5772bdb23d5ad81f41acb24fc8e35df0aac
 This marker is separate from DAILY_RUN_TRIGGER.md and does not start a new market forecast.

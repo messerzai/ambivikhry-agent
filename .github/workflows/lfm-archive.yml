@@ -33,7 +33,7 @@ jobs:
           python-version: "3.11"
       - name: Download and preserve exact workflow artifacts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: >-
           python research/living-fractal-market/archive_workflow_artifacts.py
           --repo "${{ github.repository }}"
