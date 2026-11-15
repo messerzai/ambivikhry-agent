@@ -129,11 +129,48 @@ def find_artifact(repo: str, run_id: int, artifact_name: str, token: str) -> dic
     return None
 
 
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Expose GitHub's artifact redirect so auth headers never reach blob storage."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _download_artifact_zip(url: str, token: str) -> bytes:
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"token {token.strip()}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "Ambivikhry-LFM-Artifact-Archiver/1.0",
+        },
+    )
+    opener = urllib.request.build_opener(_NoRedirectHandler())
+    try:
+        with opener.open(request, timeout=60) as response:
+            return response.read()
+    except urllib.error.HTTPError as exc:
+        if exc.code not in {301, 302, 303, 307, 308}:
+            raise
+        location = exc.headers.get("Location")
+        if not location:
+            raise RuntimeError("GitHub artifact redirect did not include a Location header") from exc
+        signed_url = urllib.parse.urljoin(url, location)
+        # GitHub's temporary object-storage URL is already signed. Never forward
+        # the repository token or GitHub API headers to that different host.
+        signed_request = urllib.request.Request(
+            signed_url,
+            headers={"User-Agent": "Ambivikhry-LFM-Artifact-Archiver/1.0"},
+        )
+        with urllib.request.urlopen(signed_request, timeout=60) as response:
+            return response.read()
+
+
 def download_artifact(repo: str, artifact: dict[str, Any], token: str) -> bytes:
-    data = request_bytes(
+    data = _download_artifact_zip(
         f"{API}/repos/{repo}/actions/artifacts/{artifact['id']}/zip",
         token,
-        accept="application/vnd.github+json",
     )
     expected = str(artifact.get("digest", "")).removeprefix("sha256:")
     actual = sha256_bytes(data)
