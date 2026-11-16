@@ -4,7 +4,13 @@ import urllib.error
 from email.message import Message
 from unittest.mock import MagicMock, patch
 
-from archive_workflow_artifacts import download_artifact, immutable_path_for_payload
+from archive_workflow_artifacts import (
+    ARCHIVE_MARKER_PATH,
+    DAILY_TRIGGER_PATH,
+    download_artifact,
+    immutable_path_for_payload,
+    select_source_commit,
+)
 
 
 class ArchiveArtifactDownloadTests(unittest.TestCase):
@@ -55,6 +61,43 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
             self.assertEqual(same, "evaluation.json")
             self.assertEqual(different, "evaluation.artifact-141.json")
             self.assertEqual(existing.read_bytes(), b"first immutable evaluation")
+
+
+    def test_daily_trigger_ignores_stale_archive_marker_and_waits(self):
+        daily_sha = "b" * 40
+        stale_archive_sha = "a" * 40
+        marker = f"Source head SHA: {stale_archive_sha}\\n"
+        source_sha, wait_for_runs = select_source_commit(
+            daily_sha, marker, {DAILY_TRIGGER_PATH}
+        )
+        self.assertEqual(source_sha, daily_sha)
+        self.assertTrue(wait_for_runs)
+
+    def test_archive_marker_uses_explicit_source_commit(self):
+        daily_sha = "b" * 40
+        source_sha = "a" * 40
+        marker = f"Source head SHA: {source_sha}\\n"
+        selected, wait_for_runs = select_source_commit(
+            daily_sha, marker, {ARCHIVE_MARKER_PATH}
+        )
+        self.assertEqual(selected, source_sha)
+        self.assertFalse(wait_for_runs)
+
+    def test_non_trigger_change_does_not_use_stale_archive_marker(self):
+        daily_sha = "b" * 40
+        stale_archive_sha = "a" * 40
+        marker = f"Source head SHA: {stale_archive_sha}\\n"
+        selected, wait_for_runs = select_source_commit(
+            daily_sha, marker, {"research/living-fractal-market/RESEARCH_LOG.md"}
+        )
+        self.assertEqual(selected, daily_sha)
+        self.assertFalse(wait_for_runs)
+
+    def test_malformed_archive_marker_is_rejected_when_marker_changed(self):
+        with self.assertRaisesRegex(ValueError, "valid"):
+            select_source_commit(
+                "b" * 40, "Source head SHA: invalid\\n", {ARCHIVE_MARKER_PATH}
+            )
 
     def test_artifact_digest_mismatch_is_rejected(self):
         payload = b"artifact"
