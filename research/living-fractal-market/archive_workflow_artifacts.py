@@ -24,6 +24,8 @@ from pathlib import Path
 from typing import Any
 
 API = "https://api.github.com"
+ARCHIVE_MARKER_PATH = "research/living-fractal-market/ARCHIVE_RUN_TRIGGER.md"
+DAILY_TRIGGER_PATH = "research/living-fractal-market/DAILY_RUN_TRIGGER.md"
 FORECAST_WORKFLOW = "lfm-5m.yml"
 EVALUATION_WORKFLOW = "lfm-evaluate.yml"
 FORECAST_ARTIFACT_NAME = "lfm-5m-btc-forecast"
@@ -61,6 +63,45 @@ def source_head_sha_from_marker(marker_text: str) -> str | None:
     return match.group(1) if match else None
 
 
+def select_source_commit(
+    default_sha: str,
+    marker_text: str,
+    changed_paths: set[str],
+) -> tuple[str, bool]:
+    """Select the source workflow commit without letting a stale archive marker win.
+
+    An archive-marker-only push explicitly points back to the forecast commit.
+    A daily-marker push must use its own commit and wait for sibling workflows
+    to appear and finish. Other archive-code/documentation pushes do not wait.
+    """
+    if ARCHIVE_MARKER_PATH in changed_paths:
+        parsed = source_head_sha_from_marker(marker_text)
+        if parsed is None:
+            raise ValueError(
+                "ARCHIVE_RUN_TRIGGER.md must contain a valid "
+                "'Source head SHA: <40-hex>' line"
+            )
+        return parsed, False
+    return default_sha, DAILY_TRIGGER_PATH in changed_paths
+
+
+def changed_paths_at_head(root: Path) -> set[str]:
+    """Return paths changed by the exact checked-out push commit."""
+    completed = subprocess.run(
+        ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"],
+        cwd=root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "could not identify trigger paths for checked-out commit: "
+            + (completed.stdout or "")[-2000:]
+        )
+    return {line.strip() for line in (completed.stdout or "").splitlines() if line.strip()}
+
+
 def request_bytes(url: str, token: str, accept: str = "application/vnd.github+json") -> bytes:
     request = urllib.request.Request(
         url,
@@ -85,37 +126,37 @@ def list_workflow_runs(
     workflow_file: str,
     head_sha: str,
     token: str,
+    wait_for_appearance: bool = False,
 ) -> list[dict[str, Any]]:
     query = urllib.parse.urlencode({"branch": branch, "per_page": 100})
     url = f"{API}/repos/{repo}/actions/workflows/{workflow_file}/runs?{query}"
-    payload = api_json(url, token)
-    runs = [
-        run for run in payload.get("workflow_runs", [])
-        if run.get("head_branch") == branch
-    ]
-    exact = [run for run in runs if run.get("head_sha") == head_sha]
-    if exact:
-        deadline = time.time() + 300
-        current = exact
-        while time.time() < deadline:
-            refreshed = []
-            for run in current:
-                refreshed.append(api_json(
-                    f"{API}/repos/{repo}/actions/runs/{run['id']}", token
-                ))
-            current = refreshed
-            if all(run.get("status") == "completed" for run in current):
-                break
-            time.sleep(5)
-        return [
-            run for run in current
-            if run.get("status") == "completed" and run.get("conclusion") == "success"
+    deadline = time.time() + 300
+    while True:
+        payload = api_json(url, token)
+        runs = [
+            run for run in payload.get("workflow_runs", [])
+            if run.get("head_branch") == branch
         ]
+        exact = [run for run in runs if run.get("head_sha") == head_sha]
+        if exact:
+            current = [
+                api_json(f"{API}/repos/{repo}/actions/runs/{run['id']}", token)
+                for run in exact
+            ]
+            if all(run.get("status") == "completed" for run in current):
+                return [
+                    run for run in current
+                    if run.get("conclusion") == "success"
+                ]
+        elif not wait_for_appearance:
+            return []
 
-    # Never substitute unrelated historical runs for the requested source
-    # commit. An archive-only trigger may name its source SHA in
-    # ARCHIVE_RUN_TRIGGER.md; if no exact run exists, report no matching run.
-    return []
+        if time.time() >= deadline:
+            return []
+        # A push starts sibling forecast/evaluation workflows concurrently.
+        # Wait for their run records to appear before concluding there is
+        # nothing to archive; once present, also wait for completion.
+        time.sleep(5)
 
 
 def find_artifact(repo: str, run_id: int, artifact_name: str, token: str) -> dict[str, Any] | None:
@@ -499,27 +540,25 @@ def main() -> int:
     if not ledger_path.exists():
         raise FileNotFoundError(ledger_path)
 
-    source_head_sha = args.head_sha
-    archive_marker = args.root / "research/living-fractal-market/ARCHIVE_RUN_TRIGGER.md"
-    if archive_marker.exists():
-        marker_text = archive_marker.read_text(encoding="utf-8")
-        parsed_source_sha = source_head_sha_from_marker(marker_text)
-        if parsed_source_sha is None:
-            raise ValueError(
-                "ARCHIVE_RUN_TRIGGER.md must contain a valid "
-                "'Source head SHA: <40-hex>' line"
-            )
-        source_head_sha = parsed_source_sha
+    changed_paths = changed_paths_at_head(args.root)
+    archive_marker = args.root / ARCHIVE_MARKER_PATH
+    marker_text = archive_marker.read_text(encoding="utf-8") if archive_marker.exists() else ""
+    source_head_sha, wait_for_runs = select_source_commit(
+        args.head_sha, marker_text, changed_paths
+    )
 
     summary: dict[str, Any] = {
         "source_head_sha": source_head_sha,
+        "trigger_paths": sorted(changed_paths),
+        "waited_for_workflows": wait_for_runs,
         "archived_forecasts": [],
         "archived_evaluations": [],
         "skipped": [],
         "errors": [],
     }
     forecast_runs = list_workflow_runs(
-        args.repo, args.branch, FORECAST_WORKFLOW, source_head_sha, token
+        args.repo, args.branch, FORECAST_WORKFLOW, source_head_sha, token,
+        wait_for_appearance=wait_for_runs,
     )
     for run in forecast_runs:
         try:
@@ -537,7 +576,8 @@ def main() -> int:
             })
 
     evaluation_runs = list_workflow_runs(
-        args.repo, args.branch, EVALUATION_WORKFLOW, source_head_sha, token
+        args.repo, args.branch, EVALUATION_WORKFLOW, source_head_sha, token,
+        wait_for_appearance=wait_for_runs,
     )
     for run in evaluation_runs:
         try:
