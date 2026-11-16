@@ -66,7 +66,7 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
     def test_daily_trigger_ignores_stale_archive_marker_and_waits(self):
         daily_sha = "b" * 40
         stale_archive_sha = "a" * 40
-        marker = f"Source head SHA: {stale_archive_sha}\\n"
+        marker = f"Source head SHA: {stale_archive_sha}\n"
         source_sha, wait_for_runs = select_source_commit(
             daily_sha, marker, {DAILY_TRIGGER_PATH}
         )
@@ -76,7 +76,7 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
     def test_archive_marker_uses_explicit_source_commit(self):
         daily_sha = "b" * 40
         source_sha = "a" * 40
-        marker = f"Source head SHA: {source_sha}\\n"
+        marker = f"Source head SHA: {source_sha}\n"
         selected, wait_for_runs = select_source_commit(
             daily_sha, marker, {ARCHIVE_MARKER_PATH}
         )
@@ -86,7 +86,7 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
     def test_non_trigger_change_does_not_use_stale_archive_marker(self):
         daily_sha = "b" * 40
         stale_archive_sha = "a" * 40
-        marker = f"Source head SHA: {stale_archive_sha}\\n"
+        marker = f"Source head SHA: {stale_archive_sha}\n"
         selected, wait_for_runs = select_source_commit(
             daily_sha, marker, {"research/living-fractal-market/RESEARCH_LOG.md"}
         )
@@ -96,7 +96,7 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
     def test_malformed_archive_marker_is_rejected_when_marker_changed(self):
         with self.assertRaisesRegex(ValueError, "valid"):
             select_source_commit(
-                "b" * 40, "Source head SHA: invalid\\n", {ARCHIVE_MARKER_PATH}
+                "b" * 40, "Source head SHA: invalid\n", {ARCHIVE_MARKER_PATH}
             )
 
     def test_artifact_digest_mismatch_is_rejected(self):
