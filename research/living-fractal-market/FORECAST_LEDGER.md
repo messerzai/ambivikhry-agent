@@ -271,3 +271,15 @@ The canonical .artifact.zip preserves the exact workflow artifact bytes. The SHA
 - Momentum5m: nMAE 5.724474; direction vs issue 0.042; hour-to-hour direction 0.250; P90 empirical coverage 0.5833333333333334; beats RW False.
 - Terminal threshold diagnostic: 70000.0 USDT; uncalibrated heuristic 0.9597; observed terminal-below-level True; diagnostic Brier 0.0016240900000000001 (not a calibrated score).
 - Interpretation: one completed vintage is descriptive only; no champion promotion or research points.
+
+### 2026-11-16T07:11:30.546109Z — BTC/USDT — LFM-5m-Downside-Aware-Council-0.4
+- Workflow run: https://github.com/messerzai/ambivikhry-agent/actions/runs/43822029565
+- Run checkout commit: 594b8c6ef96254f395859a4fb4149726653f0d63
+- Artifact ID: 14205340703 (name: lfm-5m-btc-forecast)
+- Exact ZIP archive: research/living-fractal-market/forecasts/2026-11-16/2026-11-16T07-11-30.546109Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip
+- Exact ZIP SHA-256: 4cf16244a517d2fca87def0a29714f2e4cca69296843620a70b573c9f61c8982
+- Exact extracted JSON: research/living-fractal-market/forecasts/2026-11-16/2026-11-16T07-11-30.546109Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json
+- Exact extracted JSON SHA-256: f511922101b426534caeb7894f979fca8352e14122c19c3ecca690b82d7b7c6e
+- Asset / venue / quote: BTC/USDT / Binance Spot / USDT
+- Issue / cutoff UTC: 2026-11-16T07:11:30.546109Z / 2026-11-16T07:09:59.999000Z
+- Closed input candles: 999 at 5m; hourly targets: 24
