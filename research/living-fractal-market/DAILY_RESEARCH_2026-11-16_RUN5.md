@@ -74,7 +74,7 @@ No calibrated P50/P90 intervals exist; emitted Gaussian-style P90 ranges are unc
 ## 4. Evaluation and leaderboard
 
 Evaluation workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/43822029545  
-Evaluation tests passed 11/11. Snapshot: 4 already evaluated, 0 newly evaluated, 0 failed, 2 pending before the current forecast archive was committed. The current 2026-11-16 vintage is also pending; the two 2026-11-15 vintages remain pending until their final hourly closes.
+Evaluation artifact ID 14204658396; ZIP SHA-256 4c157b1718e3261a25d03c6f28aa684b13c56ca6b397f48f91c2f8920ad39364. Its manifest was issued at 2026-11-16T07:11:30.643Z: 4 already evaluated, 0 newly evaluated, 0 failed, 2 pending. The current 2026-11-16 vintage was archived after this evaluation snapshot and is also pending; the two 2026-11-15 vintages remain pending until their final hourly closes.
 
 Four previously matured vintages:
 | Issue UTC | LFM nMAE | RandomWalk | Volatility-aware | Outcome |
@@ -90,7 +90,7 @@ External leaderboard: no comparable current entries. TimesFM historical daily TW
 
 ## 5. Operational fix: archive workflow race
 
-The first archiver invocation for the daily marker saw a stale ARCHIVE_RUN_TRIGGER source SHA and started before sibling forecast/evaluation runs were visible; it archived old evaluation artifacts but not the current forecast. The exact current forecast was then archived by a separate archive-only marker commit, without changing the daily marker a second time.
+The daily-trigger archiver honored a stale Source head SHA in ARCHIVE_RUN_TRIGGER.md and therefore selected the prior day's workflow runs, archiving old evaluation artifacts instead of the current forecast. The current forecast was then archived by a separate archive-only marker commit, without changing the daily marker a second time. The code fix also addresses a second race condition: when a daily marker push starts the archive workflow before its sibling forecast/evaluation run records appear, the archiver now waits for those exact-commit runs to appear and complete.
 
 A scoped fix now:
 - uses the archive marker only when that file changed in the triggering commit;
