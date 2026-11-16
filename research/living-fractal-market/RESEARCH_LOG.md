@@ -540,3 +540,58 @@ The 2026-11-15 07:37 and 08:09 vintages remain pending until their final hourly 
 5. Preserve the 30-completed-daily-vintage promotion threshold and calibrated-interval requirement.
 
 No model weights, source code, datasets, tokenizers, news feeds, social-media posts or paid APIs were copied or used. No trades, transfers or order execution occurred.
+
+
+## 8. Literature review — 2026-11-16
+
+### 8.1 Bitcoin multifractality across a long five-minute sample
+
+Insu Choi, “Intrinsic multifractality and adaptive efficiency in Bitcoin: Disentangling sources of scaling complexity across market regimes,” Physica A: Statistical Mechanics and its Applications, 697(C), 131735 (2026), DOI https://doi.org/10.1016/j.physa.2026.131735.
+
+The publisher-indexed abstract reports approximately 774,000 five-minute BTC observations from August 2017 to December 2024. The paper applies q-Gaussian rescaling to distinguish genuine from spurious multifractality, reports a scaling crossover near 25 days, and compares pre/post-January-2024 spot ETF regimes. The abstract reports a greater-than-half decline in its Market Deficiency Measure after ETF approval and a negative association between realized volatility and multifractal complexity.
+
+Evidence limitation: the full publisher text is subscription-restricted in this review. These are abstract-level claims; implementation details, robustness tables, exact sample construction and replication code were not independently inspected. The paper is a multifractal diagnostic, not an H24 price forecast. No code, data or figures were copied.
+
+Research implication: add q-Gaussian-rescaling as a separately pre-registered diagnostic candidate, not as a production feature. Compare it with shuffled, phase-randomized and IAAFT surrogates and report window-length sensitivity. Do not interpret the reported crossover as a universal 25-day market law.
+
+Source: https://ideas.repec.org/a/eee/phsmap/v697y2026ics0378437126004711.html
+
+### 8.2 Regime-gated sentiment for sub-daily BTC direction
+
+Muhammad Abdullah Haroon, “Bitcoin Price Direction Prediction via Regime-Aware Multi-Modal Fusion of Social Sentiment and Technical Features,” arXiv:2607.23370 (2026-07-25, preprint), https://arxiv.org/abs/2607.23370.
+
+The paper describes 3,491 aligned hourly BTC-USD observations from July 2024 to September 2025; 2,146 training rows and 1,345 chronological test rows. Inputs combine OHLCV/engineered price features, Reddit FinBERT sentiment and a binary rolling-volatility regime. RAML predicts 3h and 6h direction. Reported full-model macro-F1 is 0.5474 (3h) and 0.5513 (6h); AUC is 0.5084 (3h) and 0.4902 (6h). At 3h, the price-only model AUC is 0.4968 and the sentiment-only model AUC is 0.4938. The reported true-down specificity for RAML is 44.6%.
+
+Limitations: 14 months of aligned observations and 2,146 training rows are small for a dual-branch BiLSTM; the 6h AUC is below 0.5, and 3h AUC is only marginally above chance. The paper is a preprint, not an independently reproduced result. Its Reddit/Kaggle data and model artifacts have separate terms; no reusable code repository/license was identified in this review. No code, raw posts, sentiment data or weights were copied.
+
+Research implication: the regime-gated fusion idea merits a clean-room, point-in-time ablation only after licensed sentiment data and timestamp availability are secured. Evaluate directional probability calibration, downside specificity and incremental value against price-only and simple volatility-aware baselines. Do not treat F1 alone as evidence of predictive value.
+
+### 8.3 Behavioural, on-chain and uncertainty mediation
+
+Marcel Figura, Martin Bugaj, Elvira Nica and Gheorghe H. Popescu, “Bitcoin Volatility Forecasting Through Market Sentiment, Blockchain Fundamentals, and Endogenous Market Uncertainty,” Forecasting 8(3), 41 (2026-05-19), DOI https://doi.org/10.3390/forecast8030041.
+
+The peer-reviewed open-access article uses 262 weekly observations from 17 January 2021 to 18 January 2026 and PLS-SEM with a forward-dated future historical-volatility target. Its abstract reports a strong association between Market Uncertainty and future historical volatility (beta 0.864) and mostly indirect links from blockchain fundamentals through uncertainty. The discussion explicitly says GARCH(1,1) has lower raw forecast error in the sample; the proposed architecture is benchmark-sensitive and should be interpreted as predictive-associational.
+
+Limitations: weekly volatility target, one asset, 262 observations and a structural-association design; it is not an hourly BTC price-path model. Data sources named include Google Trends, CoinMarketCap, Blockchain Data Explorer and Yahoo Finance; each source has independent terms. No code repository or dataset bundle was identified or copied.
+
+Research implication: treat uncertainty as a candidate intermediate risk-state feature, not as a direct sentiment signal. If tested, require a strict chronological forecast ablation against GARCH/HAR/persistence controls.
+
+### 8.4 Financial time-series foundation-model benchmark
+
+Miquel Noguer i Alonso and Rodolfo Pereira Franklin, “Pretrained Time-Series Foundation Models for Financial Return Forecasting,” arXiv:2606.27100 (2026-06-25, preprint), https://arxiv.org/abs/2606.27100.
+
+The benchmark compares TimesFM-2.5, Chronos/Chronos-2, Moirai-2.0 and TimeGPT-family models with N-BEATS, N-HiTS, PatchTST, iTransformer and KAN on five US equities, daily returns, 512-step context and 20-session horizons across ten rolling-origin tasks. The authors report TSFMs winning 8/10 task rankings, but gains over the zero-return random-walk baseline are small and sparse; one-sided Diebold-Mariano tests reject equal/inferior accuracy only for Chronos on AMZN and Moirai-2.0 on GOOG.
+
+Limitations: equity, daily-return and 20-session results do not transfer directly to BTC/USDT or BTC/USD hourly levels. The preprint is not a BTC-specific result. No implementation or weights were copied.
+
+Research implication: retain Chronos-2 and TimesFM-2.5 as challengers, but do not promote on cross-asset leaderboard rank. Equalize context and evaluate directly on identical BTC origins against random walk and volatility-aware controls.
+
+### 8.5 Cross-study conclusions and next experiment
+
+Facts: recent work supports testing regime dependence, nonlinear scaling diagnostics and behavioural information as separate hypotheses. It does not establish that these features improve our 24-hour hourly price forecast. In the sub-daily RAML preprint, the AUC evidence is near chance; in the weekly Figura et al. study, GARCH(1,1) has lower raw forecast error; in the TSFM equity benchmark, statistical gains over random walk are sparse.
+
+Hypotheses: (H7) q-Gaussian rescaling may better distinguish correlation-driven multifractality from heavy-tail effects in BTC 5m returns; (H8) sentiment may add value conditionally in high-volatility regimes; (H9) an uncertainty mediator may improve volatility-state forecasts but not necessarily price levels.
+
+Next experiment: build the immutable 90-day Spot 5m panel first; pre-register each feature ablation; use purged/chronological rolling origins, point-in-time feature timestamps, surrogate controls and block-bootstrap uncertainty. Keep all new features out of the live council until they beat the strongest simple baseline out of sample.
+
+No source code, weights, datasets, raw social posts, tokenizers or paid services were copied or used in this review.

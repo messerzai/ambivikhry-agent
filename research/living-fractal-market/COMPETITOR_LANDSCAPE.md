@@ -1,6 +1,6 @@
 # Competitor landscape and reuse policy
 
-Last reviewed: 2026-11-11  
+Last reviewed: 2026-11-16  
 Target: BTC/USD hourly observations and +1 to +24 hour horizons.  
 Research branch: research/living-fractal-market
 
@@ -204,3 +204,24 @@ No newly inspected project supplies a fresh, independently verifiable, timestamp
 - Wafi et al. and the POMP preprint belong in a volatility/risk-state sub-leaderboard, not the hourly price-path leaderboard.
 - TimesFM 3.0 is a candidate only for a non-commercial sandbox unless a separately licensed checkpoint is supplied; TimesFM 2.5 is the more permissively licensed candidate, subject to practical runtime and data checks.
 - No new public human or algorithmic forecast was admitted to the external leaderboard because none met matching asset, venue, issue time, cutoff and +1…+24 hourly horizons with independently verifiable forward timestamps.
+
+
+## Additional evidence reviewed — 2026-11-16
+
+| Candidate / source | Method and asset / horizon | Data and reproducibility | Evidence and limitations | Status |
+|---|---|---|---|---|
+| Insu Choi, “Intrinsic multifractality and adaptive efficiency in Bitcoin,” Physica A 697 (2026), DOI 10.1016/j.physa.2026.131735 | q-Gaussian-rescaled multifractal diagnostics for BTC five-minute returns; no forecast horizon | Abstract reports ~774k five-minute observations, Aug 2017–Dec 2024. Full publisher text was paywalled in this review; no code/data repository verified. | Abstract reports a ~25-day scaling crossover and regime differences around spot ETF approval. These are diagnostics, not forward price forecasts; details cannot be independently audited from the abstract alone. | Methodological reference only; not a leaderboard competitor |
+| Haroon, RAML, arXiv:2607.23370 (2026-07-25) | Regime-gated BiLSTM fusion of OHLCV and Reddit FinBERT sentiment; BTC-USD direction +3h/+6h | 3,491 hourly observations Jul 2024–Sep 2025; 2,146 train / 1,345 chronological test. Reddit/Kaggle sentiment data and FinBERT terms are separate; no reusable code/license found. | Reported F1 0.5474 / 0.5513; AUC 0.5084 at 3h but 0.4902 at 6h; true-down specificity 44.6%. Preprint, short sample, near-chance discrimination. | Sentiment/regime challenger for ablation only; not comparable to +1…+24 price-level nMAE |
+| Figura et al., Forecasting 8(3), 41 (2026), DOI 10.3390/forecast8030041 | PLS-SEM behavioural/network/uncertainty architecture; weekly BTC future historical volatility | 262 weekly observations, Jan 2021–Jan 2026; article gives data sources but no reusable code/data bundle identified. | Reports uncertainty as the strongest immediate association, but discussion says GARCH(1,1) has lower raw forecast error. Weekly risk-state target, not hourly price path. | Risk-state research reference; no BTC hourly leaderboard score |
+| Noguer i Alonso & Franklin, arXiv:2606.27100 | TimesFM-2.5, Chronos/Chronos-2, Moirai-2.0, TimeGPT vs N-BEATS/N-HiTS/PatchTST/iTransformer/KAN; daily equity returns, 20 sessions | Five US equities, 512-step context, ten rolling-origin tasks. Paper is a preprint; no BTC run in the study. | TSFMs win 8/10 task ranks, but only two task-level DM tests significantly beat zero-return random walk. Cross-asset evidence only. | Supports testing TSFM challengers on our own BTC origins; no rank transfer |
+| artur-fedosiuk/btc-prediction-timesfm historical report | TimesFM daily BTC/USD forecast; target is 24h TWAP, not 24 separate hourly closes | Report generated 2026-09-25; 12 rows, 10 marked verified. README now says historical 12 CSV rows are legacy_h1 and the separate H24 SQLite collector's CI/first live prediction remain unverified. | Report claims MAE $551.11, 70% direction and 40% within range; its price-verification table shows CoinGecko values but Binance values are absent, despite the text describing dual-source cross-check. No exact issue timestamps in the report table. | Retain as an unverified historical self-reported TWAP reference; exclude from external leaderboard |
+
+Sources:
+- Choi: https://ideas.repec.org/a/eee/phsmap/v697y2026ics0378437126004711.html
+- RAML: https://arxiv.org/abs/2607.23370
+- Figura et al.: https://doi.org/10.3390/forecast8030041
+- TSFM benchmark: https://arxiv.org/abs/2606.27100
+- TimesFM report: https://github.com/artur-fedosiuk/btc-prediction-timesfm/blob/master/reports/bitcoin_report.md
+- TimesFM experiment status: https://github.com/artur-fedosiuk/btc-prediction-timesfm
+
+No external candidate provided a current, independently verifiable, timestamped BTC/USD forecast with matching issue time, cutoff, venue and 24 hourly target closes. External leaderboard remains empty for comparable entries.
