@@ -1,11 +1,28 @@
 # Forecast ledger contract
 
-Last reviewed: 2026-11-14  
+Last reviewed: 2026-11-17  
 Branch: research/living-fractal-market
 
 ## Current state
 
-Four experimental BTC/USDT vintages are archived below: one from 2026-11-12, two same-day version-comparison vintages from 2026-11-13, and one from 2026-11-14. The latest is LFM-5m-Downside-Aware-Council-0.4. It is a 5m-input / hourly-target challenger, not a validated champion or a BTC/USD feed. The 2026-11-12 target window has closed, but the exact 24 Binance Spot hourly target candles were not retrieved in this review, so its evaluation is deferred without a score. The 2026-11-13 vintages were still awaiting their final hourly closes at the 2026-11-14 07:18 UTC issue cutoff. The two Nov 13 vintages overlap by 23 hours and are not independent daily samples. The Nov 14 vintage is pending. No calibrated intervals or champion status are claimed.
+As of 2026-11-17T07:08:08Z, **eight experimental BTC/USDT forecast vintages are archived**: one from Nov 12, two overlapping version-comparison vintages from Nov 13, one from Nov 14, two overlapping vintages from Nov 15, one from Nov 16, and the current Nov 17 vintage. All are Binance Spot BTCUSDT inputs; the LFM-5m council consumes 5-minute candles and emits 24 hourly target points. These are BTC/USDT challenger forecasts, not a BTC/USD feed or a validated champion.
+
+**Six vintages have completed evaluation** (issue-date blocks Nov 12–15); **two remain pending**:
+- Nov 16 vintage: its final target hourly candle closes at 2026-11-17T07:59:59.999Z.
+- Nov 17 vintage: its final target hourly candle closes at 2026-11-18T07:59:59.999Z.
+
+The six completed vintages are not six independent daily samples: the two Nov 13 vintages overlap by almost 24 hours, and the two Nov 15 vintages also overlap by more than 23 hours. Across the four issue-date blocks, LFM5mEnsemble was the best council model in both Nov 13 vintages, MeanReversion5m was best in both Nov 15 vintages, and random walk was best on Nov 12 and Nov 14. This is descriptive evidence only; do not treat overlapping vintages as independent trials.
+
+P90 empirical coverage has varied substantially (including severe under-coverage and over-coverage), and the intervals are **not calibrated**. No virtual research points have been awarded. No champion promotion is justified; the 30-completed-daily-vintage requirement remains unmet.
+
+Latest Nov 17 vintage:
+- Issue UTC: 2026-11-17T07:07:54.530285Z; data cutoff: 2026-11-17T07:04:59.999Z.
+- Binance Spot BTCUSDT reference: 64,636.92 USDT; 999 closed 5m candles; 24 hourly targets from 08:00Z Nov 17 through 07:00Z Nov 18.
+- LFM5mEnsemble +24 point: 64,752.64 USDT (+0.179% vs reference).
+- DownsideStress5m +24 point: 63,704.38 USDT (-1.442% vs reference).
+- These are model outputs, not calibrated probabilities or trading instructions.
+
+**Forecast JSON metadata gap:** the emitted JSON includes schema, model version, asset, venue, quote currency, source, issue time, cutoff, reference price, closed-candle count, diagnostics and 24 target points, but omits explicit `input_interval`, `retrieved_at_utc`, `model_commit`, `vintage_id` and `training_cutoff`. The ledger stores the workflow checkout commit and archive hashes, but the JSON contract should be extended in a future code change. The JSON also includes Gaussian-style P90 fields without a calibration method/sample; they must not be described as calibrated prediction intervals.
 
 ## Append-only storage contract
 
