@@ -194,7 +194,7 @@ class ForecastLedgerFormattingTests(unittest.TestCase):
                 "forecasts/test.json", "c" * 64, forecast,
             )
             text = ledger_path.read_text(encoding="utf-8")
-            self.assertIn("\\n- Input interval", text) is False
+            self.assertNotIn("\\n- Input interval", text)
             self.assertIn("\n- Input interval / retrieved UTC:", text)
             self.assertIn("\n- Model commit / training cutoff UTC:", text)
 

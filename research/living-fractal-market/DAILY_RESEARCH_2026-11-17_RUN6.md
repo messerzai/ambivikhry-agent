@@ -157,7 +157,7 @@ The 70,000 USDT downside threshold is already above the issue-time reference (re
 
 The first archive run [44040279564](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040279564) failed because the archiver accepted only schema v1. The forecast itself had succeeded; no forecast bytes were altered. The archiver was extended to accept schema v1/v2 and to verify v2 provenance: model commit must equal the exact workflow source SHA, input interval must be 5m, training cutoff must equal data cutoff, and UTC timestamps must satisfy cutoff ≤ retrieval ≤ issue. Four regression tests were added.
 
-The archive retry [44040604276](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040604276) succeeded, preserving the exact ZIP and JSON hashes above. It skipped evaluation archival because the evaluation artifact contained no newly completed vintage. A formatting defect in the newly appended ledger metadata (literal backslash-n characters) was detected and is being corrected with a regression test; the existing forecast artifact and its hashes remain unchanged.
+The archive retry [44040604276](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040604276) succeeded, preserving the exact ZIP and JSON hashes above. It skipped evaluation archival because the evaluation artifact contained no newly completed vintage. A formatting defect in the newly appended ledger metadata (literal backslash-n characters) was detected and corrected. The first regression-test run then exposed an assertion mistake in the test itself (a positive assertion was used for a negative check); that test assertion is now corrected to assertNotIn. The archive payload and hashes remain unchanged.
 
 ### Final test state for this follow-up
 
