@@ -50,7 +50,7 @@ Added or reclassified:
 
 ## 4. License audit
 
-- Hawkes LOB repository HEAD `ecee1b7af5013e44b9ab584e93cd592aefa69fbd`, exact repository license GPL-3.0. No code copied; current repository has no explicit root license, so compatibility and source-disclosure obligations are unresolved.
+- Hawkes LOB repository HEAD `ecee1b7af5013e44b9ab584e93cd592aefa69fbd`, exact repository license GPL-3.0. No code copied; the project root LICENSE is proprietary v1.0 and restricts redistribution/derivative distribution, so GPL-3.0 integration is not assumed compatible. Any future integration requires qualified license review and an explicit source-disclosure plan.
 - MSPCIFormer repository HEAD `6c0970462aa0412b2c664fefdbabc71cc17fb775`; no LICENSE/NOTICE found; no code copied.
 - BtcForecaster, Brier Index and Mispria: no code/data reuse license verified; no payloads copied.
 - Huynh article marked open access under a Creative Commons license, but exact identifier not verified; TRMI data are separately proprietary.
