@@ -163,9 +163,16 @@ The archive retry [44040604276](https://github.com/messerzai/ambivikhry-agent/ac
 
 - Forecast unit tests: 13 passed.
 - Evaluation unit tests: 11 passed.
-- Archive unit tests: 11 passed.
-- General project CI: 51 passed on Python 3.10, 3.11, 3.12 and 3.13.
+- Archive unit tests: 12 passed.
+- General project CI: 52 passed on Python 3.10, 3.11, 3.12 and 3.13.
 - No virtual research points; six completed vintages, three pending after the latest archive.
-- Branch remained isolated: 139 commits ahead of main, zero behind at 07:41 UTC; main unchanged.
+- Branch remained isolated: 139 commits ahead of main, zero behind at 07:41 UTC; after the final report/test commits it is 141 ahead and zero behind. main unchanged.
 
 No trades, fund movements or execution integrations occurred.
+
+### Final verification — 2026-11-17 07:44 UTC
+
+- [Archive run 44040984270](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040984270): success. The exact source vintage was detected as already archived; no bytes were overwritten and hashes stayed unchanged.
+- [General CI run 44040984394](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040984394): success on Python 3.10–3.13; 52 tests passed.
+- Archive-specific unit tests: 12/12 passed, including a regression test confirming the provenance metadata is stored as separate Markdown lines rather than literal backslash-n text.
+- Current branch head at this report update: 1b7556f34b31e2199dfe5c565ad80e2ad9f6401b; 141 commits ahead of main, zero behind. No main changes.
