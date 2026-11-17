@@ -318,9 +318,9 @@ def append_forecast_ledger(
         f"- Exact extracted JSON SHA-256: {json_sha}\n"
         f"- Asset / venue / quote: {forecast.get('asset')} / {forecast.get('venue')} / {forecast.get('quote_currency')}\n"
         f"- Issue / cutoff UTC: {issue} / {forecast.get('data_cutoff_utc')}\n"
-        f"- Schema / vintage ID: {forecast.get('schema')} / {forecast.get('vintage_id')}\\n"
-        f"- Input interval / retrieved UTC: {forecast.get('input_interval', '5m')} / {forecast.get('retrieved_at_utc')}\\n"
-        f"- Model commit / training cutoff UTC: {forecast.get('model_commit', run.get('head_sha'))} / {forecast.get('training_cutoff_utc', forecast.get('data_cutoff_utc'))}\\n"
+        f"- Schema / vintage ID: {forecast.get('schema')} / {forecast.get('vintage_id')}\n"
+        f"- Input interval / retrieved UTC: {forecast.get('input_interval', '5m')} / {forecast.get('retrieved_at_utc')}\n"
+        f"- Model commit / training cutoff UTC: {forecast.get('model_commit', run.get('head_sha'))} / {forecast.get('training_cutoff_utc', forecast.get('data_cutoff_utc'))}\n"
         f"- Closed input candles: {forecast.get('closed_candles')} at 5m; hourly targets: 24\n"
     )
     ledger_path.write_text(ledger + entry, encoding="utf-8")

@@ -105,3 +105,67 @@ The Nov 13 pair and Nov 15 pair overlap by more than 23 hours each; treat the si
 5. Keep Hawkes LOB work separate until a licensed LOB feed and compatible runtime are available.
 
 No trading, fund movement, exchange credentials or execution integration was used. This is research, not financial advice.
+
+
+## Run 6 follow-up — 2026-11-17 07:35–07:41 UTC
+
+### Live forecast and provenance
+
+The daily marker was updated once (marker r8) and committed with the schema-v2 provenance patch. The workflow now checks out the exact triggering commit and passes that SHA into the forecast process.
+
+- Forecast workflow [44040279529](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040279529): success. Offline forecast tests: 13/13; public Binance retrieval, forecast generation and artifact upload all succeeded.
+- Evaluation workflow [44040279510](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040279510): success. Evaluation tests: 11/11; six vintages already evaluated, zero newly evaluated, zero failures, two pending at that time. The new 07:38 vintage was archived afterward, so there are now three pending vintages. No target closes were yet available for the Nov 16/17 vintages.
+- Forecast artifact ID 14308852672; exact ZIP SHA-256 3d7adc276605364df6b5be3cfe8554d9e67b77265e34374ea2b9b3a2b117c049; exact JSON SHA-256 2d13d9c1a208767c973420d6f51ab216df2fee08f56db62dc895ea86a303cc12.
+- Archived files: forecasts/2026-11-17/2026-11-17T07-38-41.322709Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip and matching .json. Immutable ledger entry added.
+
+Forecast schema v2 records: vintage ID lfm5m-2026-11-17T07:38:41.322709Z-BTCUSDT-binance-spot-council-0.4; model commit 90cee4a5f8e91dae85f79fb2a5deac64e47a0fc5; issue 07:38:41.322709Z; retrieval 07:38:41.318153Z; data/training cutoff 07:34:59.999Z; 999 closed Binance Spot BTCUSDT 5m candles.
+
+Reference price: **64,655.08 USDT**. The 24 hourly LFM5mEnsemble point forecasts are:
+
+| Horizon | Target UTC | Point (USDT) |
+|---:|---|---:|
+| +1 | 2026-11-17 08:00 | 64,669.05 |
+| +2 | 2026-11-17 09:00 | 64,680.90 |
+| +3 | 2026-11-17 10:00 | 64,690.97 |
+| +4 | 2026-11-17 11:00 | 64,699.55 |
+| +5 | 2026-11-17 12:00 | 64,706.90 |
+| +6 | 2026-11-17 13:00 | 64,713.21 |
+| +7 | 2026-11-17 14:00 | 64,718.65 |
+| +8 | 2026-11-17 15:00 | 64,723.36 |
+| +9 | 2026-11-17 16:00 | 64,727.46 |
+| +10 | 2026-11-17 17:00 | 64,731.04 |
+| +11 | 2026-11-17 18:00 | 64,734.19 |
+| +12 | 2026-11-17 19:00 | 64,736.97 |
+| +13 | 2026-11-17 20:00 | 64,739.46 |
+| +14 | 2026-11-17 21:00 | 64,741.68 |
+| +15 | 2026-11-17 22:00 | 64,743.69 |
+| +16 | 2026-11-17 23:00 | 64,745.52 |
+| +17 | 2026-11-18 00:00 | 64,747.19 |
+| +18 | 2026-11-18 01:00 | 64,748.74 |
+| +19 | 2026-11-18 02:00 | 64,750.18 |
+| +20 | 2026-11-18 03:00 | 64,751.53 |
+| +21 | 2026-11-18 04:00 | 64,752.80 |
+| +22 | 2026-11-18 05:00 | 64,754.01 |
+| +23 | 2026-11-18 06:00 | 64,755.16 |
+| +24 | 2026-11-18 07:00 | 64,756.27 |
+
+All are point forecasts. The Gaussian-style P90 envelope is uncalibrated and is not a valid calibrated prediction interval. No calibrated P50/P90 intervals exist. The +24 ensemble point is +0.1565% from the reference. Other +24 council points: RandomWalk 64,655.08; Momentum5m 64,816.24; MeanReversion5m 64,704.74; VolatilityRegime5m 64,834.17; TakerFlow5m 64,662.84; DownsideStress5m 64,655.08. These are all challenger outputs; no BTC/USD champion exists.
+
+The 70,000 USDT downside threshold is already above the issue-time reference (reference is 7.636% below it). The reported heuristic terminal-below-threshold value 1.0 is therefore not a downward-crossing probability and is uncalibrated. The illustrative -6% stress scenario is 60,775.78 USDT and has no assigned probability.
+
+### Archival repair
+
+The first archive run [44040279564](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040279564) failed because the archiver accepted only schema v1. The forecast itself had succeeded; no forecast bytes were altered. The archiver was extended to accept schema v1/v2 and to verify v2 provenance: model commit must equal the exact workflow source SHA, input interval must be 5m, training cutoff must equal data cutoff, and UTC timestamps must satisfy cutoff ≤ retrieval ≤ issue. Four regression tests were added.
+
+The archive retry [44040604276](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040604276) succeeded, preserving the exact ZIP and JSON hashes above. It skipped evaluation archival because the evaluation artifact contained no newly completed vintage. A formatting defect in the newly appended ledger metadata (literal backslash-n characters) was detected and is being corrected with a regression test; the existing forecast artifact and its hashes remain unchanged.
+
+### Final test state for this follow-up
+
+- Forecast unit tests: 13 passed.
+- Evaluation unit tests: 11 passed.
+- Archive unit tests: 11 passed.
+- General project CI: 51 passed on Python 3.10, 3.11, 3.12 and 3.13.
+- No virtual research points; six completed vintages, three pending after the latest archive.
+- Branch remained isolated: 139 commits ahead of main, zero behind at 07:41 UTC; main unchanged.
+
+No trades, fund movements or execution integrations occurred.

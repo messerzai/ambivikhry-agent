@@ -11,6 +11,7 @@ from archive_workflow_artifacts import (
     immutable_path_for_payload,
     select_source_commit,
     validate_forecast_schema,
+    append_forecast_ledger,
 )
 
 
@@ -166,6 +167,36 @@ class ForecastSchemaValidationTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "data cutoff <= retrieval <= issue time"):
             validate_forecast_schema(forecast, {"id": 4, "head_sha": commit})
+
+
+class ForecastLedgerFormattingTests(unittest.TestCase):
+    def test_provenance_metadata_uses_real_line_breaks(self):
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as directory:
+            ledger_path = Path(directory) / "FORECAST_LEDGER.md"
+            ledger_path.write_text("# Forecast ledger\n", encoding="utf-8")
+            forecast = {
+                "issued_at_utc": "2026-11-17T07:38:41.322709Z",
+                "asset": "BTC/USDT", "model_version": "LFM-5m-Downside-Aware-Council-0.4",
+                "data_cutoff_utc": "2026-11-17T07:34:59.999Z", "schema": "lfm.forecast.5m.v2",
+                "vintage_id": "lfm5m-test", "input_interval": "5m",
+                "retrieved_at_utc": "2026-11-17T07:38:41.318153Z",
+                "model_commit": "a" * 40, "training_cutoff_utc": "2026-11-17T07:34:59.999Z",
+                "closed_candles": 999, "venue": "Binance Spot", "quote_currency": "USDT",
+            }
+            append_forecast_ledger(
+                ledger_path,
+                {"repository": {"full_name": "example/repo"}, "id": 1, "head_sha": "a" * 40},
+                {"id": 2, "name": "forecast"},
+                "forecasts/test.artifact.zip", "b" * 64,
+                "forecasts/test.json", "c" * 64, forecast,
+            )
+            text = ledger_path.read_text(encoding="utf-8")
+            self.assertIn("\\n- Input interval", text) is False
+            self.assertIn("\n- Input interval / retrieved UTC:", text)
+            self.assertIn("\n- Model commit / training cutoff UTC:", text)
 
 
 if __name__ == "__main__":
