@@ -53,6 +53,42 @@ def make_vintage_id(forecast: dict[str, Any]) -> str:
     return f"lfm5m-{issued}-{asset}-{venue}-{version_tag}"
 
 
+def validate_forecast_schema(forecast: dict[str, Any], run: dict[str, Any]) -> None:
+    """Validate legacy v1 and provenance-complete v2 forecast payloads."""
+    schema = forecast.get("schema")
+    if schema == "lfm.forecast.5m.v1":
+        return
+    if schema != "lfm.forecast.5m.v2":
+        raise ValueError(f"unexpected forecast schema in run {run.get('id')}")
+    required = ("vintage_id", "model_commit", "training_cutoff_utc", "input_interval", "retrieved_at_utc", "issued_at_utc", "data_cutoff_utc")
+    missing = [field for field in required if not forecast.get(field)]
+    if missing:
+        raise ValueError(f"v2 forecast missing provenance fields: {missing}")
+    if forecast["input_interval"] != "5m":
+        raise ValueError("v2 forecast input_interval must be 5m")
+    if forecast["model_commit"] != run.get("head_sha"):
+        raise ValueError("forecast model_commit does not match workflow source commit")
+    if forecast["training_cutoff_utc"] != forecast["data_cutoff_utc"]:
+        raise ValueError("training cutoff must match the last observed data cutoff for this rolling-feature model")
+    if not str(forecast["vintage_id"]).startswith("lfm5m-"):
+        raise ValueError("v2 forecast vintage_id has an invalid prefix")
+
+    def parse_timestamp(value: str) -> datetime:
+        text = str(value)
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(text)
+        if parsed.tzinfo is None:
+            raise ValueError("v2 provenance timestamps must include a UTC offset")
+        return parsed.astimezone(timezone.utc)
+
+    issued = parse_timestamp(forecast["issued_at_utc"])
+    retrieved = parse_timestamp(forecast["retrieved_at_utc"])
+    cutoff = parse_timestamp(forecast["data_cutoff_utc"])
+    if not cutoff <= retrieved <= issued:
+        raise ValueError("v2 timestamps must satisfy data cutoff <= retrieval <= issue time")
+
+
 def source_head_sha_from_marker(marker_text: str) -> str | None:
     """Return the exact source commit named by an archive marker, if valid."""
     match = re.search(
@@ -282,6 +318,9 @@ def append_forecast_ledger(
         f"- Exact extracted JSON SHA-256: {json_sha}\n"
         f"- Asset / venue / quote: {forecast.get('asset')} / {forecast.get('venue')} / {forecast.get('quote_currency')}\n"
         f"- Issue / cutoff UTC: {issue} / {forecast.get('data_cutoff_utc')}\n"
+        f"- Schema / vintage ID: {forecast.get('schema')} / {forecast.get('vintage_id')}\\n"
+        f"- Input interval / retrieved UTC: {forecast.get('input_interval', '5m')} / {forecast.get('retrieved_at_utc')}\\n"
+        f"- Model commit / training cutoff UTC: {forecast.get('model_commit', run.get('head_sha'))} / {forecast.get('training_cutoff_utc', forecast.get('data_cutoff_utc'))}\\n"
         f"- Closed input candles: {forecast.get('closed_candles')} at 5m; hourly targets: 24\n"
     )
     ledger_path.write_text(ledger + entry, encoding="utf-8")
@@ -305,8 +344,7 @@ def archive_forecast_run(
             raise ValueError(f"run {run['id']} artifact must contain one forecast_5m.json")
         forecast_bytes = archive.read(names[0])
     forecast = json.loads(forecast_bytes.decode("utf-8"))
-    if forecast.get("schema") != "lfm.forecast.5m.v1":
-        raise ValueError(f"unexpected forecast schema in run {run['id']}")
+    validate_forecast_schema(forecast, run)
     models = forecast.get("models", [])
     if not models or any(len(model.get("points", [])) != 24 for model in models):
         raise ValueError(f"run {run['id']} forecast does not have 24 points per model")

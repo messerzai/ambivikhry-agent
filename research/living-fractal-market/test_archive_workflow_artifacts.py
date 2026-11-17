@@ -10,6 +10,7 @@ from archive_workflow_artifacts import (
     download_artifact,
     immutable_path_for_payload,
     select_source_commit,
+    validate_forecast_schema,
 )
 
 
@@ -124,6 +125,47 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
                     {"id": 123, "name": "forecast", "digest": "sha256:" + "0" * 64},
                     "test-token",
                 )
+
+
+class ForecastSchemaValidationTests(unittest.TestCase):
+    def test_accepts_legacy_v1_payload(self):
+        validate_forecast_schema({"schema": "lfm.forecast.5m.v1"}, {"id": 1})
+
+    def test_accepts_v2_when_provenance_matches_workflow(self):
+        commit = "a" * 40
+        forecast = {
+            "schema": "lfm.forecast.5m.v2",
+            "vintage_id": "lfm5m-test-BTCUSDT-binance-spot-council-0.4",
+            "model_commit": commit,
+            "training_cutoff_utc": "2026-11-17T07:34:59.999Z",
+            "input_interval": "5m",
+            "retrieved_at_utc": "2026-11-17T07:35:00.100Z",
+            "issued_at_utc": "2026-11-17T07:35:00.200Z",
+            "data_cutoff_utc": "2026-11-17T07:34:59.999Z",
+        }
+        validate_forecast_schema(forecast, {"id": 2, "head_sha": commit})
+
+    def test_rejects_v2_commit_mismatch(self):
+        commit = "a" * 40
+        forecast = {
+            "schema": "lfm.forecast.5m.v2", "vintage_id": "lfm5m-test",
+            "model_commit": "b" * 40, "training_cutoff_utc": "2026-11-17T07:34:59Z",
+            "input_interval": "5m", "retrieved_at_utc": "2026-11-17T07:35:00Z",
+            "issued_at_utc": "2026-11-17T07:35:01Z", "data_cutoff_utc": "2026-11-17T07:34:59Z",
+        }
+        with self.assertRaisesRegex(ValueError, "does not match workflow source commit"):
+            validate_forecast_schema(forecast, {"id": 3, "head_sha": commit})
+
+    def test_rejects_v2_non_monotone_timestamps(self):
+        commit = "a" * 40
+        forecast = {
+            "schema": "lfm.forecast.5m.v2", "vintage_id": "lfm5m-test",
+            "model_commit": commit, "training_cutoff_utc": "2026-11-17T07:34:59Z",
+            "input_interval": "5m", "retrieved_at_utc": "2026-11-17T07:35:02Z",
+            "issued_at_utc": "2026-11-17T07:35:01Z", "data_cutoff_utc": "2026-11-17T07:34:59Z",
+        }
+        with self.assertRaisesRegex(ValueError, "data cutoff <= retrieval <= issue time"):
+            validate_forecast_schema(forecast, {"id": 4, "head_sha": commit})
 
 
 if __name__ == "__main__":
