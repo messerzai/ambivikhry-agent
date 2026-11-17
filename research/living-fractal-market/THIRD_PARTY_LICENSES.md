@@ -120,3 +120,16 @@ No third-party source code, weights, datasets, raw social posts, sentiment feeds
 ### Project-level license context
 
 The repository root `LICENSE` was rechecked on 2026-11-17. It is **AMBIVIKHRY PROPRIETARY LICENSE v1.0**, not an open-source license. It permits inspection/evaluation for personal, non-commercial research and education, while public redistribution, derivative distribution and commercial use require separate written permission. Its third-party-components clause preserves upstream license obligations. Accordingly, upstream permissive or copyleft code is not automatically compatible with the project license; each integration requires a deliberate compatibility and distribution review. The project license itself was not changed in this cycle.
+
+
+## Additional primary-source license audit — 2026-11-17
+
+| Source | Exact terms checked | Reuse decision |
+|---|---|---|
+| Raffaelli et al. (2026), DOI 10.1007/s10203-026-00570-z | Springer article identifies CC BY 4.0. Linked Learning2Control/MultivariateHawkesLOB at HEAD ecee1b7af5013e44b9ab584e93cd592aefa69fbd has GPL-3.0 LICENSE. The repo code and article license are separate objects; tick, MATLAB CONTSID and exchange data terms are separate again. | No code, data or figures copied. GPL-3.0 source not integrated into the proprietary project. Clean-room implementation from cited equations remains possible after separate data/license review. |
+| Takaishi (2026), DOI 10.3390/fractalfract10070442 | MDPI article page states CC BY 4.0. Bitstamp historical data source terms and any external code/model assets remain separate. | No text, figures, code or data copied; methods summarized with attribution only. |
+| Akbar (2026), DOI 10.1108/SEF-12-2025-0942 | Publisher page states Licensed re-use rights only; full text is access restricted. No code/data repository or tweet corpus license identified. | No article text, code, tweets or derived data copied. Citation and independently authored factual abstract summary only. |
+| Vu & Nguyen (2026), DOI 10.1108/RBF-06-2025-0254 | Publisher page states Licensed re-use rights only; full text is access restricted. Google Trends and underlying market data have separate terms. | No article text, code, figures or datasets copied. Citation and independently authored abstract summary only. |
+| Dos Santos et al. (2026), arXiv:2611.16585v1 | arXiv record links CC BY 4.0; the linked license deed allows reuse with attribution and change indication. No implementation repository or dataset terms identified. | No code, on-chain data, text or figures copied. No software/data reuse inferred from paper license. |
+
+No third-party code, model weights, tokenizers, datasets, raw social posts, order-book events or paid APIs were copied in this cycle. The root project license is proprietary and does not automatically inherit upstream permissions; each future component must be reviewed separately.

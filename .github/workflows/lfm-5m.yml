@@ -23,7 +23,7 @@ jobs:
       - name: Checkout research branch
         uses: actions/checkout@v4
         with:
-          ref: research/living-fractal-market
+          ref: ${{ github.sha }}
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -32,6 +32,8 @@ jobs:
         working-directory: research/living-fractal-market
         run: python -m unittest -v test_forecast_btc_5m.py
       - name: Run live public-data forecast
+        env:
+          LFM_MODEL_COMMIT: ${{ github.sha }}
         run: python research/living-fractal-market/forecast_btc_5m.py --json > forecast_5m.json
       - name: Upload forecast artifact
         uses: actions/upload-artifact@v4

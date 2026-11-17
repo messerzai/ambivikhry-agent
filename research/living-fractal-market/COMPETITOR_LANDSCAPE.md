@@ -248,3 +248,16 @@ Last checked: 2026-11-17. These are research candidates and public forecast syst
 ### External comparability status
 
 No newly reviewed external system supplied a raw, independently verifiable BTC/USD point-price forecast with the same venue, issue time, input cutoff and 24 hourly target timestamps as the 2026-11-17 LFM vintage. Keep the external point-price leaderboard empty. Range-only and binary-probability systems remain separate shadow tracks; never merge their scores with normalized hourly log-price MAE.
+
+
+## Daily competitor and public-predictor update — 2026-11-17
+
+| Candidate | Evidence checked 2026-11-17 | Horizon / data | Comparison status |
+|---|---|---|---|
+| Raffaelli et al. HawkesTime / HawkesSign | Publisher full text: https://link.springer.com/article/10.1007/s10203-026-00570-z. Multivariate Hawkes event-intensity model; HawkesTime adds continuous-time output-error mapping from LOB base imbalance. Bitfinex BTC/USD, about 3m millisecond LOB updates (Jan 2024), plus July 2025 robustness sample. Linked implementation uses tick and MATLAB CONTSID. | Next mid-price event time/sign; 30m training + 2m test per sampled 32m window. | Microstructure challenger only if clean-room implementation and compatible BTC/USD LOB feed become available. Not comparable to 24 hourly price levels. |
+| Takaishi quantum-circuit volatility | https://www.mdpi.com/2504-3110/10/7/442. Single-qubit QCL, daily realized volatility from Bitstamp 5m prices (913 days), MFDFA diagnostics. | Daily volatility/stylized facts, not 24h price. | Research diagnostic only. No train/test split; fitted on full sample; article explicitly does not assess predictive performance. |
+| Mispria BTC hourly Polymarket market + Student-t model | https://mispria.com/markets/bitcoin-up-or-down-hourly and https://mispria.com/markets. Public replay reports 2,419 BTC hourly binary windows over 100 nights (Aug 7–Nov 15, 2026); T−60s favourite win rate 96.2%, market Brier about 0.0276 and Student-t model Brier about 0.0262 in the summary snapshot. Resolution uses Binance BTC/USDT hourly candle close vs open. | Binary direction at the final minute of each hourly window; public model-vs-market Brier. | Separate shadow benchmark only. Different issue time, target, horizon and score; not comparable to 24h price path. Site-reported replay, not independently audited. |
+| Akbar human-vs-automated attention study | https://doi.org/10.1108/SEF-12-2025-0942. Abstract: 16m+ BTC tweets; attention vs polarity in GARCH-X/VAR. | Volatility/attention; no stable direction claim. | Methodology watch only; full text/data unavailable; no reuse. |
+| Vu & Nguyen anti-herding study | https://doi.org/10.1108/RBF-06-2025-0254. CSSD/CSAD, BTC + 25 altcoins, 2020–2024. | Cross-sectional dispersion/regimes. | Behavioral regime hypothesis, not a comparable forecast. Full text unavailable. |
+
+No new external public forecast was admitted to the price-level leaderboard. Mispria is retained only in a separate binary-probability shadow track.

@@ -4,6 +4,7 @@ import argparse
 import datetime as dt
 import json
 import math
+import os
 import statistics
 import sys
 import urllib.parse
@@ -96,7 +97,18 @@ def _clamp(x, low, high):
     return max(low, min(high, x))
 
 
-def build_forecast(rows, issued_at=None, source="Binance Spot public market data"):
+def _iso_utc(value):
+    return value.astimezone(dt.timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _make_vintage_id(issued_at):
+    issued = _iso_utc(issued_at)
+    version_tag = MODEL_VERSION.lower().rsplit("council-", 1)[-1]
+    return f"lfm5m-{issued}-BTCUSDT-binance-spot-council-{version_tag}"
+
+
+def build_forecast(rows, issued_at=None, source="Binance Spot public market data",
+                   retrieved_at=None, model_commit=None):
     if len(rows) < 300:
         raise ValueError("insufficient 5m history")
     closes = [r["close"] for r in rows]
@@ -160,6 +172,18 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
     now = now.astimezone(dt.timezone.utc)
     next_hour = now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(hours=1)
     cutoff = dt.datetime.fromtimestamp(rows[-1]["close_ms"]/1000, dt.timezone.utc)
+    retrieved = retrieved_at
+    if retrieved is not None:
+        if retrieved.tzinfo is None:
+            raise ValueError("retrieved_at must be timezone-aware")
+        retrieved = retrieved.astimezone(dt.timezone.utc)
+        if retrieved > now:
+            raise ValueError("retrieved_at cannot be later than issued_at")
+    commit = model_commit or os.environ.get("LFM_MODEL_COMMIT") or os.environ.get("GITHUB_SHA")
+    if commit is not None:
+        commit = str(commit).lower()
+        if len(commit) != 40 or any(ch not in "0123456789abcdef" for ch in commit):
+            raise ValueError("model_commit must be a 40-character Git SHA")
     # Convert 5m log-return volatility to hourly scale; intervals are explicitly uncalibrated.
     hourly_sigma = max(0.00015, min(0.025, sig24 * math.sqrt(12)))
     model_outputs = []
@@ -177,10 +201,15 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
             })
         model_outputs.append({"model": name, "points": points})
     return {
-        "schema": "lfm.forecast.5m.v1", "model_version": MODEL_VERSION,
+        "schema": "lfm.forecast.5m.v2", "vintage_id": _make_vintage_id(now),
+        "model_name": "LFM 5m downside-aware council", "model_version": MODEL_VERSION,
+        "model_commit": commit, "training_cutoff_utc": _iso_utc(cutoff),
+        "training_mode": "deterministic rolling features; no fitted weights; all signals use observations through data_cutoff_utc",
         "asset": "BTC/USDT", "venue": "Binance Spot", "quote_currency": "USDT",
-        "source": source, "issued_at_utc": now.isoformat().replace("+00:00", "Z"),
-        "data_cutoff_utc": cutoff.isoformat().replace("+00:00", "Z"),
+        "input_interval": "5m", "source": source,
+        "issued_at_utc": _iso_utc(now),
+        "retrieved_at_utc": _iso_utc(retrieved) if retrieved is not None else None,
+        "data_cutoff_utc": _iso_utc(cutoff),
         "reference_price_usdt": ref, "closed_candles": len(rows),
         "diagnostics": {
             "fast_1h_log_return": fast*12, "medium_4h_log_return_per_hour": medium*12,
@@ -243,9 +272,14 @@ def main():
         parser.error("--limit must be between 300 and 1000")
     try:
         raw, endpoint = _request_rows(limit=args.limit)
+        retrieved_at = dt.datetime.now(dt.timezone.utc)
+        rows = parse_rows(raw, now=retrieved_at)
         now = dt.datetime.now(dt.timezone.utc)
-        rows = parse_rows(raw, now=now)
-        result = build_forecast(rows, issued_at=now, source=endpoint + "/api/v3/klines")
+        result = build_forecast(
+            rows, issued_at=now, retrieved_at=retrieved_at,
+            model_commit=os.environ.get("LFM_MODEL_COMMIT") or os.environ.get("GITHUB_SHA"),
+            source=endpoint + "/api/v3/klines",
+        )
         if args.json:
             print(json.dumps(result, indent=2))
         else:

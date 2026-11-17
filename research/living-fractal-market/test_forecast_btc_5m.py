@@ -31,9 +31,16 @@ class Forecast5mTests(unittest.TestCase):
         raw.append([int(now.timestamp()*1000), "1", "1", "1", "1", "1",
                     int(now.timestamp()*1000)+299999, "1", 1, "0.5", "0.5", "0"])
         rows = parse_rows(raw, now=now)
-        result = build_forecast(rows, issued_at=now)
+        result = build_forecast(rows, issued_at=now, retrieved_at=now-dt.timedelta(seconds=1), model_commit="a"*40)
         self.assertEqual(len(rows), 1000)
+        self.assertEqual(result["schema"], "lfm.forecast.5m.v2")
         self.assertEqual(result["model_version"], "LFM-5m-Downside-Aware-Council-0.4")
+        self.assertEqual(result["input_interval"], "5m")
+        self.assertEqual(result["model_commit"], "a"*40)
+        self.assertEqual(result["retrieved_at_utc"], "2026-11-10T11:59:59Z")
+        self.assertEqual(result["training_cutoff_utc"], result["data_cutoff_utc"])
+        self.assertEqual(result["training_mode"], "deterministic rolling features; no fitted weights; all signals use observations through data_cutoff_utc")
+        self.assertTrue(result["vintage_id"].startswith("lfm5m-2026-11-10T12:00:00Z-BTCUSDT-binance-spot-council-0.4"))
         self.assertEqual(len(result["models"]), 7)
         self.assertIn("DownsideStress5m", [m["model"] for m in result["models"]])
         self.assertIn("heuristic_probability_below_level_24h", result["downside_risk"])
@@ -132,6 +139,20 @@ class Forecast5mTests(unittest.TestCase):
         common = [p["target_utc"] for p in result["models"][0]["points"]]
         for model in result["models"][1:]:
             self.assertEqual([p["target_utc"] for p in model["points"]], common)
+
+
+class ForecastMetadataTests(unittest.TestCase):
+    def test_rejects_naive_retrieval_timestamp(self):
+        now = dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
+        rows = parse_rows(make_raw(now=now), now=now)
+        with self.assertRaisesRegex(ValueError, "retrieved_at must be timezone-aware"):
+            build_forecast(rows, issued_at=now, retrieved_at=now.replace(tzinfo=None))
+
+    def test_rejects_invalid_model_commit(self):
+        now = dt.datetime(2026, 11, 10, 12, 0, tzinfo=dt.timezone.utc)
+        rows = parse_rows(make_raw(now=now), now=now)
+        with self.assertRaisesRegex(ValueError, "40-character Git SHA"):
+            build_forecast(rows, issued_at=now, model_commit="not-a-sha")
 
 
 if __name__ == "__main__":
