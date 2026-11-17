@@ -176,3 +176,10 @@ No trades, fund movements or execution integrations occurred.
 - [General CI run 44040984394](https://github.com/messerzai/ambivikhry-agent/actions/runs/44040984394): success on Python 3.10–3.13; 52 tests passed.
 - Archive-specific unit tests: 12/12 passed, including a regression test confirming the provenance metadata is stored as separate Markdown lines rather than literal backslash-n text.
 - Current branch head at this report update: 1b7556f34b31e2199dfe5c565ad80e2ad9f6401b; 141 commits ahead of main, zero behind. No main changes.
+
+
+### Additional competitor calibration check — 2026-11-17
+
+Mispria's BTC hourly market page reports 2,419 windows over 100 nights, with the market's T−60s favourite winning 96.2% and Brier 0.0276 versus 0.0262 for its Student-t model in the per-market summary. However, its overall 12-market record through Nov 15 (187,361 windows) has order-book Brier 0.0550 versus model 0.0575, and the Nov 15 night itself has market 0.0574 versus model 0.0596. The site notes overlapping horizons and correlated assets, so windows are not independent. Treat this only as an operator-reported near-close binary-probability reference; it is not comparable to our 24-hour hourly price path. [Mispria markets](https://mispria.com/markets) · [track record](https://mispria.com/performance) · [calibration methodology](https://mispria.com/research/order-book-calibration-t60).
+
+Research nuance: Huynh (2026) uses 5-minute data for the top 100 cryptocurrencies from 2014–2021, 32 U.S. macro release classes and daily TRMI sentiment. Its reported one-standard-deviation sentiment effect attenuates the return response by about 16% and turnover response by about 24%. This is a candidate news×sentiment state interaction for later point-in-time ablation, not a directional signal. [Original paper](https://doi.org/10.1016/j.jbef.2026.101183).
