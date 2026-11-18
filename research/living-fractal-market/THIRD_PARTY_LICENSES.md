@@ -1,7 +1,7 @@
 # Third-party reuse and license register
 
 Branch: research/living-fractal-market  
-Last reviewed: 2026-11-11
+Last reviewed: 2026-11-18
 
 No third-party code, model weights, datasets, tokenizers or media assets were copied into this branch in this review. The entries below are audited candidates only. Repository code and model weights are separate license objects; model-hub cards were checked on 2026-11-11 but must be pinned to immutable model revisions before any download or reuse.
 
@@ -133,3 +133,14 @@ The repository root `LICENSE` was rechecked on 2026-11-17. It is **AMBIVIKHRY PR
 | Dos Santos et al. (2026), arXiv:2611.16585v1 | arXiv record links CC BY 4.0; the linked license deed allows reuse with attribution and change indication. No implementation repository or dataset terms identified. | No code, on-chain data, text or figures copied. No software/data reuse inferred from paper license. |
 
 No third-party code, model weights, tokenizers, datasets, raw social posts, order-book events or paid APIs were copied in this cycle. The root project license is proprietary and does not automatically inherit upstream permissions; each future component must be reviewed separately.
+
+## Additional license/provenance audit — 2026-11-18
+
+| Source | Exact revision / terms checked | Reuse decision |
+|---|---|---|
+| Farzulla, extremity-premium code repository: https://github.com/dissensus-ai/extremity-premium | HEAD d6fb70f2689ae6fee54bc03f4144c638606b1b92 (2026-08-28); LICENSE inspected: MIT, Copyright (c) 2025 Farzulla Research. Paper/preprint states CC BY 4.0; code and paper are separate license objects. | No code, data or paper text copied. Candidate for later reproduction only; retain MIT notice if any code is reused. |
+| Mukherjee et al., sentiment-aware POMP code: https://github.com/abeyankargiridharan/Novel_Approach_to_Volatility_Analysis_on_Bitcoin_Returns | HEAD 4905198c12a6fdcf48689a313fef398130015179 (2025-06-14). Repository listing has no LICENSE file; exact code reuse rights are not granted by public availability. Paper arXiv:2609.23250 license/reuse terms were not separately confirmed in this pass. Dataset/API rights are separate. | No code or data copied. Do not reuse unless exact terms are supplied; clean-room method implementation may be considered from cited paper. |
+| Zwydak et al., Entropy 28(7), 804, DOI 10.3390/e28070804 | Published article page checked 2026-11-18; article is CC BY 4.0. No implementation repository/license identified. Trade-level exchange data terms remain separate. | No text, code, figures, datasets or derived values copied. |
+| ECB R-RISI paper/dashboard | ECB Working Paper 3276 and blog checked 2026-11-18. Reddit source corpus, Academic Torrents, LLM API outputs, Bloomberg and dashboard data have separate terms; no dataset license for bulk reuse verified. | No posts, API outputs, code or data copied. Use only cited public methodological description; obtain rights and point-in-time access before any dataset ingestion. |
+
+No third-party source code, weights, data, social posts, dashboard payloads or paid API outputs were copied in this cycle. The root project license remains proprietary; the MIT/CC BY terms of upstream candidates do not automatically authorize integration or distribution within this project. This register is not a legal opinion.

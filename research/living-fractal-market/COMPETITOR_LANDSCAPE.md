@@ -1,6 +1,6 @@
 # Competitor landscape and reuse policy
 
-Last reviewed: 2026-11-16  
+Last reviewed: 2026-11-18  
 Target: BTC/USD hourly observations and +1 to +24 hour horizons.  
 Research branch: research/living-fractal-market
 
@@ -265,3 +265,17 @@ No new external public forecast was admitted to the price-level leaderboard. Mis
 ## Public probabilistic benchmark update — 2026-11-17
 
 Mispria's public Polymarket analytics track record (data through 2026-11-15, consolidated 2026-11-16 08:01 UTC) reports 124 nights and 187,361 graded windows. Across its combined 12-market universe (BTC/ETH/SOL/XRP × 5m/15m/1h), the order-book Brier is 0.0550 versus 0.0575 for the model, so the market is better in the aggregate. The separate BTC hourly page reports 2,419 windows over 100 nights; its T−60s snapshot reports market Brier 0.0276 versus Student-t model Brier 0.0262 and a 96.2% T−60s favourite win rate. A single-night Nov 15 report reverses the model comparison (0.0596 model vs 0.0574 market). These are publisher/operator-reported paper results, not independently audited. The methodology note explicitly warns that 5m/15m/1h windows overlap and assets co-move, so treating all windows as independent understates uncertainty. The hourly market resolves by Binance BTC/USDT 1h candle close vs open. This is a useful probability/calibration shadow benchmark near T−60s, not a comparable 24-hour hourly price-path forecast; do not rank it against LFM nMAE.
+
+
+## Public forecast and research watch — 2026-11-18
+
+| Candidate | Public claim / method checked | Horizon and data | Status / caveat |
+|---|---|---|---|
+| EdgeMap | Homepage reports 61% directional accuracy over 108 resolved hourly predictions, 30-day candle patterns plus momentum, wick, funding, open-interest and recent price signals. It advertises a transparent prediction history, but the checked page displays inconsistent/demo-looking BTC prices and example times; no immutable timestamped ledger, cutoff or accuracy denominator was independently verified. | Hourly BTC UP/DOWN; 30-day rolling context. | Unverified self-reported directional claim; not rankable and not a 24-hour price path. https://edgemap.io/ |
+| AnalogQuant public mirror | Public mirror reports 70% prediction bands with 64.7% hit rate for 15m (n=14,071) and 64.2% for 60m (n=14,068); high-confidence 60m tier reports 49.3% (n=73). | 15m/60m, Kalshi flow/OI terrain and model range. | Coverage below nominal 70% suggests undercoverage; small high-confidence n. Page last-sync shown as 2026-10-13 and BTC spot $81,500, inconsistent with our Nov 18 archived Binance reference ($64,684.16), so treat the mirror as stale, not live evidence. https://forecast.analogquant.com/ |
+| Sentiment-augmented POMP | Daily BTC F&G, latent volatility with Student-t observation noise; conditional log-likelihood and filter stability claims. | Daily volatility state, 2020–Apr 2025 sample. | Research challenger for risk-state only; not an hourly price forecaster. The code repo has no visible license; no reuse. https://arxiv.org/abs/2609.23250 |
+| Complexity-based exchange anomaly framework | 1-minute trade count/volume/return, multifractality, entropy and cross-correlations; published in Entropy 28(7), 804. | Exchange quality/liquidity diagnostics. | Diagnostic lead, not a forecast competitor; anomaly is exchange-specific and does not prove wash trading. https://doi.org/10.3390/e28070804 |
+
+### Comparability decision
+
+No external candidate supplied a timestamped, independent BTC/USD 24-step hourly price forecast with matching issue time, cutoff, venue and scoring. The external price-level leaderboard remains empty. EdgeMap direction calls and AnalogQuant short-horizon probability/range outputs remain separate shadow tracks; their advertised accuracy is not independently verified.

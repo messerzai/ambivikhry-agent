@@ -674,3 +674,33 @@ The only code change in this cycle is forecast provenance: add input interval, r
 - Vu & Nguyen (2026), https://doi.org/10.1108/RBF-06-2025-0254: BTC plus 25 major altcoins, 2020–2024, CSSD/CSAD and Google Trends. Publisher abstract reports weak herding in extreme states and stronger dispersion in high-volatility regimes. Cross-sectional dispersion does not establish BTC directionality.
 - Raffaelli et al. (2026), https://doi.org/10.1007/s10203-026-00570-z: about 3m Bitfinex millisecond LOB updates in Jan 2024, 50 sampled 2-minute tests per chronological subset, 30-minute COE training; reported HawkesTime sign accuracy 0.671 for that configuration. The authors omit transaction costs in simulations and do not filter spoofing. The signal is next-event LOB sign, not 24h price. The linked implementation is GPL-3.0; no code copied.
 - Mispria (public operator report, https://mispria.com/performance): through Nov 15, 2026, 124 nights and 187,361 windows; aggregate order-book Brier 0.0550 vs model 0.0575. The BTC 1h subset reports 2,419 windows and a different per-market Brier comparison (market 0.0276 vs Student-t 0.0262). These aggregate and subset metrics must not be conflated. The site's own methodology notes overlapping windows and cross-asset dependence, so nominal independent-window uncertainty is too narrow.
+
+
+## Daily research cycle — 2026-11-18 (run 7)
+
+### Evidence reviewed and research implications
+
+- **ECB R-RISI:** Wagner & Metzler, ECB Working Paper No. 3276 (24 Aug 2026), *When the Crowd Speaks: AI-based retail investor sentiment indicator with Reddit data*, plus ECB blog *Reading the room* (12 Nov 2026). The indicator uses LLM sentiment/topic/ticker labels (ChatGPT 5.1), engagement weighting and rolling 365-day z-scores over Reddit investment and crypto posts. The ECB reports more than 9m posts and timely associations with next-day equity returns particularly in market downturns; its BTC-specific sentiment series is volatile and diverges from BTC prices more often. This is not a validated BTC 24h forecasting result. Point-in-time availability, post-collection latency, topic/ticker errors, engagement weighting, seven-/30-day smoothing, and underlying Reddit/data/API terms are material. Treat BTC sentiment as a regime/attention challenger, not a signed-return feature until an out-of-sample ablation.
+  Sources: https://www.ecb.europa.eu/pub/research/authors/profiles/fabian-wagner.et.html ; https://www.ecb.europa.eu/press/blog/date/2026/html/ecb.blog20261112~a4c8b903d9.en.html
+- **Complexity-based exchange-quality diagnostics:** Zwydak, Wątorek, Kwapień & Drożdż, *Detecting Unusual Trading Patterns on Cryptocurrency Exchanges by Means of Complexity Measures*, Entropy 28(7), 804 (15 Jul 2026), DOI 10.3390/e28070804. On 1-minute BTC/ETH/XRP transaction data across Binance, Bitget, KuCoin and Kraken (Apr–Jun 2025), the authors report a Bitget anomaly after mid-May: transaction count rose disproportionately to volume and returns, with weaker autocorrelation/multifractal structure and higher short-pattern irregularity. Public trade data do not identify beneficial ownership; the authors explicitly do not prove wash trading. Implication: add exchange/volume/trade-count integrity checks to the long-history ingestion experiment before trusting taker-flow or complexity features.
+  Source: https://www.mdpi.com/1099-4300/28/7/804
+- **Sentiment extremity and spread uncertainty:** Farzulla, arXiv:2602.07018 (revised 2026), *The Extremity Premium*. The extended daily F&G sample (2018–Jan 2026, 2,896 days) reports a small volatility-demeaned effect (Cohen d≈0.21) from an exploratory pooled test. The pre-specified within-volatility-quintile tests do not survive Holm correction; residual spread–uncertainty correlation falls to r≈0.043 (p≈0.25) after purging volatility. The extended Granger statistic F=211 is partly mechanical because a high-low input is shared. Treat as a cautious liquidity/uncertainty regime hypothesis, not causal proof or directional alpha.
+  Source: https://arxiv.org/abs/2602.07018
+- **Sentiment-aware POMP volatility:** Mukherjee et al., arXiv:2609.23250 (19 Sep 2026) use daily BTC returns and F&G (2020–Apr 2025), a latent POMP model with differenced sentiment and Student-t observation noise. The paper compares conditional log-likelihood/filter stability against GARCH, HSV and the original Bretó model; it reports better fit/stability, but it does not present a matching BTC hourly point-forecast evaluation. The linked GitHub repository has no visible license at checked HEAD, so no code was copied.
+  Sources: https://arxiv.org/abs/2609.23250 ; https://github.com/abeyankargiridharan/Novel_Approach_to_Volatility_Analysis_on_Bitcoin_Returns
+
+### Hypotheses (not established facts)
+
+1. Trade-count/quote-volume mismatch and complexity changes may be useful as a data-quality or liquidity-risk gate, not necessarily a price-direction signal.
+2. BTC-specific Reddit sentiment may help identify regime/attention shifts, but it must be timestamped, delayed and tested for incremental value over volatility alone.
+3. F&G extremity may proxy uncertainty and liquidity conditions; use it for interval-width/risk-state ablations only after leakage-safe normalization.
+4. Daily sentiment/POMP evidence and 1m microstructure findings cannot be transplanted directly to 24 hourly price levels.
+
+### Live forecast and completed evaluation
+
+- Run 44256430979 issued a fresh BTC/USDT 24-hour hourly council forecast from 999 closed Binance Spot 5m candles. Exact archive and hashes are in FORECAST_LEDGER.md. LFM5mEnsemble +24 = 64,803.50 USDT from 64,684.16 reference (+0.1845%); P90-style range is uncalibrated.
+- Run 44256431018 evaluated the Nov 16 vintage using 24 completed Binance Spot hourly closes and preserved the exact response. VolatilityRegime5m was the best council member (nMAE 0.668837), LFM5mEnsemble third (0.670892); RandomWalk 0.736703, VolatilityCappedSlowDrift 1.760475. Directional accuracy vs issue reference was 0.583 for drift-positive members, hour-to-hour accuracy 0.500. All P90-style intervals covered 24/24 but mean width ≈6.85%; calibration flag remains false. No points awarded.
+
+### Experiment decision
+
+No model code or forecast equations changed. Next: build a paginated 90-day 5m dataset with exact raw provenance; audit venue-level trade-count/quote-volume anomalies; then compare volatility-only, complexity/data-quality gate, sentiment-regime and news-surprise interaction variants on the same non-overlapping daily origins. Use null models for MF-DFA and strict point-in-time features. Do not fit a sentiment feature until source terms and release/collection timestamps are verified.
