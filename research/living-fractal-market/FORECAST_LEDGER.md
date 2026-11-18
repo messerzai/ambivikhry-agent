@@ -370,3 +370,40 @@ The canonical .artifact.zip preserves the exact workflow artifact bytes. The SHA
 - Input interval / retrieved UTC: 5m / 2026-11-17T07:38:41.318153Z
 - Model commit / training cutoff UTC: 90cee4a5f8e91dae85f79fb2a5deac64e47a0fc5 / 2026-11-17T07:34:59.999000Z
 - Closed input candles: 999 at 5m; hourly targets: 24
+
+### 2026-11-18T07:07:36.524004Z — BTC/USDT — LFM-5m-Downside-Aware-Council-0.4
+- Workflow run: https://github.com/messerzai/ambivikhry-agent/actions/runs/44256430979
+- Run checkout commit: 82ab29ef24836e8ca13ecd875e4cb7df96d9a9c9
+- Artifact ID: 14405887722 (name: lfm-5m-btc-forecast)
+- Exact ZIP archive: research/living-fractal-market/forecasts/2026-11-18/2026-11-18T07-07-36.524004Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip
+- Exact ZIP SHA-256: e7c9e9308cf7ce20e8ba3f6c0060c05d7dda7a1657ab7f2c4d630dbd25868b6f
+- Exact extracted JSON: research/living-fractal-market/forecasts/2026-11-18/2026-11-18T07-07-36.524004Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json
+- Exact extracted JSON SHA-256: 61f15905898f5c3129f6be1958e443aae68a9cc9ecbfb6bad8e0e12bdeeca4cd
+- Asset / venue / quote: BTC/USDT / Binance Spot / USDT
+- Issue / cutoff UTC: 2026-11-18T07:07:36.524004Z / 2026-11-18T07:04:59.999000Z
+- Schema / vintage ID: lfm.forecast.5m.v2 / lfm5m-2026-11-18T07:07:36.524004Z-BTCUSDT-binance-spot-council-0.4
+- Input interval / retrieved UTC: 5m / 2026-11-18T07:07:36.520350Z
+- Model commit / training cutoff UTC: 82ab29ef24836e8ca13ecd875e4cb7df96d9a9c9 / 2026-11-18T07:04:59.999000Z
+- Closed input candles: 999 at 5m; hourly targets: 24
+
+### Evaluation: lfm5m-2026-11-16T07:11:30.546109Z-BTCUSDT-binance-spot-council-0.4
+- Evaluation workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/44256431018
+- Evaluation artifact ID: 14405639173
+- Exact evaluation ZIP: research/living-fractal-market/evaluations/2026-11-18/2026-11-18T07-07-35.284Z_LFM-completed-vintage-evaluation.artifact.zip
+- Evaluation ZIP SHA-256: 8886790fdd5649e547560d4239466714794244818e7fc4a4fa33285d41d4106c
+- Evaluation JSON: research/living-fractal-market/evaluations/2026-11-18/lfm5m-2026-11-16T07:11:30.546109Z-BTCUSDT-binance-spot-council-0.4.json (SHA-256 18e40d2a6450523780d7c199da9860650563710972c2271ced09fa2146629605)
+- Exact actual Binance Spot 1h response: research/living-fractal-market/evaluations/2026-11-18/lfm5m-2026-11-16T07:11:30.546109Z-BTCUSDT-binance-spot-council-0.4_actual_binance_spot_1h.json (SHA-256 f96bf01b9bc402a25c5d70b2146c6821e13311e1ee0014bb1f21d25ee7494249)
+- Actual data source: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1h&startTime=1794816000000&endTime=1794902399999&limit=1000
+- Evaluated at UTC: 2026-11-18T07:07:35.284Z
+- Primary nMAE: normalized by issue-time hourly sigma 0.00619231799191555.
+- RandomWalkLastPrice nMAE: 0.7367029901468023; VolatilityCappedSlowDrift nMAE: 1.7604748599088234.
+- P90 intervals calibrated: False; virtual points awarded: 0.
+- VolatilityRegime5m: nMAE 0.668837; direction vs issue 0.583; hour-to-hour direction 0.500; P90 empirical coverage 1.0; beats RW True.
+- Momentum5m: nMAE 0.669705; direction vs issue 0.583; hour-to-hour direction 0.500; P90 empirical coverage 1.0; beats RW True.
+- LFM5mEnsemble: nMAE 0.670892; direction vs issue 0.583; hour-to-hour direction 0.500; P90 empirical coverage 1.0; beats RW True.
+- MeanReversion5m: nMAE 0.709003; direction vs issue 0.583; hour-to-hour direction 0.500; P90 empirical coverage 1.0; beats RW True.
+- TakerFlow5m: nMAE 0.736153; direction vs issue 0.583; hour-to-hour direction 0.208; P90 empirical coverage 1.0; beats RW True.
+- RandomWalk: nMAE 0.736703; direction vs issue 0.000; hour-to-hour direction 0.000; P90 empirical coverage 1.0; beats RW False.
+- DownsideStress5m: nMAE 0.736703; direction vs issue 0.000; hour-to-hour direction 0.000; P90 empirical coverage 1.0; beats RW False.
+- Terminal threshold diagnostic: 70000.0 USDT; uncalibrated heuristic 1.0; observed terminal-below-level True; diagnostic Brier 0.0 (not a calibrated score).
+- Interpretation: one completed vintage is descriptive only; no champion promotion or research points.
