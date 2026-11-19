@@ -17,6 +17,7 @@ Latest Nov 19 vintage:
 - Model commit: 04e42a8671b5109f5000287d20888316a6a10230; schema: lfm.forecast.5m.v2; model: LFM-5m-Downside-Aware-Council-0.4.
 - LFM5mEnsemble +24 point: 63,619.94 USDT (+0.0278% vs reference); approximate P90-style range 60,785.91–66,586.11 USDT is **uncalibrated** and must not be interpreted as a calibrated 90% interval.
 - Exact forecast ZIP SHA-256: f675f9bb47a17d96ed92b7186d5e05607a94c42e69856c38bb4959dfed544322; extracted JSON SHA-256: c75289cbbf748fb11ef7d59b7730b3a4192b221902a6fd9ca90cc8aca29b4ac5.
+- Provenance limitation: the workflow artifact preserves the forecast JSON and source/cutoff/count/diagnostics, but not the raw 999-candle 5m response; no raw-input SHA-256 is available for this vintage. Add a raw-response hash and lossless input snapshot to a future workflow version.
 - No calibrated P50/P90 intervals, no virtual points, no champion promotion.
 
 ## Append-only storage contract
