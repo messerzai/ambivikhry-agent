@@ -704,3 +704,36 @@ The only code change in this cycle is forecast provenance: add input interval, r
 ### Experiment decision
 
 No model code or forecast equations changed. Next: build a paginated 90-day 5m dataset with exact raw provenance; audit venue-level trade-count/quote-volume anomalies; then compare volatility-only, complexity/data-quality gate, sentiment-regime and news-surprise interaction variants on the same non-overlapping daily origins. Use null models for MF-DFA and strict point-in-time features. Do not fit a sentiment feature until source terms and release/collection timestamps are verified.
+
+
+## Daily research cycle — 2026-11-19 (run 8)
+
+### Evidence reviewed
+
+- **Kim, Lee & Choi (23 May 2026), “Comparative Analysis of Cryptocurrency Market Efficiency and Local Features Using MF-DFA and DCC-GARCH,” Fractal and Fractional 10(6), 353.** The authors study 11 crypto/fiat pairs (BTC, ETH, XRP, BCH against KRW/USD/JPY) over Jan 2018–Sep 2025. Rolling MF-DFA uses 250-day windows, with robustness checks at 200 and 300 days; they report time-varying Hurst/spectrum-width estimates and high same-asset cross-fiat return correlations. Their phase-randomized surrogate experiment uses 99 FFT surrogates and reports rank p=0.010, the smallest attainable with 99 surrogates. This supports treating scaling estimates as time-varying diagnostics rather than constants. Limitations: daily sampling rather than 5m/hourly; data are available from the corresponding author on request rather than as a public dataset; p=0.010 is resolution-limited; the exact surrogate implementation should be replicated and checked for marginal-tail preservation rather than assuming plain phase randomization is equivalent to IAAFT. No evidence here that MF-DFA features improve 24h BTC point forecasts.
+  Source: https://doi.org/10.3390/fractalfract10060353
+
+- **Drożdż et al. (13 Oct 2025), “Multifractality and Its Sources in the Digital Currency Market,” Future Internet 17(10), 470.** The MFCCA/MF-DFA source-decomposition study reports that temporal correlations are the primary source of the observed multifractal spectrum in its crypto samples; heavy tails broaden the spectrum conditionally, but do not by themselves establish genuine multifractality. The paper explicitly motivates shuffled/Gaussianized controls. This remains a diagnostic result, not predictive evidence.
+  Source: https://doi.org/10.3390/fi17100470
+
+- **Wagner & Metzler, ECB Working Paper 3276 (24 Aug 2026) and ECB Blog (12 Nov 2026), “When the Crowd Speaks / Reading the room.”** The R-RISI work labels Reddit posts by sentiment/topic/ticker with an LLM, weights posts by engagement, and standardizes using rolling one-year z-scores; the public blog describes smoothing and a BTC-specific sub-index. The ECB reports that the BTC series is more volatile and diverges from BTC price more often than some equity-oriented measures. The broad indicator is associated with next-day equity returns particularly in downturns; this is not a demonstrated BTC hourly or 24h direction forecast. The smoothing, collection latency, post deletion/edits, ticker/topic classification and Reddit/API/data terms all require point-in-time and rights review.
+  Sources: https://www.ecb.europa.eu/pub/pdf/scpwps/ecb.wp3276~3ba8565a13.en.pdf ; https://www.ecb.europa.eu/press/blog/date/2026/html/ecb.blog20261112~a4c8b903d9.en.html
+
+- **Thapa & Cho (3 Aug 2026), “A Multifractal Cross-Correlation Framework for Cryptocurrency Pairs Trading with CAPM Filtering,” Fractal and Fractional 10(8), 530.** The abstract describes market-model filtering followed by MFDCCA for pair selection and risk-adjusted pairs-trading tests. This is a cross-asset dependence/pairs-trading study, not a BTC hourly price-level forecast; its reported strategy results cannot be compared with the LFM nMAE tournament.
+  Source: https://doi.org/10.3390/fractalfract10080530
+
+### Methodological implications and hypotheses
+
+1. Add rolling MF-DFA only after a sufficiently long, timestamp-consistent 5m history exists. Start with a paginated 90-day sample (25,920 5m bars), then extend toward 200–250 days if data quality and compute permit.
+2. For each window, compare original data against shuffled, phase-randomized and IAAFT surrogates; use block bootstrap/finite-size checks and multiple scale ranges. A broad spectrum alone is not evidence of a predictive signal.
+3. Treat R-RISI-like sentiment as a low-frequency attention/regime covariate, not a signed 5m/1h return signal. Test only after verifying point-in-time post timestamps, latency, data terms and leakage-safe normalization.
+4. Add trade-count/quote-volume consistency and rolling entropy as data-quality/liquidity diagnostics before testing them as predictive features.
+5. The phrase “living/non-repeating fractal” remains a metaphor. The measurable claim is narrower: estimated scaling properties may vary with regime, venue and sampling clock, and may or may not add out-of-sample forecast value.
+
+### Daily experiment result
+
+- Branch-isolated 5m council run 44479201588 succeeded: 13/13 offline tests; Binance public data retrieval, 24-hour hourly forecast generation and artifact upload succeeded.
+- Evaluation run 44479201628 succeeded: 11/11 evaluator tests; two Nov 17 vintages evaluated, one Nov 18 vintage remains pending, zero failures.
+- Archive run 44479201553 succeeded: 12/12 archival tests; exact forecast and evaluation artifacts, extracted JSON and exact hourly actuals were committed to the branch.
+- General CI run 44479201548 succeeded: 52/52 tests on each of Python 3.10, 3.11, 3.12 and 3.13.
+- No forecasting equations or model code changed in this cycle. Research, competitor and license documentation were updated separately; no third-party code, weights, datasets or dashboard payloads were copied.
