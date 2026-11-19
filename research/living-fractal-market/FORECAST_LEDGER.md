@@ -1,23 +1,23 @@
 # Forecast ledger contract
 
-Last reviewed: 2026-11-18  
+Last reviewed: 2026-11-19  
 Branch: research/living-fractal-market
 
 ## Current state
 
-As of 2026-11-18T07:07:49Z, **10 experimental BTC/USDT forecast vintages are archived**: one Nov 12; two overlapping Nov 13; one Nov 14; two overlapping Nov 15; one Nov 16; two Nov 17; and one Nov 18. All use Binance Spot BTCUSDT 5-minute inputs and emit 24 hourly target points. These are BTC/USDT challenger forecasts—not a validated BTC/USD hourly champion.
+As of 2026-11-19T07:23:32Z, **11 experimental BTC/USDT forecast vintages are archived**: one Nov 12; two overlapping Nov 13; one Nov 14; two overlapping Nov 15; one Nov 16; two overlapping Nov 17; one Nov 18; and one Nov 19. All use Binance Spot BTCUSDT 5-minute inputs and emit 24 hourly target points. These are BTC/USDT challenger forecasts—not a validated BTC/USD hourly champion.
 
-**Seven vintages have completed evaluation** (Nov 12–16); **three remain pending**: the two Nov 17 vintages, whose target windows close at 2026-11-18T07:59:59.999Z, and the Nov 18 07:07:36Z vintage, whose final target candle closes at 2026-11-19T07:59:59.999Z. Forecasts issued on the same day overlap heavily and are not independent daily samples.
+**Nine vintage records have completed evaluation across six distinct issue dates (Nov 12–17); two remain pending**: the Nov 18 vintage, whose final target candle closes at 2026-11-19T07:59:59.999Z, and the Nov 19 vintage, whose final target candle closes at 2026-11-20T07:59:59.999Z. Several issue dates contain multiple overlapping forecasts. Vintage records and their 24 serially dependent horizons are not independent daily samples; the 30-non-overlapping-vintage promotion threshold remains unmet.
 
-The newly evaluated Nov 16 vintage ranked VolatilityRegime5m first among council members (normalized hourly log-price MAE 0.668837), Momentum5m second (0.669705), and LFM5mEnsemble third (0.670892). RandomWalk scored 0.736703 and the separate VolatilityCappedSlowDrift baseline 1.760475 on this one vintage. All directional-forecast P90 bands covered 24/24 targets, but their mean width was about 6.85% and they are explicitly uncalibrated; this coverage is not evidence of calibration. No virtual points were awarded. One completed vintage is descriptive only and cannot justify champion promotion.
+The two Nov 17 vintages were evaluated on 2026-11-19 using the same exact 24 Binance Spot hourly closes. The 07:07:54Z vintage ranked TakerFlow5m first (nMAE 1.073278), narrowly ahead of RandomWalkLastPrice (1.077813) and VolatilityCappedSlowDrift (1.577631). It beat both point baselines, but intervals are uncalibrated, so it earned **0 virtual points**. The overlapping 07:38:41Z vintage ranked RandomWalk and DownsideStress5m jointly first (nMAE 1.107709); no model beat random walk. It also earned **0 points**. These two outcomes show high sensitivity to issue time and do not establish a stable champion.
 
-Latest Nov 18 vintage:
-- Issue UTC: 2026-11-18T07:07:36.524004Z; retrieval UTC: 2026-11-18T07:07:36.520350Z; data cutoff: 2026-11-18T07:04:59.999Z.
-- Binance Spot BTCUSDT reference: 64,684.16 USDT; 999 closed 5m candles (83h15m); 24 hourly targets from 08:00Z Nov 18 through 07:00Z Nov 19.
-- Model commit: 82ab29ef24836e8ca13ecd875e4cb7df96d9a9c9; schema: lfm.forecast.5m.v2; input interval 5m.
-- LFM5mEnsemble +24 point: 64,803.50 USDT (+0.1845% vs reference); uncalibrated P90-style range 61,780.85–67,974.03 USDT.
-- Forecast JSON SHA-256: 61f15905898f5c3129f6be1958e443aae68a9cc9ecbfb6bad8e0e12bdeeca4cd; exact artifact ZIP SHA-256: e7c9e9308cf7ce20e8ba3f6c0060c05d7dda7a1657ab7f2c4d630dbd25868b6f.
-- No calibrated prediction intervals, no point or champion status.
+Latest Nov 19 vintage:
+- Issue UTC: 2026-11-19T07:23:19.072262Z; retrieval UTC: 2026-11-19T07:23:19.068690Z; data cutoff: 2026-11-19T07:19:59.999Z.
+- Binance Spot BTCUSDT reference: 63,602.29 USDT; 999 closed 5m candles (83h15m); 24 hourly targets from 2026-11-19 08:00Z through 2026-11-20 07:00Z.
+- Model commit: 04e42a8671b5109f5000287d20888316a6a10230; schema: lfm.forecast.5m.v2; model: LFM-5m-Downside-Aware-Council-0.4.
+- LFM5mEnsemble +24 point: 63,619.94 USDT (+0.0278% vs reference); approximate P90-style range 60,785.91–66,586.11 USDT is **uncalibrated** and must not be interpreted as a calibrated 90% interval.
+- Exact forecast ZIP SHA-256: f675f9bb47a17d96ed92b7186d5e05607a94c42e69856c38bb4959dfed544322; extracted JSON SHA-256: c75289cbbf748fb11ef7d59b7730b3a4192b221902a6fd9ca90cc8aca29b4ac5.
+- No calibrated P50/P90 intervals, no virtual points, no champion promotion.
 
 ## Append-only storage contract
 
