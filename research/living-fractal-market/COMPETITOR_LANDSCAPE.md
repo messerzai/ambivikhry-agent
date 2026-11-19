@@ -1,6 +1,6 @@
 # Competitor landscape and reuse policy
 
-Last reviewed: 2026-11-18  
+Last reviewed: 2026-11-19  
 Target: BTC/USD hourly observations and +1 to +24 hour horizons.  
 Research branch: research/living-fractal-market
 
@@ -279,3 +279,25 @@ Mispria's public Polymarket analytics track record (data through 2026-11-15, con
 ### Comparability decision
 
 No external candidate supplied a timestamped, independent BTC/USD 24-step hourly price forecast with matching issue time, cutoff, venue and scoring. The external price-level leaderboard remains empty. EdgeMap direction calls and AnalogQuant short-horizon probability/range outputs remain separate shadow tracks; their advertised accuracy is not independently verified.
+
+
+## Daily competitor update — 2026-11-19
+
+### Foundation-model and neural-library checks
+
+| Candidate | Exact evidence checked 2026-11-19 | Data / horizon | Benchmark and comparability decision |
+|---|---|---|---|
+| Amazon Chronos-2 | Official HF card: https://huggingface.co/amazon/chronos-2 (Apache-2.0 weights; 120M encoder-only model). Official inference code: https://github.com/amazon-science/chronos-forecasting, Apache-2.0 at HEAD 1224fafa91e1ecd6674f5204066b159e40b5e4a1 (2026-10-05). Supports univariate/multivariate/covariates, context up to 8192 and forecast up to 1024; quantile outputs. | Timestamped target series; optional past/future covariates; can produce 24 hourly steps. | Model card reports general zero-shot results on fev-bench, GIFT-Eval and Chronos Benchmark II, not BTC-specific forward performance. Strong runnable challenger; pin HF revision and run on identical BTC origins before ranking. |
+| Google TimesFM 2.5 | Official HF card: https://huggingface.co/google/timesfm-2.5-200m-pytorch lists Apache-2.0 weights. Code repo https://github.com/google-research/timesfm is Apache-2.0 at HEAD 918df02c9d366b2145bc5876135fa2131d3ed2a6 (2026-11-13). 200M checkpoint; example exposes point and quantile forecasts. | Univariate time series; 24 hourly steps can be requested within checkpoint limits. | General foundation-model evidence only; no BTC hourly forward result found. Candidate after exact HF revision pin and runtime test. |
+| Google TimesFM 3.0 | Official HF card https://huggingface.co/google/timesfm-3.0-pytorch identifies 330M weights under timesfm-non-commercial-license-v1.0; code repo remains Apache-2.0. | Multivariate/covariate-capable foundation model. | Weight terms allow non-commercial evaluation/research only, exclude commercial/production use and prohibit distributing the model/derivatives. Do not use for a commercial product; research use is held pending project-purpose/legal review. |
+| Nixtla NeuralForecast | https://github.com/Nixtla/neuralforecast, Apache-2.0 at HEAD fda9a137308a3b134fbb6d9bc4b575bb4314e727 (2026-11-18). Library includes NBEATS, NBEATSx, NHITS, TFT and PatchTST; no universal pretrained weights are bundled. | Requires local chronological training data; univariate/multivariate model-specific input contracts; 24-step hourly output. | Runnable open-source challenger family, but no BTC-specific forward result established by the repository. Evaluate with fixed walk-forward origins and equal tuning budget. |
+
+### Public forecasters and probabilistic shadow track
+
+- **Mispria Bitcoin hourly Polymarket track** (https://mispria.com/markets/bitcoin-up-or-down-hourly), figures as of 2026-11-17 08:03 UTC: 2,443 hourly binary windows over 102 nights through Nov 16; T−60s favourite won 96.2%; market Brier 0.0278, Student-t model Brier 0.0264 and normal model Brier 0.0275. Resolution is Binance BTC/USDT 1h close versus open. This is an operator-published binary-probability/paper-results track, not a 24-step hourly price path; no direct nMAE comparison. Keep in a separate shadow table and do not treat paper results as executed trading profits.
+- **The Brier Index** (https://www.brierindex.com/ledger/) describes daily forecasts committed via OpenTimestamps, with 1-, 7- and 30-day horizons. The page checked on Nov 19 explicitly says it has not been updated for more than two days and displays Nov 8 as its latest entry; treat as timestamp-proven but stale, and not a live hourly comparator.
+- EdgeMap and AnalogQuant remain unverified/stale as recorded in the Nov 18 update. No new independent BTC/USD 24-step hourly point forecast with matching issue time, cutoff, venue and target grid was found.
+
+### External leaderboard decision
+
+The external point-price leaderboard remains **empty**. Chronos-2, TimesFM 2.5, TimesFM 3.0 and NeuralForecast are runnable/research candidates, not submitted forecasts. Mispria and Brier Index remain separate binary/probabilistic or lower-frequency shadow tracks. No public system has supplied a comparable timestamped BTC/USD 24-hour hourly price path in this check.
