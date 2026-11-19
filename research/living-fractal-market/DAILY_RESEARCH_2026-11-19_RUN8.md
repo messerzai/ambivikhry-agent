@@ -60,6 +60,10 @@ At +24, the council spans 63,467.86–63,710.71 USDT; the ensemble is 63,619.94 
 
 Diagnostics: fast 1h log return −0.097%; 4h log-return rate +0.203%/h; 12h rate +0.159%/h; trend agreement 0.937; volatility ratio 0.772; taker-buy imbalance −0.040; relative quote volume 1.046; hourly sigma 0.566%; downside sigma 0.411%; drawdown from 24h high −1.975%. Short-term and medium-term signals are not fully aligned. The 70,000 USDT level is already above the 63,602.29 reference, so the terminal-below-level diagnostic is not a new crossing forecast.
 
+### Data provenance warning
+
+The workflow artifact does not contain the raw 999-candle 5m response, so this vintage has no raw-input SHA-256. The public source endpoint, retrieval time, cutoff, closed-candle count and diagnostics are recorded, and the exact forecast JSON/ZIP are archived, but a byte-for-byte replay of the model input is not yet possible. The next pipeline change should archive a lossless raw 5m snapshot and its hash.
+
 ## Previous-vintage evaluation
 
 The evaluation artifact contains 24 contiguous Binance Spot 1h actual candles from 2026-11-17 08:00Z through 2026-11-18 07:00Z. Exact actual-data SHA-256: 5cf6b19d8d72ab4fdc3165cba04471c23dcbc4e401084a37bc6e8ee561583e54. Evaluation artifact ID 14507712215; ZIP SHA-256 f313e34f27f7f656b2c14f5fe643bf46d09595a8f0091527830e28a1d9b57884.
