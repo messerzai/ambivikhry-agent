@@ -1,7 +1,7 @@
 # Third-party reuse and license register
 
 Branch: research/living-fractal-market  
-Last reviewed: 2026-11-18
+Last reviewed: 2026-11-19
 
 No third-party code, model weights, datasets, tokenizers or media assets were copied into this branch in this review. The entries below are audited candidates only. Repository code and model weights are separate license objects; model-hub cards were checked on 2026-11-11 but must be pinned to immutable model revisions before any download or reuse.
 
@@ -144,3 +144,19 @@ No third-party code, model weights, tokenizers, datasets, raw social posts, orde
 | ECB R-RISI paper/dashboard | ECB Working Paper 3276 and blog checked 2026-11-18. Reddit source corpus, Academic Torrents, LLM API outputs, Bloomberg and dashboard data have separate terms; no dataset license for bulk reuse verified. | No posts, API outputs, code or data copied. Use only cited public methodological description; obtain rights and point-in-time access before any dataset ingestion. |
 
 No third-party source code, weights, data, social posts, dashboard payloads or paid API outputs were copied in this cycle. The root project license remains proprietary; the MIT/CC BY terms of upstream candidates do not automatically authorize integration or distribution within this project. This register is not a legal opinion.
+
+
+## Additional license/provenance audit — 2026-11-19
+
+| Source | Exact revision / terms checked | Reuse decision |
+|---|---|---|
+| Google TimesFM inference code | https://github.com/google-research/timesfm, HEAD 918df02c9d366b2145bc5876135fa2131d3ed2a6 (2026-11-13); repository LICENSE inspected: Apache-2.0. | No code copied. Preserve upstream copyright/LICENSE if integrated later; root project is proprietary, so compatibility/distribution review is required. |
+| Google TimesFM 2.5 weights | https://huggingface.co/google/timesfm-2.5-200m-pytorch; official model card checked 2026-11-19 lists Apache-2.0. HF immutable revision was not pinned in this pass. | No weights downloaded or copied. Pin exact model revision and inspect its files before any use. |
+| Google TimesFM 3.0 weights and associated model materials | https://huggingface.co/google/timesfm-3.0-pytorch; LICENSE page checked 2026-11-19 identifies timesfm-non-commercial-license-v1.0. It grants non-commercial/non-production evaluation/research, excludes commercial/production use, and prohibits distributing the model or derivatives. This is separate from the Apache-2.0 GitHub source-code license. HF immutable revision was not pinned. | No weights or code copied. Hold out pending legal review of research purpose; do not use for paid/production deployment or redistribute weights/derivatives under the checked terms. |
+| Amazon Chronos-2 code | https://github.com/amazon-science/chronos-forecasting, HEAD 1224fafa91e1ecd6674f5204066b159e40b5e4a1 (2026-10-05); LICENSE inspected: Apache-2.0. | No code copied. Preserve LICENSE/copyright notices if later integrated; review compatibility with proprietary root license. |
+| Amazon Chronos-2 weights | https://huggingface.co/amazon/chronos-2; official model card checked 2026-11-19 lists Apache-2.0. Immutable HF revision not pinned. Training datasets are separate license/provenance objects. | No weights downloaded or copied. Pin exact HF revision and dataset/model terms before any use. |
+| Nixtla NeuralForecast | https://github.com/Nixtla/neuralforecast, HEAD fda9a137308a3b134fbb6d9bc4b575bb4314e727 (2026-11-18); LICENSE inspected: Apache-2.0. The library contains model implementations but does not supply a universal pretrained-weight license. | No code or weights copied. If used, preserve Apache-2.0 notices and separately document training data/checkpoint provenance. |
+| Kim, Lee & Choi (2026), DOI 10.3390/fractalfract10060353 | Published article page checked 2026-11-19 states CC BY 4.0. Data availability statement says data are available from the corresponding author upon reasonable request; no implementation repository was identified. | No text, figures, code or data copied. Methodology summarized with attribution only. |
+| Wagner & Metzler, ECB Working Paper 3276 / R-RISI | ECB paper/blog checked 2026-11-19. No bulk dataset/code license was verified for Reddit/Academic Torrents corpus, LLM labels/API outputs, Bloomberg inputs or dashboard. | No Reddit posts, dashboard payloads, code or data copied. Any future sentiment ingestion requires point-in-time rights and source-term review. |
+
+No third-party code, weights, datasets, raw posts, order-book records, API payloads, dashboard data or paid services were copied in this cycle. This is a provenance register, not a legal opinion. The root project license remains proprietary; upstream Apache/MIT/CC terms do not automatically authorize incorporation or distribution in this repository.
