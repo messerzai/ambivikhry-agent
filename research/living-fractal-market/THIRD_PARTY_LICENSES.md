@@ -1,7 +1,7 @@
 # Third-party reuse and license register
 
 Branch: research/living-fractal-market  
-Last reviewed: 2026-11-19
+Last reviewed: 2026-11-20
 
 No third-party code, model weights, datasets, tokenizers or media assets were copied into this branch in this review. The entries below are audited candidates only. Repository code and model weights are separate license objects; model-hub cards were checked on 2026-11-11 but must be pinned to immutable model revisions before any download or reuse.
 
