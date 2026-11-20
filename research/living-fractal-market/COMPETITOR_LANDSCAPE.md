@@ -1,6 +1,6 @@
 # Competitor landscape and reuse policy
 
-Last reviewed: 2026-11-19  
+Last reviewed: 2026-11-20  
 Target: BTC/USD hourly observations and +1 to +24 hour horizons.  
 Research branch: research/living-fractal-market
 
