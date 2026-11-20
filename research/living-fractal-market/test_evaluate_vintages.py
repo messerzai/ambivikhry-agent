@@ -1,14 +1,18 @@
+import gzip
+import json
 import math
 import tempfile
 import unittest
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 from archive_workflow_artifacts import source_head_sha_from_marker
 
 from evaluate_vintages import (
     INTERVAL_MS,
     discover_forecast_archives,
+    evaluate_vintage,
     parse_utc,
     score_path,
     validate_actual_rows,
@@ -114,6 +118,65 @@ class EvaluationTests(unittest.TestCase):
         self.assertFalse(result["is_first_passage_probability"])
         self.assertAlmostEqual(result["brier_diagnostic_only"], 1.0)
 
+
+    @staticmethod
+    def _write_test_forecast_archive(root: Path):
+        target_start = datetime(2026, 11, 20, 8, 0, tzinfo=timezone.utc)
+        points = []
+        for horizon in range(24):
+            target = target_start + timedelta(hours=horizon)
+            points.append({
+                "target_utc": target.isoformat().replace("+00:00", "Z"),
+                "point_usdt": 100.0,
+                "p90_low_usdt": 90.0,
+                "p90_high_usdt": 110.0,
+            })
+        forecast = {
+            "schema": "lfm.forecast.5m.v2",
+            "issued_at_utc": "2026-11-20T07:57:36.065378Z",
+            "data_cutoff_utc": "2026-11-20T07:54:59.999Z",
+            "asset": "BTC/USDT",
+            "venue": "Binance Spot",
+            "quote_currency": "USDT",
+            "model_version": "LFM-5m-Downside-Aware-Council-0.4",
+            "reference_price_usdt": 100.0,
+            "diagnostics": {"hourly_sigma_estimate": 0.01, "slow_12h_log_return_per_hour": 0.0},
+            "interval_calibration": {"calibrated": False},
+            "warning": "test fixture; intervals uncalibrated",
+            "models": [{"model": "RandomWalk", "points": points}],
+        }
+        archive_path = root / "forecast.json.gz"
+        archive_path.write_bytes(gzip.compress(json.dumps(forecast, separators=(",", ":")).encode("utf-8")))
+        final_close = target_start + timedelta(hours=24) - timedelta(milliseconds=1)
+        return archive_path, final_close
+
+    def test_evaluation_stays_pending_until_final_target_close(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive_path, final_close = self._write_test_forecast_archive(root)
+            now = final_close - timedelta(milliseconds=1)
+            with patch("evaluate_vintages.fetch_hourly_rows", side_effect=AssertionError("must not fetch")) as fetch:
+                result = evaluate_vintage(archive_path, root, root / "evaluations", root / "output", now)
+            self.assertEqual(result["status"], "pending")
+            self.assertEqual(result["final_target_close_utc"], "2026-11-21T07:59:59.999Z")
+            fetch.assert_not_called()
+
+    def test_evaluation_fetches_actuals_only_after_final_target_close(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive_path, final_close = self._write_test_forecast_archive(root)
+            target_start = datetime(2026, 11, 20, 8, 0, tzinfo=timezone.utc)
+            rows = []
+            for horizon in range(24):
+                open_ms = int((target_start + timedelta(hours=horizon)).timestamp() * 1000)
+                rows.append([open_ms, "100", "101", "99", "100", "1", open_ms + INTERVAL_MS - 1])
+            now = final_close + timedelta(milliseconds=1)
+            with patch("evaluate_vintages.fetch_hourly_rows", return_value=(json.dumps(rows).encode("utf-8"), "https://example.invalid/test")) as fetch:
+                result = evaluate_vintage(archive_path, root, root / "evaluations", root / "output", now)
+            self.assertEqual(result["status"], "evaluated")
+            fetch.assert_called_once()
+            self.assertTrue(Path(result["evaluation_file"]).exists())
+            self.assertTrue(Path(result["actual_file"]).exists())
 
 if __name__ == "__main__":
     unittest.main()
