@@ -1,23 +1,23 @@
 # Forecast ledger contract
 
-Last reviewed: 2026-11-19  
+Last reviewed: 2026-11-20  
 Branch: research/living-fractal-market
 
 ## Current state
 
-As of 2026-11-19T07:23:32Z, **11 experimental BTC/USDT forecast vintages are archived**: one Nov 12; two overlapping Nov 13; one Nov 14; two overlapping Nov 15; one Nov 16; two overlapping Nov 17; one Nov 18; and one Nov 19. All use Binance Spot BTCUSDT 5-minute inputs and emit 24 hourly target points. These are BTC/USDT challenger forecasts—not a validated BTC/USD hourly champion.
+As of 2026-11-20T08:08:18Z, **12 experimental BTC/USDT forecast vintages are archived**: one Nov 12; two overlapping Nov 13; one Nov 14; two overlapping Nov 15; one Nov 16; two overlapping Nov 17; and one each on Nov 18, Nov 19 and Nov 20. All use Binance Spot BTCUSDT 5-minute inputs and emit 24 hourly target points. These are BTC/USDT challenger forecasts—not a validated BTC/USD hourly champion.
 
-**Nine vintage records have completed evaluation across six distinct issue dates (Nov 12–17); two remain pending**: the Nov 18 vintage, whose final target candle closes at 2026-11-19T07:59:59.999Z, and the Nov 19 vintage, whose final target candle closes at 2026-11-20T07:59:59.999Z. Several issue dates contain multiple overlapping forecasts. Vintage records and their 24 serially dependent horizons are not independent daily samples; the 30-non-overlapping-vintage promotion threshold remains unmet.
+**Eleven vintage records have completed evaluation across eight distinct issue dates (Nov 12–19); one remains pending**: the Nov 20 vintage, whose final target candle closes at 2026-11-21T07:59:59.999Z. Several issue dates contain overlapping forecasts, and the 24 horizons within a vintage are serially dependent. The 30-non-overlapping-vintage promotion threshold remains unmet.
 
-The two Nov 17 vintages were evaluated on 2026-11-19 using the same exact 24 Binance Spot hourly closes. The 07:07:54Z vintage ranked TakerFlow5m first (nMAE 1.073278), narrowly ahead of RandomWalkLastPrice (1.077813) and VolatilityCappedSlowDrift (1.577631). It beat both point baselines, but intervals are uncalibrated, so it earned **0 virtual points**. The overlapping 07:38:41Z vintage ranked RandomWalk and DownsideStress5m jointly first (nMAE 1.107709); no model beat random walk. It also earned **0 points**. These two outcomes show high sensitivity to issue time and do not establish a stable champion.
+The latest two completed vintages (Nov 18 and Nov 19) both ranked MeanReversion5m first. Nov 18 nMAE was 3.396789 versus random walk 3.444093; Nov 19 nMAE was 2.861415 versus random walk 3.011131 and volatility-capped drift 5.785064. Both are single-vintage comparisons; P90 intervals remain uncalibrated, so both earned **0 virtual points**. Earlier Nov 17 vintages produced one narrow TakerFlow5m win and one RandomWalk/DownsideStress tie. The changing winners and small sample do not establish a stable champion.
 
-Latest Nov 19 vintage:
-- Issue UTC: 2026-11-19T07:23:19.072262Z; retrieval UTC: 2026-11-19T07:23:19.068690Z; data cutoff: 2026-11-19T07:19:59.999Z.
-- Binance Spot BTCUSDT reference: 63,602.29 USDT; 999 closed 5m candles (83h15m); 24 hourly targets from 2026-11-19 08:00Z through 2026-11-20 07:00Z.
-- Model commit: 04e42a8671b5109f5000287d20888316a6a10230; schema: lfm.forecast.5m.v2; model: LFM-5m-Downside-Aware-Council-0.4.
-- LFM5mEnsemble +24 point: 63,619.94 USDT (+0.0278% vs reference); approximate P90-style range 60,785.91–66,586.11 USDT is **uncalibrated** and must not be interpreted as a calibrated 90% interval.
-- Exact forecast ZIP SHA-256: f675f9bb47a17d96ed92b7186d5e05607a94c42e69856c38bb4959dfed544322; extracted JSON SHA-256: c75289cbbf748fb11ef7d59b7730b3a4192b221902a6fd9ca90cc8aca29b4ac5.
-- Provenance limitation: the workflow artifact preserves the forecast JSON and source/cutoff/count/diagnostics, but not the raw 999-candle 5m response; no raw-input SHA-256 is available for this vintage. Add a raw-response hash and lossless input snapshot to a future workflow version.
+Latest Nov 20 vintage:
+- Issue UTC: 2026-11-20T07:57:36.065378Z; retrieval UTC: 2026-11-20T07:57:36.060900Z; data cutoff: 2026-11-20T07:54:59.999Z.
+- Binance Spot BTCUSDT reference: 61,838.54 USDT; 999 closed 5m candles (83h15m); 24 hourly targets from 2026-11-20 08:00Z through 2026-11-21 07:00Z.
+- Model commit: 84769fbae8468196f2f0f9bd3e8fc69ce7c583ab; schema: lfm.forecast.5m.v2; model: LFM-5m-Downside-Aware-Council-0.4.
+- LFM5mEnsemble +24 point: 61,889.83 USDT (+0.0829% vs reference); approximate P90-style range 58,543.28–65,427.68 USDT is **uncalibrated** and must not be interpreted as a calibrated 90% interval.
+- Exact forecast ZIP SHA-256: e8eb98314aa6975951644342e43ad79966543ceaa175cc59cb748c173b41feb1; extracted JSON SHA-256: 2a27907b1f90ba4f9b84c8a5267739f33ce30463a7a58c3004157150a40fab07.
+- Provenance limitation: the workflow artifact preserves the forecast JSON and source/cutoff/count/diagnostics, but not the raw 999-candle 5m response; no raw-input SHA-256 is available for this vintage. Add a lossless input snapshot and hash in a future workflow version.
 - No calibrated P50/P90 intervals, no virtual points, no champion promotion.
 
 ## Append-only storage contract
