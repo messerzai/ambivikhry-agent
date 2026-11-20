@@ -160,3 +160,18 @@ No third-party source code, weights, data, social posts, dashboard payloads or p
 | Wagner & Metzler, ECB Working Paper 3276 / R-RISI | ECB paper/blog checked 2026-11-19. No bulk dataset/code license was verified for Reddit/Academic Torrents corpus, LLM labels/API outputs, Bloomberg inputs or dashboard. | No Reddit posts, dashboard payloads, code or data copied. Any future sentiment ingestion requires point-in-time rights and source-term review. |
 
 No third-party code, weights, datasets, raw posts, order-book records, API payloads, dashboard data or paid services were copied in this cycle. This is a provenance register, not a legal opinion. The root project license remains proprietary; upstream Apache/MIT/CC terms do not automatically authorize incorporation or distribution in this repository.
+
+
+## Additional model license audit — 2026-11-20
+
+| Source / immutable revision | Code / weight / data terms checked | Reuse decision |
+|---|---|---|
+| SalesforceAIResearch/uni2ts, HEAD `cfd46d4510ed8896f263116f32928eede05b0a75` (2026-06-02) | Repository `LICENSE.txt` identifies Apache-2.0. Official code: https://github.com/SalesforceAIResearch/uni2ts. | No code copied. If integrated later, preserve Apache-2.0 notices and review compatibility with the proprietary root project license. |
+| Salesforce `moirai-2.0-R-small`, Hugging Face revision `f2ed354ddbca961d7aa80b741f35bbd6e422e9b7` | Model card identifies `cc-by-nc-4.0` for the 45.6 MB checkpoint. Card: https://huggingface.co/Salesforce/moirai-2.0-R-small/tree/f2ed354ddbca961d7aa80b741f35bbd6e422e9b7. The code license does not override the separate checkpoint license. GIFT-Eval Pretrain / Train dataset terms are separate and were not audited here. | No weights or data downloaded/copied. Non-commercial checkpoint terms make it unsuitable for a commercial/production product without separate permission; internal research use would still require review of the exact license and purpose. |
+| Noguer i Alonso & Franklin, arXiv:2606.27100 | arXiv preprint record checked 2026-11-20; no companion code/checkpoint/data license was established in this pass. Yahoo Finance data terms are separate. | No paper text, code, checkpoint, figures or data copied. Methodology summarized with attribution only. |
+| Choi, DOI 10.1016/j.physa.2026.131735 | RePEc/ScienceDirect bibliographic abstract checked 2026-11-20; full text was paywalled and article reuse license was not established from the accessible record. | No text, figures, code or data copied. Citation and independently authored abstract-level summary only. |
+| Huynh, DOI 10.1016/j.jbef.2026.101183 | Publisher record reports open access under a Creative Commons license, but the exact license identifier was not confirmed. Thomson Reuters MarketPsych TRMI data are a separate licensed data product. | No article text, figures, code or TRMI data copied. Do not ingest TRMI without checking vendor rights, point-in-time timestamps and the exact article license. |
+| Karagiorgis & Ballis, DOI 10.1002/fut.70117 | Wiley article is marked Open Access; the exact reuse license was not recorded in this pass. | No article text, figures, code or data copied. Abstract/methodology summarized with attribution only. |
+| Akbar, DOI 10.1108/SEF-12-2025-0942 | Publisher page states licensed re-use rights only. Twitter/X posts and derived account classifications have separate platform/data terms. | No article text, tweets, code or dataset copied. |
+
+No third-party code, model weights, tokenizers, datasets, raw social posts, order-book events or paid API outputs were copied in this cycle. The root project license remains proprietary. This register is a provenance record, not a legal opinion.
