@@ -1,6 +1,6 @@
 # Forecast ledger contract
 
-Last reviewed: 2026-11-20  
+Last reviewed: 2026-11-21  
 Branch: research/living-fractal-market
 
 ## Current state
