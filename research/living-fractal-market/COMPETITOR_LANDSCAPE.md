@@ -328,3 +328,28 @@ The external point-price leaderboard remains **empty**. Chronos-2, TimesFM 2.5, 
 ### Public predictor and leaderboard decision
 
 No new external source supplied a timestamped BTC/USD 24-step hourly point-price path matching issue time, cutoff, venue and target grid. The external price-level leaderboard remains empty. Binary short-horizon market-probability systems and public human direction calls remain separate shadow tracks and are not comparable to this council's normalized hourly log-price MAE.
+
+
+
+## Daily watchlist review — 2026-11-21
+
+### New benchmark and inference candidates
+
+| Project / source | Method, asset and horizon | Reproducibility, license and evidence | Decision |
+|---|---|---|---|
+| [FinVerse](https://arxiv.org/abs/2608.03259), Lee et al. (2026-08-04) | Financial time-series benchmark; broad equities/financial series, not a BTC/USD hourly predictor. | Preprint reports 116,897 series / 171.1M observations, 60,232 evaluated targets / 17.4M observations, 11 metric families / 78 metrics, and a comparison of 43 public TSFMs. It argues generic forecast error rankings can diverge from finance-specific usefulness. No BTC hourly 24-step leaderboard row was verified in this review. | Benchmark-design reference only; do not rank against the LFM hourly path tournament. No data/code copied. |
+| [zsfm-rs](https://github.com/amaye15/zsfm-rs) | Rust/GGUF/Burn inference runtime for 11 time-series and 5 tabular foundation models; includes Chronos-2, TimesFM 2.5 and Moirai 2.0 among others. Not itself a BTC-specific forecasting model. | HEAD `9fe86d098fd822ebedc309b3fa297d13e660b6c8` (2026-10-13); code MIT. README reports tensor parity against PyTorch within F32 rounding (~1e-6–1e-7); this is an implementation-parity claim, not forecast-skill evidence. Model weights retain original authors' licenses. | Potential lightweight inference harness if CPU/runtime tests justify it. No code or weights copied; no BTC-specific forward ledger or benchmark score. |
+| Amazon [Chronos-2](https://huggingface.co/amazon/chronos-2) | 120M encoder-only zero-shot TSFM; univariate, multivariate and covariate-informed quantile forecasts; context up to 8,192 and prediction length up to 1,024. Candidate for hourly BTC/USDT or BTC/USD after exact venue alignment. | Official card says Apache-2.0 weights and reports general FEV-Bench / GIFT-Eval / Chronos Benchmark II results; no BTC-specific hourly result on the card. Code repo [chronos-forecasting](https://github.com/amazon-science/chronos-forecasting) HEAD `1224fafa91e1ecd6674f5204066b159e40b5e4a1`, Apache-2.0. Exact HF model revision still must be pinned before execution. | First foundation-model challenger remains; no forecast submitted and no weights downloaded. |
+| Google [TimesFM 2.5](https://huggingface.co/google/timesfm-2.5-200m-pytorch) | 200M decoder TSFM; probabilistic quantiles, candidate for hourly BTC. | Official model card identifies Apache-2.0 weights; current surfaced revision `1d952420fba87f3c6dee4f240de0f1a0fbc790e3`. Source repo HEAD `918df02c9d366b2145bc5876135fa2131d3ed2a6`, Apache-2.0. The June 2026 financial TSFM benchmark includes TimesFM-2.5 on five U.S. equities, not BTC; wins in that benchmark do not transfer to hourly crypto. | Retain as challenger; pin code/weight revisions and run on identical rolling origins before ranking. |
+| Salesforce [Moirai-2.0-R-Small](https://huggingface.co/Salesforce/moirai-2.0-R-small) | Probabilistic TSFM with 0.1–0.9 quantile outputs; possible hourly BTC challenger. | Code project [uni2ts](https://github.com/SalesforceAIResearch/uni2ts) HEAD `cfd46d4510ed8896f263116f32928eede05b0a75`, Apache-2.0; checkpoint revision `f2ed354ddbca961d7aa80b741f35bbd6e422e9b7`, CC-BY-NC-4.0. GIFT-Eval / Chronos training-data terms remain separate. | Research-only candidate pending purpose-specific review; exclude from commercial/production path under current checkpoint terms. |
+
+### Research comparator changes
+
+- [Kitvanitphasu et al. (2026)](https://doi.org/10.1016/j.ribaf.2025.103163) report VPIN/order-flow-toxicity association with subsequent Bitcoin price jumps in high-frequency data using VAR and multiple jump tests. This is a jump/risk-state lead, not a demonstrated 24-step price-level forecaster; the study's data and VPIN construction would need independent point-in-time reproduction.
+- [Drożdż et al. (2025)](https://doi.org/10.3390/fi17100470) use MFCCA/MFDFA and a source-disentangling procedure across digital assets. Their abstract and discussion distinguish broad spectra caused by heavy tails from the primary role of temporal correlations. This is a diagnostic-method reference, not a live predictor.
+- The June 2026 TSFM finance benchmark [arXiv:2606.27100](https://arxiv.org/abs/2606.27100) reports TSFMs winning 8/10 daily-equity tasks, but only two one-sided Diebold–Mariano comparisons significant against random walk; iTransformer wins both META tasks. The universe/horizon is not BTC hourly.
+- No new public human or algorithmic forecaster produced a verifiable, timestamped BTC/USD 24-point hourly path with matching venue, issue time and cutoff. The external point-price leaderboard remains empty; CryptoOracle, Synth and direction-only dashboards remain shadow references only.
+
+### Watchlist decision
+
+No candidate is promoted to the internal leaderboard. Chronos-2 and TimesFM 2.5 remain the first runnable TSFM challengers; zsfm-rs is an optional runtime layer, not a new forecasting model. Continue to require point-in-time timestamps, exact data/weight revisions, CPU/GPU resource checks, and walk-forward results against random walk and the volatility-aware baseline. No third-party code, weights, datasets or benchmark payloads were copied in this review.
