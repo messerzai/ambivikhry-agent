@@ -331,7 +331,8 @@ def evaluate_vintage(
         return {"status": "already_evaluated", "vintage_id": vintage_id, "archive": str(path)}
 
     final_close = target_grid[-1] + timedelta(hours=1) - timedelta(milliseconds=1)
-    if final_close > now:
+    # Binance close timestamps are inclusive; wait until the clock is strictly later.
+    if final_close >= now:
         return {
             "status": "pending",
             "vintage_id": vintage_id,

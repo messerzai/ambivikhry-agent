@@ -161,6 +161,22 @@ class EvaluationTests(unittest.TestCase):
             self.assertEqual(result["final_target_close_utc"], "2026-11-21T07:59:59.999Z")
             fetch.assert_not_called()
 
+    def test_evaluation_stays_pending_at_inclusive_final_close_timestamp(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archive_path, final_close = self._write_test_forecast_archive(root)
+            now = final_close
+            with patch(
+                "evaluate_vintages.fetch_hourly_rows",
+                side_effect=AssertionError("must wait until the inclusive close timestamp has passed"),
+            ) as fetch:
+                result = evaluate_vintage(
+                    archive_path, root, root / "evaluations", root / "output", now
+                )
+            self.assertEqual(result["status"], "pending")
+            self.assertEqual(result["final_target_close_utc"], "2026-11-21T07:59:59.999Z")
+            fetch.assert_not_called()
+
     def test_evaluation_fetches_actuals_only_after_final_target_close(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
