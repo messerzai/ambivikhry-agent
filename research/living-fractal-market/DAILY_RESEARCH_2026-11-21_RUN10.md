@@ -107,7 +107,7 @@ The evaluator fix [commit 41cc24a7c22eb54e91f816c185d0cf9bff300d1c](https://gith
 ## Code/docs changed and next experiment
 
 - Changed: `COMPETITOR_LANDSCAPE.md`, `THIRD_PARTY_LICENSES.md`, `DAILY_RESEARCH_2026-11-21_RUN10.md`, `FORECAST_LEDGER.md`, `evaluate_vintages.py`, and `test_evaluate_vintages.py`. The evaluator boundary fix and regression test are committed at `41cc24a7c22eb54e91f816c185d0cf9bff300d1c`.
-- General CI after the fix: 55 tests passed on Python 3.11; the other matrix versions also completed successfully. The evaluator-specific workflow passed its updated regression suite and archived the completed Nov 20 evaluation.
+- General CI after the fix: 55 tests passed on each of Python 3.10, 3.11, 3.12 and 3.13. The evaluator-specific workflow passed its updated regression suite and archived the completed Nov 20 evaluation.
 - Next data patch: preserve raw Binance 5m response bytes, request URL and SHA-256 in the artifact; verify the final closed candle equals `data_cutoff_utc`.
 - Then extend the historical input beyond the current 999-bar (~3.5-day) cap before multifractal estimation; 90 days is a starting target, not a proven sufficient sample.
 
