@@ -64,9 +64,13 @@ The model's Gaussian-style P90 bands are explicitly **uncalibrated**; no calibra
 
 ## Previous vintage and tournament state
 
-The evaluation workflow [run 44882171120](https://github.com/messerzai/ambivikhry-agent/actions/runs/44882171120) completed successfully at 07:51:39Z. It passed 13 evaluator tests and reported 11 already evaluated, 0 newly evaluated, 0 failed and 1 pending **at that execution time**. The Nov 20 vintage's last target close is 2026-11-21T07:59:59.999Z, so it was correctly still pending when the job ran. The newly archived Nov 21 vintage is also pending until 2026-11-22T07:59:59.999Z. No evaluation score or research points are assigned to either pending vintage.
+The initial evaluation [run 44882171120](https://github.com/messerzai/ambivikhry-agent/actions/runs/44882171120) ran at 07:51:39Z before the Nov 20 final candle close and correctly left that vintage pending. After 08:00Z, the evaluator boundary fix was committed and [run 44882832207](https://github.com/messerzai/ambivikhry-agent/actions/runs/44882832207) completed at 08:00:42Z: 11 already evaluated, 1 newly evaluated, 0 failed, 1 pending. The Nov 20 vintage's final close was 2026-11-21T07:59:59.999Z; the Nov 21 vintage remains pending until 2026-11-22T07:59:59.999Z.
 
-The latest completed comparisons remain the Nov 18 and Nov 19 single-vintage results in the ledger. MeanReversion5m ranked first on both, but uncalibrated intervals disqualify point awards. No champion promotion.
+Nov 20 evaluation (24 dependent hourly targets; Binance Spot BTCUSDT 1h actual closes; issue-time sigma 0.0068986079): DownsideStress5m ranked first at nMAE 4.905807, beating RandomWalkLastPrice 6.022312 and VolatilityCappedSlowDrift 5.505549. Its direction accuracy vs issue reference was 0.9167, hour-to-hour direction 0.6667, and empirical P90 coverage 0.75. TakerFlow5m nMAE 5.993760 beat random walk but not the strongest simple baseline. All P90 bands are uncalibrated, so points remain 0. One vintage cannot establish skill or champion status.
+
+Evaluation artifact: ZIP SHA-256 `2b7f390c6e52c164793bca4e6dda9ea2a9e05802c7b3943b6e4e5db23e32b351`; evaluation JSON SHA-256 `868ba40f1bb35b0b8583839b891d8461601542c15783303da0ff8cdbe2b6210a`; exact actual 1h response SHA-256 `c8c70e9418985a4f2e1a5fcec3fb47cdeab5602bdaec1b2d43cfa857c18ccf55`. The archive workflow [run 44882832229](https://github.com/messerzai/ambivikhry-agent/actions/runs/44882832229) preserved the exact evaluation artifact.
+
+The evaluator fix [commit 41cc24a7c22eb54e91f816c185d0cf9bff300d1c](https://github.com/messerzai/ambivikhry-agent/commit/41cc24a7c22eb54e91f816c185d0cf9bff300d1c) changes the pending boundary from `final_close > now` to `final_close >= now`, because Binance candle close timestamps are inclusive and actual-data validation requires `close_ms < now_ms`. A regression test now proves that evaluation does not fetch actuals at the exact final-close timestamp.
 
 ## Research discoveries — facts vs hypotheses
 
@@ -96,14 +100,14 @@ The latest completed comparisons remain the Nov 18 and Nov 19 single-vintage res
 
 ## Internal leaderboard and virtual points
 
-- At the latest ledger snapshot: 13 archived BTC/USDT vintages are expected after the Nov 21 archive; 11 completed evaluations, 2 pending until their final closes. The daily evaluation artifact was generated before the Nov 20 final close and therefore did not score it.
+- Latest verified state: 13 archived BTC/USDT vintages; 12 evaluated; 1 pending (Nov 21 vintage).
 - No calibrated prediction intervals; no comparable external price-path score; no 30 non-overlapping completed vintages. **Virtual research points: 0. Champion promotion: none.**
 - Overlapping vintages and serially dependent horizons are not independent samples.
 
 ## Code/docs changed and next experiment
 
-- Changed: `COMPETITOR_LANDSCAPE.md` and `THIRD_PARTY_LICENSES.md`; no forecasting model or execution code changed.
-- Next code patch: fix the evaluator's exact final-close boundary. Its pending check currently uses `final_close > now`, while the candle validator rejects `close_ms >= now_ms`; at exact equality this can proceed to a fetch and fail rather than remain pending. Change the pending condition to `final_close >= now` and add a regression test proving no actual-data fetch occurs at equality. Commit after the Nov 20 target close so the evaluation workflow reruns with fully closed targets.
+- Changed: `COMPETITOR_LANDSCAPE.md`, `THIRD_PARTY_LICENSES.md`, `DAILY_RESEARCH_2026-11-21_RUN10.md`, `FORECAST_LEDGER.md`, `evaluate_vintages.py`, and `test_evaluate_vintages.py`. The evaluator boundary fix and regression test are committed at `41cc24a7c22eb54e91f816c185d0cf9bff300d1c`.
+- General CI after the fix: 55 tests passed on Python 3.11; the other matrix versions also completed successfully. The evaluator-specific workflow passed its updated regression suite and archived the completed Nov 20 evaluation.
 - Next data patch: preserve raw Binance 5m response bytes, request URL and SHA-256 in the artifact; verify the final closed candle equals `data_cutoff_utc`.
 - Then extend the historical input beyond the current 999-bar (~3.5-day) cap before multifractal estimation; 90 days is a starting target, not a proven sufficient sample.
 
