@@ -1,0 +1,1271 @@
+{
+  "schema": "lfm.forecast.5m.v2",
+  "vintage_id": "lfm5m-2026-11-22T07:15:41.077222Z-BTCUSDT-binance-spot-council-0.4",
+  "model_name": "LFM 5m downside-aware council",
+  "model_version": "LFM-5m-Downside-Aware-Council-0.4",
+  "model_commit": "9d08ea262f84b2580fa3c480d86e5512f409e908",
+  "training_cutoff_utc": "2026-11-22T07:14:59.999000Z",
+  "training_mode": "deterministic rolling features; no fitted weights; all signals use observations through data_cutoff_utc",
+  "asset": "BTC/USDT",
+  "venue": "Binance Spot",
+  "quote_currency": "USDT",
+  "input_interval": "5m",
+  "source": "https://data-api.binance.vision/api/v3/klines",
+  "issued_at_utc": "2026-11-22T07:15:41.077222Z",
+  "retrieved_at_utc": "2026-11-22T07:15:41.072679Z",
+  "data_cutoff_utc": "2026-11-22T07:14:59.999000Z",
+  "reference_price_usdt": 59175.36,
+  "closed_candles": 999,
+  "diagnostics": {
+    "fast_1h_log_return": 0.001538437196448332,
+    "medium_4h_log_return_per_hour": 0.00020771999936900908,
+    "slow_12h_log_return_per_hour": -0.0016349765103155244,
+    "volatility_ratio": 0.703933032215739,
+    "trend_agreement": 0.946696562656503,
+    "taker_buy_imbalance": 0.07901542163601971,
+    "relative_quote_volume_1h": 0.7486969849420048,
+    "hourly_sigma_estimate": 0.0066710150250240685,
+    "bounded_trend_signal_per_hour": 0.0003582342129162006,
+    "mean_reversion_signal_per_hour": 0.0001389693925046464,
+    "taker_flow_signal_per_hour": 2.070551277998322e-05,
+    "drawdown_from_24h_high": -0.024685886487148423,
+    "downside_sigma_hour": 0.004104819851969422,
+    "downside_momentum_per_hour": 0.001376688726058416,
+    "downside_stress_signal_per_hour": 0.0,
+    "downside_level_usdt": 70000.0
+  },
+  "downside_risk": {
+    "level_usdt": 70000.0,
+    "distance_to_level_pct": 18.292,
+    "stress_model_24h_point_usdt": 59175.36,
+    "reference_below_level": true,
+    "reference_vs_level_pct": -15.464,
+    "probability_event": "terminal_price_below_level_not_first_passage",
+    "probability_calibrated": false,
+    "interpretation": "Reference price is already below the threshold; this is an uncalibrated terminal-state estimate, not a downward-crossing probability.",
+    "severe_tail_scenario": {
+      "shock_pct": -6.0,
+      "scenario_price_usdt": 55624.84,
+      "reference_already_below_level": true,
+      "ends_below_level": true,
+      "crosses_level": false,
+      "interpretation": "Illustrative abrupt 6% downside shock; crossing is true only when the reference starts at/above the threshold and the scenario ends below it. Not a point forecast and not assigned a probability."
+    },
+    "heuristic_probability_below_level_24h": 1.0,
+    "method": "Normal-tail approximation for terminal price below the threshold using downside semivolatility and a decaying, evidence-gated downside drift; uncalibrated, not a market-implied or first-passage probability."
+  },
+  "models": [
+    {
+      "model": "RandomWalk",
+      "points": [
+        {
+          "horizon_h": 1,
+          "target_utc": "2026-11-22T08:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 58529.59,
+          "p90_high_usdt": 59828.26
+        },
+        {
+          "horizon_h": 2,
+          "target_utc": "2026-11-22T09:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 58264.17,
+          "p90_high_usdt": 60100.8
+        },
+        {
+          "horizon_h": 3,
+          "target_utc": "2026-11-22T10:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 58061.32,
+          "p90_high_usdt": 60310.77
+        },
+        {
+          "horizon_h": 4,
+          "target_utc": "2026-11-22T11:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57890.87,
+          "p90_high_usdt": 60488.36
+        },
+        {
+          "horizon_h": 5,
+          "target_utc": "2026-11-22T12:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57741.1,
+          "p90_high_usdt": 60645.24
+        },
+        {
+          "horizon_h": 6,
+          "target_utc": "2026-11-22T13:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57606.04,
+          "p90_high_usdt": 60787.43
+        },
+        {
+          "horizon_h": 7,
+          "target_utc": "2026-11-22T14:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57482.12,
+          "p90_high_usdt": 60918.48
+        },
+        {
+          "horizon_h": 8,
+          "target_utc": "2026-11-22T15:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57367.01,
+          "p90_high_usdt": 61040.71
+        },
+        {
+          "horizon_h": 9,
+          "target_utc": "2026-11-22T16:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57259.11,
+          "p90_high_usdt": 61155.74
+        },
+        {
+          "horizon_h": 10,
+          "target_utc": "2026-11-22T17:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57157.24,
+          "p90_high_usdt": 61264.73
+        },
+        {
+          "horizon_h": 11,
+          "target_utc": "2026-11-22T18:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57060.52,
+          "p90_high_usdt": 61368.58
+        },
+        {
+          "horizon_h": 12,
+          "target_utc": "2026-11-22T19:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56968.26,
+          "p90_high_usdt": 61467.97
+        },
+        {
+          "horizon_h": 13,
+          "target_utc": "2026-11-22T20:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56879.91,
+          "p90_high_usdt": 61563.45
+        },
+        {
+          "horizon_h": 14,
+          "target_utc": "2026-11-22T21:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56795.02,
+          "p90_high_usdt": 61655.46
+        },
+        {
+          "horizon_h": 15,
+          "target_utc": "2026-11-22T22:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56713.24,
+          "p90_high_usdt": 61744.37
+        },
+        {
+          "horizon_h": 16,
+          "target_utc": "2026-11-22T23:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56634.25,
+          "p90_high_usdt": 61830.48
+        },
+        {
+          "horizon_h": 17,
+          "target_utc": "2026-11-23T00:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56557.8,
+          "p90_high_usdt": 61914.06
+        },
+        {
+          "horizon_h": 18,
+          "target_utc": "2026-11-23T01:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56483.67,
+          "p90_high_usdt": 61995.32
+        },
+        {
+          "horizon_h": 19,
+          "target_utc": "2026-11-23T02:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56411.66,
+          "p90_high_usdt": 62074.46
+        },
+        {
+          "horizon_h": 20,
+          "target_utc": "2026-11-23T03:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56341.61,
+          "p90_high_usdt": 62151.64
+        },
+        {
+          "horizon_h": 21,
+          "target_utc": "2026-11-23T04:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56273.37,
+          "p90_high_usdt": 62227.0
+        },
+        {
+          "horizon_h": 22,
+          "target_utc": "2026-11-23T05:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56206.82,
+          "p90_high_usdt": 62300.68
+        },
+        {
+          "horizon_h": 23,
+          "target_utc": "2026-11-23T06:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56141.85,
+          "p90_high_usdt": 62372.78
+        },
+        {
+          "horizon_h": 24,
+          "target_utc": "2026-11-23T07:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56078.34,
+          "p90_high_usdt": 62443.42
+        }
+      ]
+    },
+    {
+      "model": "Momentum5m",
+      "points": [
+        {
+          "horizon_h": 1,
+          "target_utc": "2026-11-22T08:00:00Z",
+          "point_usdt": 59196.56,
+          "p90_low_usdt": 58550.56,
+          "p90_high_usdt": 59849.69
+        },
+        {
+          "horizon_h": 2,
+          "target_utc": "2026-11-22T09:00:00Z",
+          "point_usdt": 59213.93,
+          "p90_low_usdt": 58302.14,
+          "p90_high_usdt": 60139.97
+        },
+        {
+          "horizon_h": 3,
+          "target_utc": "2026-11-22T10:00:00Z",
+          "point_usdt": 59228.15,
+          "p90_low_usdt": 58113.12,
+          "p90_high_usdt": 60364.57
+        },
+        {
+          "horizon_h": 4,
+          "target_utc": "2026-11-22T11:00:00Z",
+          "point_usdt": 59239.79,
+          "p90_low_usdt": 57953.9,
+          "p90_high_usdt": 60554.22
+        },
+        {
+          "horizon_h": 5,
+          "target_utc": "2026-11-22T12:00:00Z",
+          "point_usdt": 59249.33,
+          "p90_low_usdt": 57813.28,
+          "p90_high_usdt": 60721.05
+        },
+        {
+          "horizon_h": 6,
+          "target_utc": "2026-11-22T13:00:00Z",
+          "point_usdt": 59257.14,
+          "p90_low_usdt": 57685.65,
+          "p90_high_usdt": 60871.44
+        },
+        {
+          "horizon_h": 7,
+          "target_utc": "2026-11-22T14:00:00Z",
+          "point_usdt": 59263.53,
+          "p90_low_usdt": 57567.77,
+          "p90_high_usdt": 61009.25
+        },
+        {
+          "horizon_h": 8,
+          "target_utc": "2026-11-22T15:00:00Z",
+          "point_usdt": 59268.77,
+          "p90_low_usdt": 57457.57,
+          "p90_high_usdt": 61137.07
+        },
+        {
+          "horizon_h": 9,
+          "target_utc": "2026-11-22T16:00:00Z",
+          "point_usdt": 59273.06,
+          "p90_low_usdt": 57353.64,
+          "p90_high_usdt": 61256.7
+        },
+        {
+          "horizon_h": 10,
+          "target_utc": "2026-11-22T17:00:00Z",
+          "point_usdt": 59276.57,
+          "p90_low_usdt": 57255.0,
+          "p90_high_usdt": 61369.51
+        },
+        {
+          "horizon_h": 11,
+          "target_utc": "2026-11-22T18:00:00Z",
+          "point_usdt": 59279.44,
+          "p90_low_usdt": 57160.88,
+          "p90_high_usdt": 61476.52
+        },
+        {
+          "horizon_h": 12,
+          "target_utc": "2026-11-22T19:00:00Z",
+          "point_usdt": 59281.79,
+          "p90_low_usdt": 57070.72,
+          "p90_high_usdt": 61578.52
+        },
+        {
+          "horizon_h": 13,
+          "target_utc": "2026-11-22T20:00:00Z",
+          "point_usdt": 59283.72,
+          "p90_low_usdt": 56984.06,
+          "p90_high_usdt": 61676.18
+        },
+        {
+          "horizon_h": 14,
+          "target_utc": "2026-11-22T21:00:00Z",
+          "point_usdt": 59285.3,
+          "p90_low_usdt": 56900.54,
+          "p90_high_usdt": 61770.0
+        },
+        {
+          "horizon_h": 15,
+          "target_utc": "2026-11-22T22:00:00Z",
+          "point_usdt": 59286.59,
+          "p90_low_usdt": 56819.84,
+          "p90_high_usdt": 61860.43
+        },
+        {
+          "horizon_h": 16,
+          "target_utc": "2026-11-22T23:00:00Z",
+          "point_usdt": 59287.65,
+          "p90_low_usdt": 56741.72,
+          "p90_high_usdt": 61947.81
+        },
+        {
+          "horizon_h": 17,
+          "target_utc": "2026-11-23T00:00:00Z",
+          "point_usdt": 59288.51,
+          "p90_low_usdt": 56665.95,
+          "p90_high_usdt": 62032.45
+        },
+        {
+          "horizon_h": 18,
+          "target_utc": "2026-11-23T01:00:00Z",
+          "point_usdt": 59289.22,
+          "p90_low_usdt": 56592.35,
+          "p90_high_usdt": 62114.61
+        },
+        {
+          "horizon_h": 19,
+          "target_utc": "2026-11-23T02:00:00Z",
+          "point_usdt": 59289.8,
+          "p90_low_usdt": 56520.75,
+          "p90_high_usdt": 62194.51
+        },
+        {
+          "horizon_h": 20,
+          "target_utc": "2026-11-23T03:00:00Z",
+          "point_usdt": 59290.28,
+          "p90_low_usdt": 56451.02,
+          "p90_high_usdt": 62272.33
+        },
+        {
+          "horizon_h": 21,
+          "target_utc": "2026-11-23T04:00:00Z",
+          "point_usdt": 59290.66,
+          "p90_low_usdt": 56383.02,
+          "p90_high_usdt": 62348.25
+        },
+        {
+          "horizon_h": 22,
+          "target_utc": "2026-11-23T05:00:00Z",
+          "point_usdt": 59290.98,
+          "p90_low_usdt": 56316.65,
+          "p90_high_usdt": 62422.41
+        },
+        {
+          "horizon_h": 23,
+          "target_utc": "2026-11-23T06:00:00Z",
+          "point_usdt": 59291.24,
+          "p90_low_usdt": 56251.79,
+          "p90_high_usdt": 62494.93
+        },
+        {
+          "horizon_h": 24,
+          "target_utc": "2026-11-23T07:00:00Z",
+          "point_usdt": 59291.46,
+          "p90_low_usdt": 56188.36,
+          "p90_high_usdt": 62565.93
+        }
+      ]
+    },
+    {
+      "model": "MeanReversion5m",
+      "points": [
+        {
+          "horizon_h": 1,
+          "target_utc": "2026-11-22T08:00:00Z",
+          "point_usdt": 59176.33,
+          "p90_low_usdt": 58530.54,
+          "p90_high_usdt": 59829.23
+        },
+        {
+          "horizon_h": 2,
+          "target_utc": "2026-11-22T09:00:00Z",
+          "point_usdt": 59178.15,
+          "p90_low_usdt": 58266.91,
+          "p90_high_usdt": 60103.63
+        },
+        {
+          "horizon_h": 3,
+          "target_utc": "2026-11-22T10:00:00Z",
+          "point_usdt": 59180.72,
+          "p90_low_usdt": 58066.58,
+          "p90_high_usdt": 60316.23
+        },
+        {
+          "horizon_h": 4,
+          "target_utc": "2026-11-22T11:00:00Z",
+          "point_usdt": 59183.95,
+          "p90_low_usdt": 57899.27,
+          "p90_high_usdt": 60497.14
+        },
+        {
+          "horizon_h": 5,
+          "target_utc": "2026-11-22T12:00:00Z",
+          "point_usdt": 59187.78,
+          "p90_low_usdt": 57753.22,
+          "p90_high_usdt": 60657.97
+        },
+        {
+          "horizon_h": 6,
+          "target_utc": "2026-11-22T13:00:00Z",
+          "point_usdt": 59192.12,
+          "p90_low_usdt": 57622.35,
+          "p90_high_usdt": 60804.64
+        },
+        {
+          "horizon_h": 7,
+          "target_utc": "2026-11-22T14:00:00Z",
+          "point_usdt": 59196.91,
+          "p90_low_usdt": 57503.05,
+          "p90_high_usdt": 60940.67
+        },
+        {
+          "horizon_h": 8,
+          "target_utc": "2026-11-22T15:00:00Z",
+          "point_usdt": 59202.11,
+          "p90_low_usdt": 57392.95,
+          "p90_high_usdt": 61068.31
+        },
+        {
+          "horizon_h": 9,
+          "target_utc": "2026-11-22T16:00:00Z",
+          "point_usdt": 59207.67,
+          "p90_low_usdt": 57290.38,
+          "p90_high_usdt": 61189.13
+        },
+        {
+          "horizon_h": 10,
+          "target_utc": "2026-11-22T17:00:00Z",
+          "point_usdt": 59213.54,
+          "p90_low_usdt": 57194.12,
+          "p90_high_usdt": 61304.26
+        },
+        {
+          "horizon_h": 11,
+          "target_utc": "2026-11-22T18:00:00Z",
+          "point_usdt": 59219.69,
+          "p90_low_usdt": 57103.27,
+          "p90_high_usdt": 61414.55
+        },
+        {
+          "horizon_h": 12,
+          "target_utc": "2026-11-22T19:00:00Z",
+          "point_usdt": 59226.08,
+          "p90_low_usdt": 57017.09,
+          "p90_high_usdt": 61520.66
+        },
+        {
+          "horizon_h": 13,
+          "target_utc": "2026-11-22T20:00:00Z",
+          "point_usdt": 59232.69,
+          "p90_low_usdt": 56935.02,
+          "p90_high_usdt": 61623.09
+        },
+        {
+          "horizon_h": 14,
+          "target_utc": "2026-11-22T21:00:00Z",
+          "point_usdt": 59239.49,
+          "p90_low_usdt": 56856.58,
+          "p90_high_usdt": 61722.28
+        },
+        {
+          "horizon_h": 15,
+          "target_utc": "2026-11-22T22:00:00Z",
+          "point_usdt": 59246.47,
+          "p90_low_usdt": 56781.39,
+          "p90_high_usdt": 61818.56
+        },
+        {
+          "horizon_h": 16,
+          "target_utc": "2026-11-22T23:00:00Z",
+          "point_usdt": 59253.58,
+          "p90_low_usdt": 56709.12,
+          "p90_high_usdt": 61912.22
+        },
+        {
+          "horizon_h": 17,
+          "target_utc": "2026-11-23T00:00:00Z",
+          "point_usdt": 59260.84,
+          "p90_low_usdt": 56639.5,
+          "p90_high_usdt": 62003.49
+        },
+        {
+          "horizon_h": 18,
+          "target_utc": "2026-11-23T01:00:00Z",
+          "point_usdt": 59268.2,
+          "p90_low_usdt": 56572.29,
+          "p90_high_usdt": 62092.59
+        },
+        {
+          "horizon_h": 19,
+          "target_utc": "2026-11-23T02:00:00Z",
+          "point_usdt": 59275.68,
+          "p90_low_usdt": 56507.29,
+          "p90_high_usdt": 62179.69
+        },
+        {
+          "horizon_h": 20,
+          "target_utc": "2026-11-23T03:00:00Z",
+          "point_usdt": 59283.24,
+          "p90_low_usdt": 56444.32,
+          "p90_high_usdt": 62264.94
+        },
+        {
+          "horizon_h": 21,
+          "target_utc": "2026-11-23T04:00:00Z",
+          "point_usdt": 59290.88,
+          "p90_low_usdt": 56383.23,
+          "p90_high_usdt": 62348.48
+        },
+        {
+          "horizon_h": 22,
+          "target_utc": "2026-11-23T05:00:00Z",
+          "point_usdt": 59298.59,
+          "p90_low_usdt": 56323.87,
+          "p90_high_usdt": 62430.42
+        },
+        {
+          "horizon_h": 23,
+          "target_utc": "2026-11-23T06:00:00Z",
+          "point_usdt": 59306.37,
+          "p90_low_usdt": 56266.14,
+          "p90_high_usdt": 62510.87
+        },
+        {
+          "horizon_h": 24,
+          "target_utc": "2026-11-23T07:00:00Z",
+          "point_usdt": 59314.2,
+          "p90_low_usdt": 56209.91,
+          "p90_high_usdt": 62589.93
+        }
+      ]
+    },
+    {
+      "model": "VolatilityRegime5m",
+      "points": [
+        {
+          "horizon_h": 1,
+          "target_utc": "2026-11-22T08:00:00Z",
+          "point_usdt": 59190.92,
+          "p90_low_usdt": 58544.98,
+          "p90_high_usdt": 59843.99
+        },
+        {
+          "horizon_h": 2,
+          "target_utc": "2026-11-22T09:00:00Z",
+          "point_usdt": 59205.22,
+          "p90_low_usdt": 58293.57,
+          "p90_high_usdt": 60131.13
+        },
+        {
+          "horizon_h": 3,
+          "target_utc": "2026-11-22T10:00:00Z",
+          "point_usdt": 59218.47,
+          "p90_low_usdt": 58103.62,
+          "p90_high_usdt": 60354.71
+        },
+        {
+          "horizon_h": 4,
+          "target_utc": "2026-11-22T11:00:00Z",
+          "point_usdt": 59230.81,
+          "p90_low_usdt": 57945.11,
+          "p90_high_usdt": 60545.04
+        },
+        {
+          "horizon_h": 5,
+          "target_utc": "2026-11-22T12:00:00Z",
+          "point_usdt": 59242.4,
+          "p90_low_usdt": 57806.52,
+          "p90_high_usdt": 60713.95
+        },
+        {
+          "horizon_h": 6,
+          "target_utc": "2026-11-22T13:00:00Z",
+          "point_usdt": 59253.36,
+          "p90_low_usdt": 57681.97,
+          "p90_high_usdt": 60867.56
+        },
+        {
+          "horizon_h": 7,
+          "target_utc": "2026-11-22T14:00:00Z",
+          "point_usdt": 59263.79,
+          "p90_low_usdt": 57568.01,
+          "p90_high_usdt": 61009.51
+        },
+        {
+          "horizon_h": 8,
+          "target_utc": "2026-11-22T15:00:00Z",
+          "point_usdt": 59273.77,
+          "p90_low_usdt": 57462.41,
+          "p90_high_usdt": 61142.22
+        },
+        {
+          "horizon_h": 9,
+          "target_utc": "2026-11-22T16:00:00Z",
+          "point_usdt": 59283.37,
+          "p90_low_usdt": 57363.63,
+          "p90_high_usdt": 61267.37
+        },
+        {
+          "horizon_h": 10,
+          "target_utc": "2026-11-22T17:00:00Z",
+          "point_usdt": 59292.68,
+          "p90_low_usdt": 57270.56,
+          "p90_high_usdt": 61386.19
+        },
+        {
+          "horizon_h": 11,
+          "target_utc": "2026-11-22T18:00:00Z",
+          "point_usdt": 59301.72,
+          "p90_low_usdt": 57182.37,
+          "p90_high_usdt": 61499.62
+        },
+        {
+          "horizon_h": 12,
+          "target_utc": "2026-11-22T19:00:00Z",
+          "point_usdt": 59310.56,
+          "p90_low_usdt": 57098.41,
+          "p90_high_usdt": 61608.4
+        },
+        {
+          "horizon_h": 13,
+          "target_utc": "2026-11-22T20:00:00Z",
+          "point_usdt": 59319.22,
+          "p90_low_usdt": 57018.19,
+          "p90_high_usdt": 61713.11
+        },
+        {
+          "horizon_h": 14,
+          "target_utc": "2026-11-22T21:00:00Z",
+          "point_usdt": 59327.74,
+          "p90_low_usdt": 56941.28,
+          "p90_high_usdt": 61814.23
+        },
+        {
+          "horizon_h": 15,
+          "target_utc": "2026-11-22T22:00:00Z",
+          "point_usdt": 59336.15,
+          "p90_low_usdt": 56867.34,
+          "p90_high_usdt": 61912.14
+        },
+        {
+          "horizon_h": 16,
+          "target_utc": "2026-11-22T23:00:00Z",
+          "point_usdt": 59344.47,
+          "p90_low_usdt": 56796.1,
+          "p90_high_usdt": 62007.19
+        },
+        {
+          "horizon_h": 17,
+          "target_utc": "2026-11-23T00:00:00Z",
+          "point_usdt": 59352.72,
+          "p90_low_usdt": 56727.32,
+          "p90_high_usdt": 62099.63
+        },
+        {
+          "horizon_h": 18,
+          "target_utc": "2026-11-23T01:00:00Z",
+          "point_usdt": 59360.91,
+          "p90_low_usdt": 56660.78,
+          "p90_high_usdt": 62189.72
+        },
+        {
+          "horizon_h": 19,
+          "target_utc": "2026-11-23T02:00:00Z",
+          "point_usdt": 59369.06,
+          "p90_low_usdt": 56596.31,
+          "p90_high_usdt": 62277.65
+        },
+        {
+          "horizon_h": 20,
+          "target_utc": "2026-11-23T03:00:00Z",
+          "point_usdt": 59377.18,
+          "p90_low_usdt": 56533.76,
+          "p90_high_usdt": 62363.61
+        },
+        {
+          "horizon_h": 21,
+          "target_utc": "2026-11-23T04:00:00Z",
+          "point_usdt": 59385.27,
+          "p90_low_usdt": 56472.99,
+          "p90_high_usdt": 62447.74
+        },
+        {
+          "horizon_h": 22,
+          "target_utc": "2026-11-23T05:00:00Z",
+          "point_usdt": 59393.35,
+          "p90_low_usdt": 56413.88,
+          "p90_high_usdt": 62530.18
+        },
+        {
+          "horizon_h": 23,
+          "target_utc": "2026-11-23T06:00:00Z",
+          "point_usdt": 59401.42,
+          "p90_low_usdt": 56356.31,
+          "p90_high_usdt": 62611.05
+        },
+        {
+          "horizon_h": 24,
+          "target_utc": "2026-11-23T07:00:00Z",
+          "point_usdt": 59409.48,
+          "p90_low_usdt": 56300.2,
+          "p90_high_usdt": 62690.47
+        }
+      ]
+    },
+    {
+      "model": "TakerFlow5m",
+      "points": [
+        {
+          "horizon_h": 1,
+          "target_utc": "2026-11-22T08:00:00Z",
+          "point_usdt": 59176.59,
+          "p90_low_usdt": 58530.8,
+          "p90_high_usdt": 59829.49
+        },
+        {
+          "horizon_h": 2,
+          "target_utc": "2026-11-22T09:00:00Z",
+          "point_usdt": 59177.41,
+          "p90_low_usdt": 58266.19,
+          "p90_high_usdt": 60102.88
+        },
+        {
+          "horizon_h": 3,
+          "target_utc": "2026-11-22T10:00:00Z",
+          "point_usdt": 59177.96,
+          "p90_low_usdt": 58063.87,
+          "p90_high_usdt": 60313.42
+        },
+        {
+          "horizon_h": 4,
+          "target_utc": "2026-11-22T11:00:00Z",
+          "point_usdt": 59178.33,
+          "p90_low_usdt": 57893.77,
+          "p90_high_usdt": 60491.39
+        },
+        {
+          "horizon_h": 5,
+          "target_utc": "2026-11-22T12:00:00Z",
+          "point_usdt": 59178.57,
+          "p90_low_usdt": 57744.24,
+          "p90_high_usdt": 60648.54
+        },
+        {
+          "horizon_h": 6,
+          "target_utc": "2026-11-22T13:00:00Z",
+          "point_usdt": 59178.74,
+          "p90_low_usdt": 57609.33,
+          "p90_high_usdt": 60790.9
+        },
+        {
+          "horizon_h": 7,
+          "target_utc": "2026-11-22T14:00:00Z",
+          "point_usdt": 59178.85,
+          "p90_low_usdt": 57485.51,
+          "p90_high_usdt": 60922.07
+        },
+        {
+          "horizon_h": 8,
+          "target_utc": "2026-11-22T15:00:00Z",
+          "point_usdt": 59178.93,
+          "p90_low_usdt": 57370.47,
+          "p90_high_usdt": 61044.39
+        },
+        {
+          "horizon_h": 9,
+          "target_utc": "2026-11-22T16:00:00Z",
+          "point_usdt": 59178.98,
+          "p90_low_usdt": 57262.61,
+          "p90_high_usdt": 61159.47
+        },
+        {
+          "horizon_h": 10,
+          "target_utc": "2026-11-22T17:00:00Z",
+          "point_usdt": 59179.01,
+          "p90_low_usdt": 57160.77,
+          "p90_high_usdt": 61268.51
+        },
+        {
+          "horizon_h": 11,
+          "target_utc": "2026-11-22T18:00:00Z",
+          "point_usdt": 59179.03,
+          "p90_low_usdt": 57064.06,
+          "p90_high_usdt": 61372.39
+        },
+        {
+          "horizon_h": 12,
+          "target_utc": "2026-11-22T19:00:00Z",
+          "point_usdt": 59179.05,
+          "p90_low_usdt": 56971.81,
+          "p90_high_usdt": 61471.8
+        },
+        {
+          "horizon_h": 13,
+          "target_utc": "2026-11-22T20:00:00Z",
+          "point_usdt": 59179.06,
+          "p90_low_usdt": 56883.46,
+          "p90_high_usdt": 61567.29
+        },
+        {
+          "horizon_h": 14,
+          "target_utc": "2026-11-22T21:00:00Z",
+          "point_usdt": 59179.06,
+          "p90_low_usdt": 56798.58,
+          "p90_high_usdt": 61659.32
+        },
+        {
+          "horizon_h": 15,
+          "target_utc": "2026-11-22T22:00:00Z",
+          "point_usdt": 59179.07,
+          "p90_low_usdt": 56716.79,
+          "p90_high_usdt": 61748.24
+        },
+        {
+          "horizon_h": 16,
+          "target_utc": "2026-11-22T23:00:00Z",
+          "point_usdt": 59179.07,
+          "p90_low_usdt": 56637.8,
+          "p90_high_usdt": 61834.36
+        },
+        {
+          "horizon_h": 17,
+          "target_utc": "2026-11-23T00:00:00Z",
+          "point_usdt": 59179.07,
+          "p90_low_usdt": 56561.35,
+          "p90_high_usdt": 61917.95
+        },
+        {
+          "horizon_h": 18,
+          "target_utc": "2026-11-23T01:00:00Z",
+          "point_usdt": 59179.07,
+          "p90_low_usdt": 56487.21,
+          "p90_high_usdt": 61999.22
+        },
+        {
+          "horizon_h": 19,
+          "target_utc": "2026-11-23T02:00:00Z",
+          "point_usdt": 59179.07,
+          "p90_low_usdt": 56415.2,
+          "p90_high_usdt": 62078.36
+        },
+        {
+          "horizon_h": 20,
+          "target_utc": "2026-11-23T03:00:00Z",
+          "point_usdt": 59179.08,
+          "p90_low_usdt": 56345.15,
+          "p90_high_usdt": 62155.54
+        },
+        {
+          "horizon_h": 21,
+          "target_utc": "2026-11-23T04:00:00Z",
+          "point_usdt": 59179.08,
+          "p90_low_usdt": 56276.91,
+          "p90_high_usdt": 62230.91
+        },
+        {
+          "horizon_h": 22,
+          "target_utc": "2026-11-23T05:00:00Z",
+          "point_usdt": 59179.08,
+          "p90_low_usdt": 56210.35,
+          "p90_high_usdt": 62304.59
+        },
+        {
+          "horizon_h": 23,
+          "target_utc": "2026-11-23T06:00:00Z",
+          "point_usdt": 59179.08,
+          "p90_low_usdt": 56145.37,
+          "p90_high_usdt": 62376.7
+        },
+        {
+          "horizon_h": 24,
+          "target_utc": "2026-11-23T07:00:00Z",
+          "point_usdt": 59179.08,
+          "p90_low_usdt": 56081.86,
+          "p90_high_usdt": 62447.34
+        }
+      ]
+    },
+    {
+      "model": "DownsideStress5m",
+      "points": [
+        {
+          "horizon_h": 1,
+          "target_utc": "2026-11-22T08:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 58529.59,
+          "p90_high_usdt": 59828.26
+        },
+        {
+          "horizon_h": 2,
+          "target_utc": "2026-11-22T09:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 58264.17,
+          "p90_high_usdt": 60100.8
+        },
+        {
+          "horizon_h": 3,
+          "target_utc": "2026-11-22T10:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 58061.32,
+          "p90_high_usdt": 60310.77
+        },
+        {
+          "horizon_h": 4,
+          "target_utc": "2026-11-22T11:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57890.87,
+          "p90_high_usdt": 60488.36
+        },
+        {
+          "horizon_h": 5,
+          "target_utc": "2026-11-22T12:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57741.1,
+          "p90_high_usdt": 60645.24
+        },
+        {
+          "horizon_h": 6,
+          "target_utc": "2026-11-22T13:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57606.04,
+          "p90_high_usdt": 60787.43
+        },
+        {
+          "horizon_h": 7,
+          "target_utc": "2026-11-22T14:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57482.12,
+          "p90_high_usdt": 60918.48
+        },
+        {
+          "horizon_h": 8,
+          "target_utc": "2026-11-22T15:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57367.01,
+          "p90_high_usdt": 61040.71
+        },
+        {
+          "horizon_h": 9,
+          "target_utc": "2026-11-22T16:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57259.11,
+          "p90_high_usdt": 61155.74
+        },
+        {
+          "horizon_h": 10,
+          "target_utc": "2026-11-22T17:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57157.24,
+          "p90_high_usdt": 61264.73
+        },
+        {
+          "horizon_h": 11,
+          "target_utc": "2026-11-22T18:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 57060.52,
+          "p90_high_usdt": 61368.58
+        },
+        {
+          "horizon_h": 12,
+          "target_utc": "2026-11-22T19:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56968.26,
+          "p90_high_usdt": 61467.97
+        },
+        {
+          "horizon_h": 13,
+          "target_utc": "2026-11-22T20:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56879.91,
+          "p90_high_usdt": 61563.45
+        },
+        {
+          "horizon_h": 14,
+          "target_utc": "2026-11-22T21:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56795.02,
+          "p90_high_usdt": 61655.46
+        },
+        {
+          "horizon_h": 15,
+          "target_utc": "2026-11-22T22:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56713.24,
+          "p90_high_usdt": 61744.37
+        },
+        {
+          "horizon_h": 16,
+          "target_utc": "2026-11-22T23:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56634.25,
+          "p90_high_usdt": 61830.48
+        },
+        {
+          "horizon_h": 17,
+          "target_utc": "2026-11-23T00:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56557.8,
+          "p90_high_usdt": 61914.06
+        },
+        {
+          "horizon_h": 18,
+          "target_utc": "2026-11-23T01:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56483.67,
+          "p90_high_usdt": 61995.32
+        },
+        {
+          "horizon_h": 19,
+          "target_utc": "2026-11-23T02:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56411.66,
+          "p90_high_usdt": 62074.46
+        },
+        {
+          "horizon_h": 20,
+          "target_utc": "2026-11-23T03:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56341.61,
+          "p90_high_usdt": 62151.64
+        },
+        {
+          "horizon_h": 21,
+          "target_utc": "2026-11-23T04:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56273.37,
+          "p90_high_usdt": 62227.0
+        },
+        {
+          "horizon_h": 22,
+          "target_utc": "2026-11-23T05:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56206.82,
+          "p90_high_usdt": 62300.68
+        },
+        {
+          "horizon_h": 23,
+          "target_utc": "2026-11-23T06:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56141.85,
+          "p90_high_usdt": 62372.78
+        },
+        {
+          "horizon_h": 24,
+          "target_utc": "2026-11-23T07:00:00Z",
+          "point_usdt": 59175.36,
+          "p90_low_usdt": 56078.34,
+          "p90_high_usdt": 62443.42
+        }
+      ]
+    },
+    {
+      "model": "LFM5mEnsemble",
+      "points": [
+        {
+          "horizon_h": 1,
+          "target_utc": "2026-11-22T08:00:00Z",
+          "point_usdt": 59185.47,
+          "p90_low_usdt": 58539.58,
+          "p90_high_usdt": 59838.47
+        },
+        {
+          "horizon_h": 2,
+          "target_utc": "2026-11-22T09:00:00Z",
+          "point_usdt": 59194.25,
+          "p90_low_usdt": 58282.77,
+          "p90_high_usdt": 60119.99
+        },
+        {
+          "horizon_h": 3,
+          "target_utc": "2026-11-22T10:00:00Z",
+          "point_usdt": 59201.95,
+          "p90_low_usdt": 58087.41,
+          "p90_high_usdt": 60337.87
+        },
+        {
+          "horizon_h": 4,
+          "target_utc": "2026-11-22T11:00:00Z",
+          "point_usdt": 59208.74,
+          "p90_low_usdt": 57923.52,
+          "p90_high_usdt": 60522.47
+        },
+        {
+          "horizon_h": 5,
+          "target_utc": "2026-11-22T12:00:00Z",
+          "point_usdt": 59214.77,
+          "p90_low_usdt": 57779.56,
+          "p90_high_usdt": 60685.63
+        },
+        {
+          "horizon_h": 6,
+          "target_utc": "2026-11-22T13:00:00Z",
+          "point_usdt": 59220.18,
+          "p90_low_usdt": 57649.67,
+          "p90_high_usdt": 60833.47
+        },
+        {
+          "horizon_h": 7,
+          "target_utc": "2026-11-22T14:00:00Z",
+          "point_usdt": 59225.07,
+          "p90_low_usdt": 57530.4,
+          "p90_high_usdt": 60969.65
+        },
+        {
+          "horizon_h": 8,
+          "target_utc": "2026-11-22T15:00:00Z",
+          "point_usdt": 59229.52,
+          "p90_low_usdt": 57419.52,
+          "p90_high_usdt": 61096.58
+        },
+        {
+          "horizon_h": 9,
+          "target_utc": "2026-11-22T16:00:00Z",
+          "point_usdt": 59233.62,
+          "p90_low_usdt": 57315.49,
+          "p90_high_usdt": 61215.95
+        },
+        {
+          "horizon_h": 10,
+          "target_utc": "2026-11-22T17:00:00Z",
+          "point_usdt": 59237.43,
+          "p90_low_usdt": 57217.19,
+          "p90_high_usdt": 61328.99
+        },
+        {
+          "horizon_h": 11,
+          "target_utc": "2026-11-22T18:00:00Z",
+          "point_usdt": 59240.98,
+          "p90_low_usdt": 57123.8,
+          "p90_high_usdt": 61436.63
+        },
+        {
+          "horizon_h": 12,
+          "target_utc": "2026-11-22T19:00:00Z",
+          "point_usdt": 59244.34,
+          "p90_low_usdt": 57034.66,
+          "p90_high_usdt": 61539.62
+        },
+        {
+          "horizon_h": 13,
+          "target_utc": "2026-11-22T20:00:00Z",
+          "point_usdt": 59247.52,
+          "p90_low_usdt": 56949.27,
+          "p90_high_usdt": 61638.52
+        },
+        {
+          "horizon_h": 14,
+          "target_utc": "2026-11-22T21:00:00Z",
+          "point_usdt": 59250.57,
+          "p90_low_usdt": 56867.21,
+          "p90_high_usdt": 61733.82
+        },
+        {
+          "horizon_h": 15,
+          "target_utc": "2026-11-22T22:00:00Z",
+          "point_usdt": 59253.5,
+          "p90_low_usdt": 56788.13,
+          "p90_high_usdt": 61825.9
+        },
+        {
+          "horizon_h": 16,
+          "target_utc": "2026-11-22T23:00:00Z",
+          "point_usdt": 59256.34,
+          "p90_low_usdt": 56711.75,
+          "p90_high_usdt": 61915.1
+        },
+        {
+          "horizon_h": 17,
+          "target_utc": "2026-11-23T00:00:00Z",
+          "point_usdt": 59259.1,
+          "p90_low_usdt": 56637.84,
+          "p90_high_usdt": 62001.68
+        },
+        {
+          "horizon_h": 18,
+          "target_utc": "2026-11-23T01:00:00Z",
+          "point_usdt": 59261.8,
+          "p90_low_usdt": 56566.18,
+          "p90_high_usdt": 62085.88
+        },
+        {
+          "horizon_h": 19,
+          "target_utc": "2026-11-23T02:00:00Z",
+          "point_usdt": 59264.45,
+          "p90_low_usdt": 56496.59,
+          "p90_high_usdt": 62167.91
+        },
+        {
+          "horizon_h": 20,
+          "target_utc": "2026-11-23T03:00:00Z",
+          "point_usdt": 59267.06,
+          "p90_low_usdt": 56428.91,
+          "p90_high_usdt": 62247.95
+        },
+        {
+          "horizon_h": 21,
+          "target_utc": "2026-11-23T04:00:00Z",
+          "point_usdt": 59269.63,
+          "p90_low_usdt": 56363.02,
+          "p90_high_usdt": 62326.13
+        },
+        {
+          "horizon_h": 22,
+          "target_utc": "2026-11-23T05:00:00Z",
+          "point_usdt": 59272.17,
+          "p90_low_usdt": 56298.78,
+          "p90_high_usdt": 62402.61
+        },
+        {
+          "horizon_h": 23,
+          "target_utc": "2026-11-23T06:00:00Z",
+          "point_usdt": 59274.7,
+          "p90_low_usdt": 56236.09,
+          "p90_high_usdt": 62477.49
+        },
+        {
+          "horizon_h": 24,
+          "target_utc": "2026-11-23T07:00:00Z",
+          "point_usdt": 59277.2,
+          "p90_low_usdt": 56174.85,
+          "p90_high_usdt": 62550.89
+        }
+      ]
+    }
+  ],
+  "warning": "Experimental research forecasts, not validated predictors or financial advice. The below-level probability is an uncalibrated terminal-state estimate, not a crossing probability; if the reference is already below the level, the breach has already occurred. P90 ranges are Gaussian-style approximations and are NOT calibrated prediction intervals. BTC/USDT is not identical to BTC/USD. No trading or order execution."
+}
