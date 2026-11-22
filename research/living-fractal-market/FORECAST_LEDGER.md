@@ -602,3 +602,22 @@ The canonical .artifact.zip preserves the exact workflow artifact bytes. The SHA
 - Raw response SHA-256 / bytes: ed3420e464a65710e3829babfcffb2c35aa9b6a64ac2a4fd057ba7386f6a37dd / 174078
 - Raw request URL: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000
 - Last closed input candle open / close ms: 1795332300000 / 1795332599999
+
+### 2026-11-22T07:43:35.562876Z — BTC/USDT — LFM-5m-Downside-Aware-Council-0.4
+- Workflow run: https://github.com/messerzai/ambivikhry-agent/actions/runs/44999519228
+- Run checkout commit: b4d8a4a4a4b8dd81cb771abf33f3f74bf0fe6506
+- Artifact ID: 14745122818 (name: lfm-5m-btc-forecast)
+- Exact ZIP archive: research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-43-35.562876Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip
+- Exact ZIP SHA-256: 57db9e305ff4aa1d76d901de0a6032bdc605092a0e9336bcdbc79d3015f341b1
+- Exact extracted JSON: research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-43-35.562876Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json
+- Exact extracted JSON SHA-256: e31b65fdd9f70d08d71652103d2876f8313591ba333d26bdc082ffa2771b7861
+- Asset / venue / quote: BTC/USDT / Binance Spot / USDT
+- Issue / cutoff UTC: 2026-11-22T07:43:35.562876Z / 2026-11-22T07:39:59.999000Z
+- Schema / vintage ID: lfm.forecast.5m.v2 / lfm5m-2026-11-22T07:43:35.562876Z-BTCUSDT-binance-spot-council-0.4
+- Input interval / retrieved UTC: 5m / 2026-11-22T07:43:35.556947Z
+- Model commit / training cutoff UTC: b4d8a4a4a4b8dd81cb771abf33f3f74bf0fe6506 / 2026-11-22T07:39:59.999000Z
+- Closed input candles: 999 at 5m; hourly targets: 24
+- Exact raw 5m response: research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-43-35.562876Z_BTCUSDT_BinanceSpot_LFM-5m-0.4_raw_klines.json
+- Raw response SHA-256 / bytes: e7980c74b42caf9a98c9df45021ceaea9a23d4534795c66e7e230656abe4f646 / 174080
+- Raw request URL: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000
+- Last closed input candle open / close ms: 1795332900000 / 1795333199999
