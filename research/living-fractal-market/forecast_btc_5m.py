@@ -276,6 +276,7 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
 
 def write_raw_snapshot(raw_payload, path="forecast_5m_raw_klines.json"):
     """Write exact public HTTP response bytes and return SHA-256 and size."""
+    # Do not re-serialize parsed klines: byte identity is part of provenance.
     if not isinstance(raw_payload, bytes) or not raw_payload:
         raise ValueError("raw market-data response must be non-empty bytes")
     try:
