@@ -7,6 +7,9 @@ on:
     paths:
       - research/living-fractal-market/ARCHIVE_RUN_TRIGGER.md
       - research/living-fractal-market/DAILY_RUN_TRIGGER.md
+      - research/living-fractal-market/forecast_btc_5m.py
+      - research/living-fractal-market/test_forecast_btc_5m.py
+      - .github/workflows/lfm-5m.yml
       - research/living-fractal-market/evaluate_vintages.py
       - research/living-fractal-market/test_evaluate_vintages.py
       - research/living-fractal-market/test_archive_workflow_artifacts.py

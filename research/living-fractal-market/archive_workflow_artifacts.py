@@ -89,6 +89,75 @@ def validate_forecast_schema(forecast: dict[str, Any], run: dict[str, Any]) -> N
         raise ValueError("v2 timestamps must satisfy data cutoff <= retrieval <= issue time")
 
 
+def validate_raw_input_snapshot(forecast: dict[str, Any], raw_bytes: bytes) -> dict[str, Any]:
+    """Verify the exact archived Binance 5m response against forecast provenance."""
+    provenance = forecast.get("data_provenance")
+    if not isinstance(provenance, dict):
+        raise ValueError("forecast is missing data_provenance for its raw 5m snapshot")
+    if provenance.get("raw_response_file") != "forecast_5m_raw_klines.json":
+        raise ValueError("unexpected raw 5m snapshot filename")
+    if not isinstance(raw_bytes, bytes) or not raw_bytes:
+        raise ValueError("raw 5m snapshot is empty")
+    digest = sha256_bytes(raw_bytes)
+    if digest != provenance.get("raw_response_sha256"):
+        raise ValueError("raw 5m snapshot SHA-256 does not match forecast metadata")
+    if len(raw_bytes) != int(provenance.get("raw_response_bytes", -1)):
+        raise ValueError("raw 5m snapshot byte length does not match forecast metadata")
+
+    request_url = str(provenance.get("request_url") or "")
+    parsed_url = urllib.parse.urlparse(request_url)
+    query = urllib.parse.parse_qs(parsed_url.query)
+    allowed_hosts = {"data-api.binance.vision", "api.binance.com", "api1.binance.com", "api-gcp.binance.com"}
+    if parsed_url.scheme != "https" or parsed_url.hostname not in allowed_hosts or parsed_url.path != "/api/v3/klines":
+        raise ValueError("raw 5m snapshot request URL is not an approved Binance public kline endpoint")
+    if query.get("symbol") != ["BTCUSDT"] or query.get("interval") != ["5m"]:
+        raise ValueError("raw 5m snapshot request URL must identify BTCUSDT at 5m")
+
+    try:
+        rows = json.loads(raw_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("raw 5m snapshot is not valid UTF-8 JSON") from exc
+    if not isinstance(rows, list) or not rows:
+        raise ValueError("raw 5m snapshot must be a non-empty kline array")
+
+    def parse_time(value: str) -> datetime:
+        text = str(value)
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(text)
+        if parsed.tzinfo is None:
+            raise ValueError("forecast timestamps must include a UTC offset")
+        return parsed.astimezone(timezone.utc)
+
+    issued_ms = int(parse_time(forecast["issued_at_utc"]).timestamp() * 1000)
+    cutoff_ms = int(parse_time(forecast["data_cutoff_utc"]).timestamp() * 1000)
+    closed = []
+    for row in rows:
+        if not isinstance(row, list) or len(row) < 7:
+            raise ValueError("raw 5m kline row is malformed")
+        open_ms, close_ms = int(row[0]), int(row[6])
+        if close_ms != open_ms + 300_000 - 1:
+            raise ValueError("raw 5m kline close timestamp is misaligned")
+        if close_ms < issued_ms:
+            closed.append((open_ms, close_ms))
+    if len(closed) != int(forecast.get("closed_candles", -1)):
+        raise ValueError("raw 5m snapshot closed-candle count does not match forecast")
+    if not closed:
+        raise ValueError("raw 5m snapshot contains no closed candles at issue time")
+    if any(b[0] - a[0] != 300_000 for a, b in zip(closed, closed[1:])):
+        raise ValueError("raw 5m snapshot has duplicate or missing closed candles")
+    last_open, last_close = closed[-1]
+    if last_close != cutoff_ms:
+        raise ValueError("raw 5m snapshot last closed candle does not match data_cutoff_utc")
+    if last_open != int(provenance.get("last_closed_candle_open_ms", -1)):
+        raise ValueError("raw 5m snapshot last open timestamp does not match forecast metadata")
+    if last_close != int(provenance.get("last_closed_candle_close_ms", -1)):
+        raise ValueError("raw 5m snapshot last close timestamp does not match forecast metadata")
+    return {"sha256": digest, "bytes": len(raw_bytes), "closed_candles": len(closed),
+            "last_closed_open_ms": last_open, "last_closed_close_ms": last_close,
+            "request_url": request_url}
+
+
 def source_head_sha_from_marker(marker_text: str) -> str | None:
     """Return the exact source commit named by an archive marker, if valid."""
     match = re.search(
@@ -107,8 +176,8 @@ def select_source_commit(
     """Select the source workflow commit without letting a stale archive marker win.
 
     An archive-marker-only push explicitly points back to the forecast commit.
-    A daily-marker push must use its own commit and wait for sibling workflows
-    to appear and finish. Other archive-code/documentation pushes do not wait.
+    Daily-marker and forecast-code pushes wait for sibling forecast workflows
+    to appear and finish. Archive-only and documentation pushes do not wait.
     """
     if ARCHIVE_MARKER_PATH in changed_paths:
         parsed = source_head_sha_from_marker(marker_text)
@@ -118,7 +187,13 @@ def select_source_commit(
                 "'Source head SHA: <40-hex>' line"
             )
         return parsed, False
-    return default_sha, DAILY_TRIGGER_PATH in changed_paths
+    forecast_paths = {
+        "research/living-fractal-market/forecast_btc_5m.py",
+        "research/living-fractal-market/test_forecast_btc_5m.py",
+        ".github/workflows/lfm-5m.yml",
+    }
+    wait_for_forecast = DAILY_TRIGGER_PATH in changed_paths or bool(changed_paths.intersection(forecast_paths))
+    return default_sha, wait_for_forecast
 
 
 def changed_paths_at_head(root: Path) -> set[str]:
@@ -323,6 +398,14 @@ def append_forecast_ledger(
         f"- Model commit / training cutoff UTC: {forecast.get('model_commit', run.get('head_sha'))} / {forecast.get('training_cutoff_utc', forecast.get('data_cutoff_utc'))}\n"
         f"- Closed input candles: {forecast.get('closed_candles')} at 5m; hourly targets: 24\n"
     )
+    provenance = forecast.get("data_provenance") or {}
+    if provenance:
+        entry += (
+            f"- Exact raw 5m response: {json_path.replace('.json', '_raw_klines.json')}\n"
+            f"- Raw response SHA-256 / bytes: {provenance.get('raw_response_sha256')} / {provenance.get('raw_response_bytes')}\n"
+            f"- Raw request URL: {provenance.get('request_url')}\n"
+            f"- Last closed input candle open / close ms: {provenance.get('last_closed_candle_open_ms')} / {provenance.get('last_closed_candle_close_ms')}\n"
+        )
     ledger_path.write_text(ledger + entry, encoding="utf-8")
     return True
 
@@ -339,12 +422,16 @@ def archive_forecast_run(
         return {"status": "no_forecast_artifact", "run_id": run["id"]}
     zip_bytes = download_artifact(repo, artifact, token)
     with zipfile.ZipFile(BytesIO(zip_bytes)) as archive:
-        names = [name for name in archive.namelist() if name.endswith("forecast_5m.json")]
-        if len(names) != 1:
-            raise ValueError(f"run {run['id']} artifact must contain one forecast_5m.json")
+        members = archive.namelist()
+        names = [name for name in members if name.endswith("forecast_5m.json")]
+        raw_names = [name for name in members if name.endswith("forecast_5m_raw_klines.json")]
+        if len(names) != 1 or len(raw_names) != 1:
+            raise ValueError(f"run {run['id']} artifact must contain one forecast_5m.json and one raw 5m snapshot")
         forecast_bytes = archive.read(names[0])
+        raw_bytes = archive.read(raw_names[0])
     forecast = json.loads(forecast_bytes.decode("utf-8"))
     validate_forecast_schema(forecast, run)
+    raw_provenance = validate_raw_input_snapshot(forecast, raw_bytes)
     models = forecast.get("models", [])
     if not models or any(len(model.get("points", [])) != 24 for model in models):
         raise ValueError(f"run {run['id']} forecast does not have 24 points per model")
@@ -363,19 +450,24 @@ def archive_forecast_run(
     archive_rel = f"research/living-fractal-market/forecasts/{date}/{base}.artifact.zip"
     json_rel = f"research/living-fractal-market/forecasts/{date}/{base}.json"
 
+    raw_rel = json_rel.replace(".json", "_raw_klines.json")
     zip_created, zip_sha = write_immutable(root, archive_rel, zip_bytes)
     json_created, json_sha = write_immutable(root, json_rel, forecast_bytes)
+    raw_created, raw_sha = write_immutable(root, raw_rel, raw_bytes)
     ledger_changed = append_forecast_ledger(
         ledger_path, run, artifact, archive_rel, zip_sha, json_rel, json_sha, forecast
     )
     return {
-        "status": "archived" if zip_created or json_created or ledger_changed else "already_archived",
+        "status": "archived" if zip_created or json_created or raw_created or ledger_changed else "already_archived",
         "run_id": run["id"],
         "artifact_id": artifact["id"],
         "archive": archive_rel,
         "archive_sha256": zip_sha,
         "forecast_json": json_rel,
         "forecast_json_sha256": json_sha,
+        "raw_input_snapshot": raw_rel,
+        "raw_input_sha256": raw_sha,
+        "raw_input_provenance": raw_provenance,
     }
 
 

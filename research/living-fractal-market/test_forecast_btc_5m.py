@@ -2,7 +2,7 @@ import datetime as dt
 import math
 import unittest
 
-from forecast_btc_5m import build_forecast, parse_rows
+from forecast_btc_5m import build_forecast, parse_rows, write_raw_snapshot
 
 
 def make_raw(n=1000, now=None):
@@ -139,6 +139,27 @@ class Forecast5mTests(unittest.TestCase):
         common = [p["target_utc"] for p in result["models"][0]["points"]]
         for model in result["models"][1:]:
             self.assertEqual([p["target_utc"] for p in model["points"]], common)
+
+
+class RawSnapshotTests(unittest.TestCase):
+    def test_writes_exact_response_bytes_and_hash(self):
+        import hashlib
+        import tempfile
+        from pathlib import Path
+
+        payload = b'[ [1, "1", "1", "1", "1", "1", 2, "1", 1, "0.5", "0.5", "0"] ]\n'
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "raw.json"
+            digest, size = write_raw_snapshot(payload, target)
+            self.assertEqual(target.read_bytes(), payload)
+            self.assertEqual(digest, hashlib.sha256(payload).hexdigest())
+            self.assertEqual(size, len(payload))
+
+    def test_rejects_non_json_raw_response(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError, "valid UTF-8 JSON"):
+                write_raw_snapshot(b"not-json", directory + "/raw.json")
 
 
 class ForecastMetadataTests(unittest.TestCase):

@@ -12,6 +12,7 @@ from archive_workflow_artifacts import (
     select_source_commit,
     validate_forecast_schema,
     append_forecast_ledger,
+    validate_raw_input_snapshot,
 )
 
 
@@ -94,6 +95,15 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
         )
         self.assertEqual(selected, daily_sha)
         self.assertFalse(wait_for_runs)
+
+
+    def test_forecast_code_change_waits_for_sibling_forecast_run(self):
+        source_sha = "c" * 40
+        selected, wait_for_runs = select_source_commit(
+            source_sha, "", {"research/living-fractal-market/forecast_btc_5m.py"}
+        )
+        self.assertEqual(selected, source_sha)
+        self.assertTrue(wait_for_runs)
 
     def test_malformed_archive_marker_is_rejected_when_marker_changed(self):
         with self.assertRaisesRegex(ValueError, "valid"):
@@ -197,6 +207,50 @@ class ForecastLedgerFormattingTests(unittest.TestCase):
             self.assertNotIn("\\n- Input interval", text)
             self.assertIn("\n- Input interval / retrieved UTC:", text)
             self.assertIn("\n- Model commit / training cutoff UTC:", text)
+
+
+class RawInputSnapshotTests(unittest.TestCase):
+    @staticmethod
+    def fixture():
+        import json
+        import hashlib
+        from datetime import datetime, timezone
+
+        open_ms = int(datetime(2026, 11, 17, 7, 30, tzinfo=timezone.utc).timestamp() * 1000)
+        close_ms = open_ms + 300_000 - 1
+        row = [open_ms, "100", "101", "99", "100", "1", close_ms, "100", 10, "0.5", "50", "0"]
+        raw = json.dumps([row], separators=(",", ":")).encode("utf-8")
+        forecast = {
+            "issued_at_utc": "2026-11-17T07:35:00.200Z",
+            "data_cutoff_utc": "2026-11-17T07:34:59.999Z",
+            "closed_candles": 1,
+            "data_provenance": {
+                "request_url": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000",
+                "raw_response_file": "forecast_5m_raw_klines.json",
+                "raw_response_sha256": hashlib.sha256(raw).hexdigest(),
+                "raw_response_bytes": len(raw),
+                "last_closed_candle_open_ms": open_ms,
+                "last_closed_candle_close_ms": close_ms,
+            },
+        }
+        return forecast, raw
+
+    def test_accepts_exact_raw_snapshot_and_cutoff(self):
+        forecast, raw = self.fixture()
+        result = validate_raw_input_snapshot(forecast, raw)
+        self.assertEqual(result["closed_candles"], 1)
+        self.assertEqual(result["last_closed_close_ms"], forecast["data_provenance"]["last_closed_candle_close_ms"])
+
+    def test_rejects_raw_snapshot_hash_mismatch(self):
+        forecast, raw = self.fixture()
+        with self.assertRaisesRegex(ValueError, "SHA-256"):
+            validate_raw_input_snapshot(forecast, raw + b" ")
+
+    def test_rejects_cutoff_mismatch(self):
+        forecast, raw = self.fixture()
+        forecast["data_cutoff_utc"] = "2026-11-17T07:29:59.999Z"
+        with self.assertRaisesRegex(ValueError, "does not match data_cutoff_utc"):
+            validate_raw_input_snapshot(forecast, raw)
 
 
 if __name__ == "__main__":

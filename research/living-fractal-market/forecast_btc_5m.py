@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """LFM 5m BTC/USDT research forecaster. Python 3.10+, stdlib only."""
 import argparse
+import hashlib
 import datetime as dt
 import json
 import math
@@ -25,7 +26,8 @@ def _request_rows(limit=1000, timeout=12):
         request = urllib.request.Request(url, headers={"User-Agent": "LivingFractalMarket/5m-0.3"})
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
-                return json.loads(response.read().decode("utf-8")), base
+                payload = response.read()
+                return json.loads(payload.decode("utf-8")), base, payload, url
         except Exception as exc:
             errors.append(f"{base}: {type(exc).__name__}: {exc}")
     raise RuntimeError("all public Binance market-data endpoints failed: " + " | ".join(errors))
@@ -108,7 +110,8 @@ def _make_vintage_id(issued_at):
 
 
 def build_forecast(rows, issued_at=None, source="Binance Spot public market data",
-                   retrieved_at=None, model_commit=None):
+                   retrieved_at=None, model_commit=None, source_request_url=None,
+                   raw_input_sha256=None, raw_input_bytes=None):
     if len(rows) < 300:
         raise ValueError("insufficient 5m history")
     closes = [r["close"] for r in rows]
@@ -210,6 +213,14 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
         "issued_at_utc": _iso_utc(now),
         "retrieved_at_utc": _iso_utc(retrieved) if retrieved is not None else None,
         "data_cutoff_utc": _iso_utc(cutoff),
+        "data_provenance": {
+            "request_url": source_request_url,
+            "raw_response_file": "forecast_5m_raw_klines.json" if raw_input_sha256 else None,
+            "raw_response_sha256": raw_input_sha256,
+            "raw_response_bytes": raw_input_bytes,
+            "last_closed_candle_open_ms": rows[-1]["open_ms"],
+            "last_closed_candle_close_ms": rows[-1]["close_ms"]
+        },
         "reference_price_usdt": ref, "closed_candles": len(rows),
         "diagnostics": {
             "fast_1h_log_return": fast*12, "medium_4h_log_return_per_hour": medium*12,
@@ -263,6 +274,21 @@ def build_forecast(rows, issued_at=None, source="Binance Spot public market data
     }
 
 
+def write_raw_snapshot(raw_payload, path="forecast_5m_raw_klines.json"):
+    """Write exact public HTTP response bytes and return SHA-256 and size."""
+    if not isinstance(raw_payload, bytes) or not raw_payload:
+        raise ValueError("raw market-data response must be non-empty bytes")
+    try:
+        parsed = json.loads(raw_payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("raw market-data response must be valid UTF-8 JSON") from exc
+    if not isinstance(parsed, list):
+        raise ValueError("raw market-data response must be a kline array")
+    with open(path, "wb") as handle:
+        handle.write(raw_payload)
+    return hashlib.sha256(raw_payload).hexdigest(), len(raw_payload)
+
+
 def main():
     parser = argparse.ArgumentParser(description="LFM 5m BTC/USDT 24-hour research forecast")
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
@@ -271,14 +297,18 @@ def main():
     if not 300 <= args.limit <= 1000:
         parser.error("--limit must be between 300 and 1000")
     try:
-        raw, endpoint = _request_rows(limit=args.limit)
+        raw, endpoint, raw_payload, request_url = _request_rows(limit=args.limit)
         retrieved_at = dt.datetime.now(dt.timezone.utc)
         rows = parse_rows(raw, now=retrieved_at)
+        raw_sha256, raw_bytes = write_raw_snapshot(raw_payload)
         now = dt.datetime.now(dt.timezone.utc)
         result = build_forecast(
             rows, issued_at=now, retrieved_at=retrieved_at,
             model_commit=os.environ.get("LFM_MODEL_COMMIT") or os.environ.get("GITHUB_SHA"),
             source=endpoint + "/api/v3/klines",
+            source_request_url=request_url,
+            raw_input_sha256=raw_sha256,
+            raw_input_bytes=raw_bytes,
         )
         if args.json:
             print(json.dumps(result, indent=2))
