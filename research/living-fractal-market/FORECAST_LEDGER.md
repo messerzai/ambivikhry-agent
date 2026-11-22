@@ -583,3 +583,22 @@ The canonical .artifact.zip preserves the exact workflow artifact bytes. The SHA
 - Input interval / retrieved UTC: 5m / 2026-11-22T07:15:41.072679Z
 - Model commit / training cutoff UTC: 9d08ea262f84b2580fa3c480d86e5512f409e908 / 2026-11-22T07:14:59.999000Z
 - Closed input candles: 999 at 5m; hourly targets: 24
+
+### 2026-11-22T07:32:28.271051Z — BTC/USDT — LFM-5m-Downside-Aware-Council-0.4
+- Workflow run: https://github.com/messerzai/ambivikhry-agent/actions/runs/44998690152
+- Run checkout commit: 5ca37e82e32324921026c3c076d5f31e0c5565c8
+- Artifact ID: 14744727331 (name: lfm-5m-btc-forecast)
+- Exact ZIP archive: research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-32-28.271051Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip
+- Exact ZIP SHA-256: 82fd527b0bfe20af9c4485a20834581515894f2799dfb0c11eadebbdc055da77
+- Exact extracted JSON: research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-32-28.271051Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json
+- Exact extracted JSON SHA-256: 0f640923fb199ce0c43cf1a2a78ea6f6618feaa42f4f5807230267e006e90d72
+- Asset / venue / quote: BTC/USDT / Binance Spot / USDT
+- Issue / cutoff UTC: 2026-11-22T07:32:28.271051Z / 2026-11-22T07:29:59.999000Z
+- Schema / vintage ID: lfm.forecast.5m.v2 / lfm5m-2026-11-22T07:32:28.271051Z-BTCUSDT-binance-spot-council-0.4
+- Input interval / retrieved UTC: 5m / 2026-11-22T07:32:28.266975Z
+- Model commit / training cutoff UTC: 5ca37e82e32324921026c3c076d5f31e0c5565c8 / 2026-11-22T07:29:59.999000Z
+- Closed input candles: 999 at 5m; hourly targets: 24
+- Exact raw 5m response: research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-32-28.271051Z_BTCUSDT_BinanceSpot_LFM-5m-0.4_raw_klines.json
+- Raw response SHA-256 / bytes: ed3420e464a65710e3829babfcffb2c35aa9b6a64ac2a4fd057ba7386f6a37dd / 174078
+- Raw request URL: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000
+- Last closed input candle open / close ms: 1795332300000 / 1795332599999
