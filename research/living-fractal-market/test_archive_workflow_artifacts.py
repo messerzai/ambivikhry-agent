@@ -10,6 +10,7 @@ from archive_workflow_artifacts import (
     download_artifact,
     immutable_path_for_payload,
     select_source_commit,
+    should_wait_for_evaluation,
     validate_forecast_schema,
     append_forecast_ledger,
     validate_raw_input_snapshot,
@@ -104,6 +105,13 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
         )
         self.assertEqual(selected, source_sha)
         self.assertTrue(wait_for_runs)
+
+
+    def test_forecast_code_change_does_not_wait_for_nonexistent_evaluation_run(self):
+        self.assertFalse(should_wait_for_evaluation({"research/living-fractal-market/forecast_btc_5m.py"}))
+
+    def test_daily_marker_change_waits_for_evaluation_run(self):
+        self.assertTrue(should_wait_for_evaluation({DAILY_TRIGGER_PATH}))
 
     def test_malformed_archive_marker_is_rejected_when_marker_changed(self):
         with self.assertRaisesRegex(ValueError, "valid"):

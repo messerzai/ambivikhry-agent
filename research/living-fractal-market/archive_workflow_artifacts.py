@@ -168,6 +168,11 @@ def source_head_sha_from_marker(marker_text: str) -> str | None:
     return match.group(1) if match else None
 
 
+def should_wait_for_evaluation(changed_paths: set[str]) -> bool:
+    """Only daily-trigger pushes create a new evaluation workflow run."""
+    return DAILY_TRIGGER_PATH in changed_paths
+
+
 def select_source_commit(
     default_sha: str,
     marker_text: str,
@@ -677,10 +682,12 @@ def main() -> int:
         args.head_sha, marker_text, changed_paths
     )
 
+    wait_for_evaluation = should_wait_for_evaluation(changed_paths)
     summary: dict[str, Any] = {
         "source_head_sha": source_head_sha,
         "trigger_paths": sorted(changed_paths),
         "waited_for_workflows": wait_for_runs,
+        "waited_for_evaluation_workflow": wait_for_evaluation,
         "archived_forecasts": [],
         "archived_evaluations": [],
         "skipped": [],
@@ -707,7 +714,7 @@ def main() -> int:
 
     evaluation_runs = list_workflow_runs(
         args.repo, args.branch, EVALUATION_WORKFLOW, source_head_sha, token,
-        wait_for_appearance=wait_for_runs,
+        wait_for_appearance=wait_for_evaluation,
     )
     for run in evaluation_runs:
         try:
