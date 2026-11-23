@@ -276,10 +276,9 @@ class EvaluationTests(unittest.TestCase):
             ranked = {item["model"]: item for item in first["models_ranked_by_mean_loss"]}
             self.assertAlmostEqual(ranked["MeanReversion5m"]["mean_normalized_log_price_mae"], 0.85)
             self.assertAlmostEqual(ranked["Momentum5m"]["mean_normalized_log_price_mae"], 1.15)
-            self.assertEqual(
-                ranked["MeanReversion5m"]["paired_bootstrap_95pct_ci_difference_vs_random_walk"],
-                ranked["MeanReversion5m"]["paired_bootstrap_95pct_ci_difference_vs_random_walk"],
-            )
+            interval = ranked["MeanReversion5m"]["paired_bootstrap_95pct_ci_difference_vs_random_walk"]
+            self.assertEqual(len(interval), 2)
+            self.assertLessEqual(interval[0], interval[1])
             self.assertEqual(first, second)
             self.assertEqual(first["calibrated_selected_vintages"], 0)
             self.assertEqual(first["virtual_points_awarded_selected_vintages"], 0)
