@@ -18,6 +18,7 @@ from evaluate_vintages import (
     validate_actual_rows,
     volatility_capped_slow_drift_baseline,
     threshold_event_diagnostic,
+    summarize_leaderboard,
 )
 
 
@@ -193,6 +194,107 @@ class EvaluationTests(unittest.TestCase):
             fetch.assert_called_once()
             self.assertTrue(Path(result["evaluation_file"]).exists())
             self.assertTrue(Path(result["actual_file"]).exists())
+
+    @staticmethod
+    def _write_evaluation(
+        root: Path,
+        vintage_id: str,
+        target_start: datetime,
+        random_walk: float,
+        volatility_slow_drift: float,
+        model_losses: dict[str, float],
+    ) -> None:
+        grid = [target_start + timedelta(hours=hour) for hour in range(24)]
+        final_close = grid[-1] + timedelta(hours=1) - timedelta(milliseconds=1)
+        record = {
+            "schema": "lfm.evaluation.hourly.v1",
+            "evaluation_protocol": "LFM-Tournament-1.1",
+            "status": "evaluated",
+            "vintage_id": vintage_id,
+            "issued_at_utc": (target_start - timedelta(minutes=5)).isoformat().replace("+00:00", "Z"),
+            "asset": "BTC/USDT",
+            "venue": "Binance Spot",
+            "quote_currency": "USDT",
+            "target_interval": "1h",
+            "target_grid_open_utc": [
+                value.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+                for value in grid
+            ],
+            "target_grid_final_close_utc": final_close.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+            "baseline_results": {
+                "RandomWalkLastPrice": {"normalized_log_price_mae": random_walk},
+                "VolatilityCappedSlowDrift": {"normalized_log_price_mae": volatility_slow_drift},
+            },
+            "model_results_ranked_by_primary_loss": [
+                {"model": name, "normalized_log_price_mae": loss}
+                for name, loss in model_losses.items()
+            ],
+            "intervals_calibrated": False,
+            "virtual_points_awarded": 0,
+        }
+        root.mkdir(parents=True, exist_ok=True)
+        (root / f"evaluation_{vintage_id}.json").write_text(
+            json.dumps(record), encoding="utf-8"
+        )
+
+    def test_leaderboard_excludes_overlapping_vintages_and_bootstrap_is_deterministic(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "evaluations"
+            first_start = datetime(2026, 11, 20, 8, tzinfo=timezone.utc)
+            overlapping_start = datetime(2026, 11, 20, 9, tzinfo=timezone.utc)
+            next_start = datetime(2026, 11, 21, 8, tzinfo=timezone.utc)
+            self._write_evaluation(
+                root, "vintage-a", first_start, 1.0, 2.0,
+                {"MeanReversion5m": 0.9, "Momentum5m": 1.2},
+            )
+            self._write_evaluation(
+                root, "vintage-b-overlap", overlapping_start, 1.2, 1.1,
+                {"MeanReversion5m": 1.3, "Momentum5m": 1.0},
+            )
+            self._write_evaluation(
+                root, "vintage-c", next_start, 1.0, 1.5,
+                {"MeanReversion5m": 0.8, "Momentum5m": 1.1},
+            )
+            now = datetime(2026, 11, 23, 9, tzinfo=timezone.utc)
+            first = summarize_leaderboard([root], now, bootstrap_samples=250)
+            second = summarize_leaderboard([root], now, bootstrap_samples=250)
+
+            self.assertEqual(first["completed_unique_vintages"], 3)
+            self.assertEqual(first["non_overlapping_vintages"], 2)
+            self.assertEqual(first["overlapping_vintages_excluded"], 1)
+            self.assertEqual(
+                [item["vintage_id"] for item in first["selected_vintages"]],
+                ["vintage-a", "vintage-c"],
+            )
+            self.assertEqual(first["strongest_simple_baseline_by_mean"], "RandomWalkLastPrice")
+            self.assertAlmostEqual(
+                first["baseline_mean_normalized_log_price_mae"]["RandomWalkLastPrice"], 1.0
+            )
+            self.assertAlmostEqual(
+                first["baseline_mean_normalized_log_price_mae"]["VolatilityCappedSlowDrift"], 1.75
+            )
+            ranked = {item["model"]: item for item in first["models_ranked_by_mean_loss"]}
+            self.assertAlmostEqual(ranked["MeanReversion5m"]["mean_normalized_log_price_mae"], 0.85)
+            self.assertAlmostEqual(ranked["Momentum5m"]["mean_normalized_log_price_mae"], 1.15)
+            self.assertEqual(
+                ranked["MeanReversion5m"]["paired_bootstrap_95pct_ci_difference_vs_random_walk"],
+                ranked["MeanReversion5m"]["paired_bootstrap_95pct_ci_difference_vs_random_walk"],
+            )
+            self.assertEqual(first, second)
+            self.assertEqual(first["calibrated_selected_vintages"], 0)
+            self.assertEqual(first["virtual_points_awarded_selected_vintages"], 0)
+
+    def test_leaderboard_empty_history_is_explicit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "empty"
+            summary = summarize_leaderboard(
+                [root], datetime(2026, 11, 23, 9, tzinfo=timezone.utc), bootstrap_samples=10
+            )
+            self.assertEqual(summary["completed_unique_vintages"], 0)
+            self.assertEqual(summary["non_overlapping_vintages"], 0)
+            self.assertEqual(summary["models_ranked_by_mean_loss"], [])
+            self.assertEqual(summary["baseline_mean_normalized_log_price_mae"], {})
+
 
 if __name__ == "__main__":
     unittest.main()
