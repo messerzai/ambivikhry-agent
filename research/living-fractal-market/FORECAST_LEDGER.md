@@ -621,3 +621,110 @@ The canonical .artifact.zip preserves the exact workflow artifact bytes. The SHA
 - Raw response SHA-256 / bytes: e7980c74b42caf9a98c9df45021ceaea9a23d4534795c66e7e230656abe4f646 / 174080
 - Raw request URL: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000
 - Last closed input candle open / close ms: 1795332900000 / 1795333199999
+
+### 2026-11-23T08:22:27.885252Z — BTC/USDT — LFM-5m-Downside-Aware-Council-0.4
+- Workflow run: https://github.com/messerzai/ambivikhry-agent/actions/runs/45138081366
+- Run checkout commit: c9ceeeb3b31b6096d7eeb147d76dd5ad5a5da6f9
+- Artifact ID: 14801220654 (name: lfm-5m-btc-forecast)
+- Exact ZIP archive: research/living-fractal-market/forecasts/2026-11-23/2026-11-23T08-22-27.885252Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip
+- Exact ZIP SHA-256: 9aed46c115121713a534af6a104c54b55fff333f61378d2a0b6be428f441372a
+- Exact extracted JSON: research/living-fractal-market/forecasts/2026-11-23/2026-11-23T08-22-27.885252Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json
+- Exact extracted JSON SHA-256: 243c7140086bc7ebca30ace8957649b95ffc2565afa2e95f3064fdcff71375e5
+- Asset / venue / quote: BTC/USDT / Binance Spot / USDT
+- Issue / cutoff UTC: 2026-11-23T08:22:27.885252Z / 2026-11-23T08:19:59.999000Z
+- Schema / vintage ID: lfm.forecast.5m.v2 / lfm5m-2026-11-23T08:22:27.885252Z-BTCUSDT-binance-spot-council-0.4
+- Input interval / retrieved UTC: 5m / 2026-11-23T08:22:27.875615Z
+- Model commit / training cutoff UTC: c9ceeeb3b31b6096d7eeb147d76dd5ad5a5da6f9 / 2026-11-23T08:19:59.999000Z
+- Closed input candles: 999 at 5m; hourly targets: 24
+- Exact raw 5m response: research/living-fractal-market/forecasts/2026-11-23/2026-11-23T08-22-27.885252Z_BTCUSDT_BinanceSpot_LFM-5m-0.4_raw_klines.json
+- Raw response SHA-256 / bytes: 4e1f9a5aaa5b31e322d188c24a66416c25b72382d7420e8e65e7b9a176e0b0e8 / 174119
+- Raw request URL: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000
+- Last closed input candle open / close ms: 1795421700000 / 1795421999999
+
+### Evaluation: lfm5m-2026-11-21T07:51:41.343658Z-BTCUSDT-binance-spot-council-0.4
+- Evaluation workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/45138081079
+- Evaluation artifact ID: 14800094037
+- Exact evaluation ZIP: research/living-fractal-market/evaluations/2026-11-23/2026-11-23T08-22-26.136Z_LFM-completed-vintage-evaluation.artifact.zip
+- Evaluation ZIP SHA-256: 94e92302818c5b705f449b15113ee2c075a42a388af92be84ad0a011baa429ab
+- Evaluation JSON: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-21T07:51:41.343658Z-BTCUSDT-binance-spot-council-0.4.json (SHA-256 6908832f59e4105937793ea2e836a83c938eac1b7cf6f8e692b3c9938d4b0cd7)
+- Exact actual Binance Spot 1h response: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-21T07:51:41.343658Z-BTCUSDT-binance-spot-council-0.4_actual_binance_spot_1h.json (SHA-256 6703d99240e8e3bf1bf8562d54c67acb5a665a16f3f5585147ad6931257b989c)
+- Actual data source: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1h&startTime=1795248000000&endTime=1795334399999&limit=1000
+- Evaluated at UTC: 2026-11-23T08:22:26.136Z
+- Primary nMAE: normalized by issue-time hourly sigma 0.010584156341677562.
+- RandomWalkLastPrice nMAE: 2.743573310733761; VolatilityCappedSlowDrift nMAE: 2.275594655559895.
+- P90 intervals calibrated: False; virtual points awarded: 0.
+- MeanReversion5m: nMAE 2.711740; direction vs issue 0.958; hour-to-hour direction 0.542; P90 empirical coverage 0.9583333333333334; beats RW True.
+- RandomWalk: nMAE 2.743573; direction vs issue 0.000; hour-to-hour direction 0.000; P90 empirical coverage 0.9583333333333334; beats RW False.
+- TakerFlow5m: nMAE 2.752466; direction vs issue 0.042; hour-to-hour direction 0.250; P90 empirical coverage 0.9583333333333334; beats RW False.
+- LFM5mEnsemble: nMAE 3.035725; direction vs issue 0.042; hour-to-hour direction 0.458; P90 empirical coverage 0.9583333333333334; beats RW False.
+- VolatilityRegime5m: nMAE 3.061662; direction vs issue 0.042; hour-to-hour direction 0.458; P90 empirical coverage 0.9583333333333334; beats RW False.
+- Momentum5m: nMAE 3.337393; direction vs issue 0.042; hour-to-hour direction 0.458; P90 empirical coverage 0.9166666666666666; beats RW False.
+- DownsideStress5m: nMAE 3.675419; direction vs issue 0.042; hour-to-hour direction 0.458; P90 empirical coverage 0.9166666666666666; beats RW False.
+- Terminal threshold diagnostic: 70000.0 USDT; uncalibrated heuristic 1.0; observed terminal-below-level True; diagnostic Brier 0.0 (not a calibrated score).
+- Interpretation: one completed vintage is descriptive only; no champion promotion or research points.
+
+### Evaluation: lfm5m-2026-11-22T07:15:41.077222Z-BTCUSDT-binance-spot-council-0.4
+- Evaluation workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/45138081079
+- Evaluation artifact ID: 14800094037
+- Exact evaluation ZIP: research/living-fractal-market/evaluations/2026-11-23/2026-11-23T08-22-26.136Z_LFM-completed-vintage-evaluation.artifact.zip
+- Evaluation ZIP SHA-256: 94e92302818c5b705f449b15113ee2c075a42a388af92be84ad0a011baa429ab
+- Evaluation JSON: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-22T07:15:41.077222Z-BTCUSDT-binance-spot-council-0.4.json (SHA-256 938a54ae0e39f5eb427605cc59ae0d58e324983dab172b15c3d44383d6cd7159)
+- Exact actual Binance Spot 1h response: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-22T07:15:41.077222Z-BTCUSDT-binance-spot-council-0.4_actual_binance_spot_1h.json (SHA-256 da703a33d8ca0f13aaa40e0d8a0a058fc04437dd0199fbe552f4caa4af6218d1)
+- Actual data source: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1h&startTime=1795334400000&endTime=1795420799999&limit=1000
+- Evaluated at UTC: 2026-11-23T08:22:26.136Z
+- Primary nMAE: normalized by issue-time hourly sigma 0.0066710150250240685.
+- RandomWalkLastPrice nMAE: 4.560211469687616; VolatilityCappedSlowDrift nMAE: 7.623794193198206.
+- P90 intervals calibrated: False; virtual points awarded: 0.
+- VolatilityRegime5m: nMAE 4.219192; direction vs issue 1.000; hour-to-hour direction 0.500; P90 empirical coverage 0.8333333333333334; beats RW True.
+- Momentum5m: nMAE 4.319257; direction vs issue 1.000; hour-to-hour direction 0.500; P90 empirical coverage 0.8333333333333334; beats RW True.
+- LFM5mEnsemble: nMAE 4.393369; direction vs issue 1.000; hour-to-hour direction 0.500; P90 empirical coverage 0.7916666666666666; beats RW True.
+- MeanReversion5m: nMAE 4.409746; direction vs issue 1.000; hour-to-hour direction 0.500; P90 empirical coverage 0.7916666666666666; beats RW True.
+- TakerFlow5m: nMAE 4.551590; direction vs issue 1.000; hour-to-hour direction 0.333; P90 empirical coverage 0.75; beats RW True.
+- RandomWalk: nMAE 4.560211; direction vs issue 0.000; hour-to-hour direction 0.000; P90 empirical coverage 0.75; beats RW False.
+- DownsideStress5m: nMAE 4.560211; direction vs issue 0.000; hour-to-hour direction 0.000; P90 empirical coverage 0.75; beats RW False.
+- Terminal threshold diagnostic: 70000.0 USDT; uncalibrated heuristic 1.0; observed terminal-below-level True; diagnostic Brier 0.0 (not a calibrated score).
+- Interpretation: one completed vintage is descriptive only; no champion promotion or research points.
+
+### Evaluation: lfm5m-2026-11-22T07:32:28.271051Z-BTCUSDT-binance-spot-council-0.4
+- Evaluation workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/45138081079
+- Evaluation artifact ID: 14800094037
+- Exact evaluation ZIP: research/living-fractal-market/evaluations/2026-11-23/2026-11-23T08-22-26.136Z_LFM-completed-vintage-evaluation.artifact.zip
+- Evaluation ZIP SHA-256: 94e92302818c5b705f449b15113ee2c075a42a388af92be84ad0a011baa429ab
+- Evaluation JSON: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-22T07:32:28.271051Z-BTCUSDT-binance-spot-council-0.4.json (SHA-256 cb00d20cfa7ccf12ebf53b24e9b698ec62a778124ccb98f77de4f798fbd2f460)
+- Exact actual Binance Spot 1h response: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-22T07:32:28.271051Z-BTCUSDT-binance-spot-council-0.4_actual_binance_spot_1h.json (SHA-256 da703a33d8ca0f13aaa40e0d8a0a058fc04437dd0199fbe552f4caa4af6218d1)
+- Actual data source: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1h&startTime=1795334400000&endTime=1795420799999&limit=1000
+- Evaluated at UTC: 2026-11-23T08:22:26.136Z
+- Primary nMAE: normalized by issue-time hourly sigma 0.006633948785568513.
+- RandomWalkLastPrice nMAE: 4.747890973709708; VolatilityCappedSlowDrift nMAE: 7.872890973709595.
+- P90 intervals calibrated: False; virtual points awarded: 0.
+- MeanReversion5m: nMAE 4.587843; direction vs issue 1.000; hour-to-hour direction 0.500; P90 empirical coverage 0.6666666666666666; beats RW True.
+- TakerFlow5m: nMAE 4.736011; direction vs issue 1.000; hour-to-hour direction 0.333; P90 empirical coverage 0.6666666666666666; beats RW True.
+- RandomWalk: nMAE 4.747891; direction vs issue 0.000; hour-to-hour direction 0.000; P90 empirical coverage 0.6666666666666666; beats RW False.
+- LFM5mEnsemble: nMAE 4.973543; direction vs issue 0.000; hour-to-hour direction 0.500; P90 empirical coverage 0.625; beats RW False.
+- VolatilityRegime5m: nMAE 4.976520; direction vs issue 0.000; hour-to-hour direction 0.542; P90 empirical coverage 0.625; beats RW False.
+- Momentum5m: nMAE 5.289898; direction vs issue 0.000; hour-to-hour direction 0.500; P90 empirical coverage 0.625; beats RW False.
+- DownsideStress5m: nMAE 5.585997; direction vs issue 0.000; hour-to-hour direction 0.500; P90 empirical coverage 0.625; beats RW False.
+- Terminal threshold diagnostic: 70000.0 USDT; uncalibrated heuristic 1.0; observed terminal-below-level True; diagnostic Brier 0.0 (not a calibrated score).
+- Interpretation: one completed vintage is descriptive only; no champion promotion or research points.
+
+### Evaluation: lfm5m-2026-11-22T07:43:35.562876Z-BTCUSDT-binance-spot-council-0.4
+- Evaluation workflow: https://github.com/messerzai/ambivikhry-agent/actions/runs/45138081079
+- Evaluation artifact ID: 14800094037
+- Exact evaluation ZIP: research/living-fractal-market/evaluations/2026-11-23/2026-11-23T08-22-26.136Z_LFM-completed-vintage-evaluation.artifact.zip
+- Evaluation ZIP SHA-256: 94e92302818c5b705f449b15113ee2c075a42a388af92be84ad0a011baa429ab
+- Evaluation JSON: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-22T07:43:35.562876Z-BTCUSDT-binance-spot-council-0.4.json (SHA-256 b9eba11c94b77503ca77edd986ad74e7bd0fb16513103dfb25482358e7c3afbf)
+- Exact actual Binance Spot 1h response: research/living-fractal-market/evaluations/2026-11-23/lfm5m-2026-11-22T07:43:35.562876Z-BTCUSDT-binance-spot-council-0.4_actual_binance_spot_1h.json (SHA-256 da703a33d8ca0f13aaa40e0d8a0a058fc04437dd0199fbe552f4caa4af6218d1)
+- Actual data source: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1h&startTime=1795334400000&endTime=1795420799999&limit=1000
+- Evaluated at UTC: 2026-11-23T08:22:26.136Z
+- Primary nMAE: normalized by issue-time hourly sigma 0.006644130974942915.
+- RandomWalkLastPrice nMAE: 4.9252492804881; VolatilityCappedSlowDrift nMAE: 8.050249280488236.
+- P90 intervals calibrated: False; virtual points awarded: 0.
+- MeanReversion5m: nMAE 4.753271; direction vs issue 1.000; hour-to-hour direction 0.500; P90 empirical coverage 0.6666666666666666; beats RW True.
+- RandomWalk: nMAE 4.925249; direction vs issue 0.000; hour-to-hour direction 0.000; P90 empirical coverage 0.625; beats RW False.
+- TakerFlow5m: nMAE 4.929209; direction vs issue 0.000; hour-to-hour direction 0.292; P90 empirical coverage 0.625; beats RW False.
+- LFM5mEnsemble: nMAE 5.477065; direction vs issue 0.000; hour-to-hour direction 0.417; P90 empirical coverage 0.625; beats RW False.
+- VolatilityRegime5m: nMAE 5.616888; direction vs issue 0.000; hour-to-hour direction 0.458; P90 empirical coverage 0.5833333333333334; beats RW False.
+- Momentum5m: nMAE 6.109683; direction vs issue 0.000; hour-to-hour direction 0.500; P90 empirical coverage 0.2916666666666667; beats RW False.
+- DownsideStress5m: nMAE 8.469765; direction vs issue 0.000; hour-to-hour direction 0.500; P90 empirical coverage 0.0; beats RW False.
+- Terminal threshold diagnostic: 70000.0 USDT; uncalibrated heuristic 1.0; observed terminal-below-level True; diagnostic Brier 0.0 (not a calibrated score).
+- Interpretation: one completed vintage is descriptive only; no champion promotion or research points.
