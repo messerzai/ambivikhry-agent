@@ -12,6 +12,7 @@ import gzip
 import hashlib
 import json
 import math
+import random
 import time
 import urllib.error
 import urllib.parse
@@ -481,6 +482,226 @@ def discover_forecast_archives(root: Path) -> tuple[list[Path], list[dict[str, s
     return selected, duplicates
 
 
+def _linear_percentile(values: list[float], probability: float) -> float:
+    ordered = sorted(values)
+    if not ordered:
+        raise ValueError("percentile requires at least one value")
+    position = (len(ordered) - 1) * probability
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    if lower == upper:
+        return ordered[lower]
+    weight = position - lower
+    return ordered[lower] + (ordered[upper] - ordered[lower]) * weight
+
+
+def _bootstrap_mean_interval(
+    paired_differences: list[float],
+    model_name: str,
+    samples: int = 20_000,
+) -> list[float] | None:
+    if not paired_differences:
+        return None
+    # Stable per-model seed: results do not depend on filesystem iteration order.
+    seed = 0x1F2E3D4C + sum(ord(character) for character in model_name)
+    generator = random.Random(seed)
+    bootstrap_means = [
+        mean(generator.choices(paired_differences, k=len(paired_differences)))
+        for _ in range(samples)
+    ]
+    return [
+        _linear_percentile(bootstrap_means, 0.025),
+        _linear_percentile(bootstrap_means, 0.975),
+    ]
+
+
+def summarize_leaderboard(
+    evaluation_roots: list[Path],
+    now: datetime,
+    bootstrap_samples: int = 20_000,
+) -> dict[str, Any]:
+    """Summarize only completed, chronologically non-overlapping BTC/USDT hourly vintages.
+
+    Each 24-hour forecast is one vintage-level sample. Overlapping forecast windows
+    are excluded from aggregate scoring so the 24 hourly targets are never treated
+    as 24 independent daily observations.
+    """
+    records: dict[str, dict[str, Any]] = {}
+    invalid_files: list[dict[str, str]] = []
+    for root in evaluation_roots:
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("evaluation_*.json")):
+            try:
+                record = json.loads(path.read_text(encoding="utf-8"))
+                if not isinstance(record, dict) or record.get("status") != "evaluated":
+                    continue
+                if record.get("evaluation_protocol") != "LFM-Tournament-1.1":
+                    continue
+                if record.get("asset") != "BTC/USDT" or record.get("target_interval") != "1h":
+                    continue
+                vintage_id = str(record["vintage_id"])
+                grid = record.get("target_grid_open_utc")
+                if not isinstance(grid, list) or len(grid) != 24:
+                    raise ValueError("target_grid_open_utc must contain 24 timestamps")
+                target_grid = [parse_utc(value) for value in grid]
+                if any(
+                    current - previous != timedelta(hours=1)
+                    for previous, current in zip(target_grid, target_grid[1:])
+                ):
+                    raise ValueError("target grid must be exactly hourly and contiguous")
+                final_close = parse_utc(record["target_grid_final_close_utc"])
+                expected_final_close = target_grid[-1] + timedelta(hours=1) - timedelta(milliseconds=1)
+                if final_close != expected_final_close:
+                    raise ValueError("final target close does not match the hourly target grid")
+                parse_utc(record["issued_at_utc"])
+                if vintage_id not in records:
+                    records[vintage_id] = record
+            except Exception as exc:
+                invalid_files.append({
+                    "file": str(path),
+                    "error_type": type(exc).__name__,
+                    "error": str(exc),
+                })
+
+    chronological = sorted(
+        records.values(),
+        key=lambda item: (
+            parse_utc(item["target_grid_open_utc"][0]),
+            parse_utc(item["issued_at_utc"]),
+        ),
+    )
+    selected: list[dict[str, Any]] = []
+    excluded: list[dict[str, str]] = []
+    previous_final_close: datetime | None = None
+    for record in chronological:
+        target_start = parse_utc(record["target_grid_open_utc"][0])
+        final_close = parse_utc(record["target_grid_final_close_utc"])
+        if previous_final_close is None or target_start > previous_final_close:
+            selected.append(record)
+            previous_final_close = final_close
+        else:
+            excluded.append({
+                "vintage_id": str(record["vintage_id"]),
+                "target_start_utc": iso_utc(target_start),
+                "target_final_close_utc": iso_utc(final_close),
+                "reason": "overlaps the preceding selected 24-hour target grid",
+            })
+
+    baseline_names = sorted({
+        name
+        for record in selected
+        for name in record.get("baseline_results", {})
+    })
+    baseline_means: dict[str, float] = {}
+    for name in baseline_names:
+        values = [
+            float(record["baseline_results"][name]["normalized_log_price_mae"])
+            for record in selected
+            if name in record.get("baseline_results", {})
+        ]
+        values = [value for value in values if math.isfinite(value)]
+        if values:
+            baseline_means[name] = mean(values)
+
+    strongest_simple_name = (
+        min(baseline_means, key=baseline_means.get) if baseline_means else None
+    )
+    model_names = sorted({
+        str(model["model"])
+        for record in selected
+        for model in record.get("model_results_ranked_by_primary_loss", [])
+        if "model" in model
+    })
+    model_summaries: list[dict[str, Any]] = []
+    for name in model_names:
+        paired: list[tuple[float, float]] = []
+        for record in selected:
+            model_result = next(
+                (
+                    item for item in record.get("model_results_ranked_by_primary_loss", [])
+                    if item.get("model") == name
+                ),
+                None,
+            )
+            random_walk = record.get("baseline_results", {}).get("RandomWalkLastPrice", {})
+            if model_result is None:
+                continue
+            model_loss = float(model_result["normalized_log_price_mae"])
+            random_walk_loss = float(random_walk.get("normalized_log_price_mae", math.nan))
+            if math.isfinite(model_loss) and math.isfinite(random_walk_loss):
+                paired.append((model_loss, random_walk_loss))
+        if not paired:
+            continue
+        model_losses = [item[0] for item in paired]
+        differences = [model_loss - random_walk_loss for model_loss, random_walk_loss in paired]
+        mean_loss = mean(model_losses)
+        mean_difference = mean(differences)
+        model_summaries.append({
+            "model": name,
+            "n_vintages": len(paired),
+            "mean_normalized_log_price_mae": mean_loss,
+            "mean_difference_vs_random_walk": mean_difference,
+            "paired_bootstrap_95pct_ci_difference_vs_random_walk": _bootstrap_mean_interval(
+                differences, name, bootstrap_samples
+            ),
+            "beats_random_walk_on_mean": mean_difference < 0,
+            "beats_strongest_simple_baseline_on_mean": (
+                mean_loss < baseline_means[strongest_simple_name]
+                if strongest_simple_name is not None
+                else None
+            ),
+        })
+    model_summaries.sort(key=lambda item: item["mean_normalized_log_price_mae"])
+
+    return {
+        "schema": "lfm.leaderboard.summary.v1",
+        "evaluation_protocol": "LFM-Tournament-1.1",
+        "evaluated_at_utc": iso_utc(now),
+        "asset": "BTC/USDT",
+        "venue": "Binance Spot",
+        "quote_currency": "USDT",
+        "target_interval": "1h",
+        "primary_metric": "normalized_mae_hourly_log_price",
+        "normalization": "frozen issue-time hourly_sigma_estimate",
+        "completed_unique_vintages": len(records),
+        "non_overlapping_vintages": len(selected),
+        "overlapping_vintages_excluded": len(excluded),
+        "selected_vintages": [
+            {
+                "vintage_id": str(record["vintage_id"]),
+                "issued_at_utc": str(record["issued_at_utc"]),
+                "target_start_utc": str(record["target_grid_open_utc"][0]),
+                "target_final_close_utc": str(record["target_grid_final_close_utc"]),
+            }
+            for record in selected
+        ],
+        "excluded_overlapping_vintages": excluded,
+        "baseline_mean_normalized_log_price_mae": baseline_means,
+        "strongest_simple_baseline_by_mean": strongest_simple_name,
+        "models_ranked_by_mean_loss": model_summaries,
+        "calibrated_selected_vintages": sum(
+            1 for record in selected if bool(record.get("intervals_calibrated", False))
+        ),
+        "virtual_points_awarded_selected_vintages": sum(
+            int(record.get("virtual_points_awarded", 0) or 0) for record in selected
+        ),
+        "bootstrap": {
+            "method": "paired percentile bootstrap over daily vintage-level loss differences",
+            "samples": bootstrap_samples,
+            "base_seed": "0x1f2e3d4c plus stable model-name character sum",
+            "confidence_level": 0.95,
+        },
+        "limitations": [
+            "Overlapping 24-hour windows are excluded from aggregate scoring.",
+            "Hourly horizons within one vintage are not treated as independent daily samples.",
+            "Mean ranking is descriptive; paired intervals and sample size must be shown.",
+            "A BTC/USDT Binance Spot result is not a BTC/USD composite result.",
+        ],
+        "invalid_evaluation_files": invalid_files,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--forecast-root", type=Path, required=True)
@@ -515,6 +736,8 @@ def main() -> int:
                 "error_type": type(exc).__name__,
                 "error": str(exc),
             })
+    leaderboard = summarize_leaderboard([args.evaluation_root, args.output_dir], now)
+    write_json(args.output_dir / "leaderboard_summary.json", leaderboard)
     write_json(args.output_dir / "evaluation_manifest.json", manifest)
     print(json.dumps({
         "evaluated": len(manifest["evaluated"]),
