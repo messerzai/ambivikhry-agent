@@ -484,3 +484,13 @@ All evidence below was checked on 2026-11-24. These additions are discovery/watc
 - Event features must use the first public release timestamp and the consensus snapshot available immediately before release. Revisions, delayed news articles and sentiment published after the event are leakage risks.
 - A 5m event-response effect is not equivalent to 24h point predictability. Use a separate volatility/event-risk score and evaluate the point-price target only after a pre-registered ablation.
 - Do not reuse TRMI, LSEG, CoinDesk, Twitter, Bitcointalk, Google Trends or wallet-linked data until source-specific access, redistribution, privacy and licensing terms are independently checked.
+
+
+### Recurrence and non-stationary scaling candidates — checked 2026-11-24
+
+| Candidate | Method / target | Data and reproducibility | Evidence / limitation | Status |
+|---|---|---|---|---|
+| [Vanheusden et al. (2026), RQA for cryptocurrency markets](https://doi.org/10.1186/s40854-026-00940-x) | Recurrence plots and RQA metrics (DET, LAM, vertical entropy, trapping time); early-warning target is daily volatility above the 95th percentile, not price direction. | CoinLore daily close series for 100 cryptoassets; 80-day rolling windows; MATLAB R2024B; dataset available from corresponding author on request; no public code repository found. | Determinism/laminarity ratio reportedly gives AUC 0.605 for a 42-day high-volatility horizon, with bootstrapped regression coefficient ~0.08. Early-stage; no prospective ledger; no MFDFA comparison; parameter tuning partly visual; intraday validation explicitly remains open. | Research challenger for medium-term volatility/regime warnings only. Article is CC BY-NC-ND 4.0; no code/data reuse. |
+| [Cho et al. (2026), evolving complex-system perspective](https://doi.org/10.3389/fphy.2026.2026031) | Research agenda covering regime-dependent scaling, finite-size effects, crash warnings, endogenous clocks, multilayer risk and time irreversibility. | Perspective article; no runnable model or benchmark. | Argues scaling exponents/entropy/efficiency vary with institutionalization, market regime and sampling conventions. It is a synthesis and agenda, not a new out-of-sample forecast. | Context for research design, not a competitor. |
+
+RQA parameters (embedding dimension, delay, recurrence threshold, distance norm and window length) are highly consequential. The reported AUC and 42-day horizon must not be copied as an expected BTC 24h edge. A clean-room implementation may be considered only after independent parameter tests and a 90-day data window; no article-derived code or figures may be reused under CC BY-NC-ND 4.0.
