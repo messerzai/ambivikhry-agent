@@ -769,3 +769,58 @@ No new point-in-time, freely reusable sentiment/news feed or new direct 1h BTC f
 - For the official internal aggregate, only eight chronologically selected non-overlapping completed vintages are included; four other completed vintages are excluded from aggregate scoring because their 24h target grids overlap. The small sample does not support promotion.
 - No calibrated intervals exist. All virtual points remain 0.
 - No forecast equations or model code changed in this cycle. Documentation and provenance registers were updated; no third-party code, weights, datasets or API outputs were copied.
+
+
+## Daily research cycle — 2026-11-24 (run 12)
+
+Branch: `research/living-fractal-market`  
+Daily trigger commit: [11edd105](https://github.com/messerzai/ambivikhry-agent/commit/11edd10500612193e04d3c15bdbcf615b1ec0fb4)  
+Forecast workflow: [45346501172](https://github.com/messerzai/ambivikhry-agent/actions/runs/45346501172) — success  
+Archive workflow: [45346501185](https://github.com/messerzai/ambivikhry-agent/actions/runs/45346501185) — success  
+Evaluation workflow: [45346501166](https://github.com/messerzai/ambivikhry-agent/actions/runs/45346501166) — success  
+Archive commit: [a2631de](https://github.com/messerzai/ambivikhry-agent/commit/a2631de520e121eeb70a6e82170c388a4eae1688)
+
+### Research discoveries (facts)
+
+1. **Source disentangling remains central to multifractal claims.** Drożdż, Kluszczyński, Kwapień & Wątorek, “Multifractality and Its Sources in the Digital Currency Market,” *Future Internet* 17(10), 470 (2025), DOI [10.3390/fi17100470](https://doi.org/10.3390/fi17100470). The paper applies MFCCA/MF-DFA and a q-Gaussian rescaling procedure to BTC, ETH, DEX and NFT series. Its reported conclusion is that nonlinear temporal correlations are the primary source of multifractality in the examined series; heavy tails modulate spectrum width conditionally rather than acting as an independent additive source. The study is not a BTC hourly forecasting benchmark and does not prove a non-repeating market law. Article license is CC BY 4.0; no text, figures, code or data were copied.
+
+2. **A new 2026 Bitcoin study reports a scale crossover, not a universal exponent.** Insu Choi, “Intrinsic multifractality and adaptive efficiency in Bitcoin: Disentangling sources of scaling complexity across market regimes,” *Physica A* 697 (2026), DOI [10.1016/j.physa.2026.131735](https://doi.org/10.1016/j.physa.2026.131735). The RePEc bibliographic/abstract record reports approximately 774,000 five-minute observations from Aug 2017 to Dec 2024, q-Gaussian rescaling, and a crossover around 25 days between short- and long-scale behavior. It also reports a lower Market Deficiency Measure and reduced long-range dependence after Jan 2024 ETF approval. Full text was not accessible in this review, so these are abstract-level claims only; no public code/data bundle or reuse license was identified. The 25-day result motivates a scale-sensitivity test, not a hard-coded threshold.
+
+3. **Order-flow toxicity is more directly tied to jump risk than to signed hourly price paths.** Kitvanitphasu, Kyaw, Likitapiwat & Treepongkaruna, “Bitcoin wild moves: Evidence from order flow toxicity and price jumps,” *Research in International Business and Finance* 81 (2026), article 103163, DOI [10.1016/j.ribaf.2025.103163](https://doi.org/10.1016/j.ribaf.2025.103163). The peer-reviewed record describes high-frequency VPIN and VAR analysis; VPIN predicts future BTC price jumps, with time-zone/day-of-week effects. It does not establish a point-price directional forecast. The UWA record links the article to CC BY 4.0. No code or trade-level data were copied; our Binance 5m taker-buy imbalance is not VPIN and cannot be treated as an equivalent measure.
+
+4. **News sentiment evidence is mainly daily and futures-specific.** Kreuzer, Sparrer & Dorfleitner, “Beyond pure hype: news sentiment and its role in the BTC and ETH futures market,” *Review of Derivatives Research* 29 (2026), DOI [10.1007/s11147-025-09223-6](https://doi.org/10.1007/s11147-025-09223-6). The study uses over 9,100 BTC and 5,400 ETH news articles from 2022-10-25 to 2024-08-30, sourced from LSEG Eikon, with CME cash-settled futures. It extends Loughran–McDonald sentiment using a crypto-specific glossary and crypto-density weighting, then aggregates to daily measures. The paper reports significant associations with futures returns and professional net positions; the daily news sample is unbalanced (about 90% negative, roughly 460 daily items after aggregation). This is not causal proof or evidence of a live hourly spot edge. The article is CC BY 4.0, but Eikon news and CME data retain separate access/usage terms; no source text, code, data or figures were copied.
+
+5. **Prediction-market distributions offer a useful but non-matching hourly benchmark.** Tommaso Zeri, “How Wise Is the Crowd about Bitcoin’s Next Hour? Kalshi Range Contracts against Statistical Forecasts” (2026-11-20 research note, not peer-reviewed). It evaluates 1,340 hourly events (2026-09-13 to 2026-11-12) and compares market-implied range distributions with Student-t, seasonal GARCH-t and Deribit implied volatility. The note reports that actively quoted buckets produce 80% interval coverage around 81–84%; their CRPS advantage over a 24h-volatility Student-t is about 3%, while seasonal GARCH-t is competitive and only a small crowd advantage appears five minutes before settlement. The crowd median is worse than spot as a point forecast. This is hourly distribution evidence, not a 24h BTC/USDT point path; no market participation or wager was made.
+
+### Research hypotheses (not established facts)
+
+- Rolling multifractal features may describe regime-dependent volatility/complexity, but their incremental forecasting value must be tested against random walk, HAR/RV and volatility-aware baselines. Use q-Gaussian surrogate tests and multiple window lengths; do not hard-code “25 days” as a universal crossover.
+- VPIN-like volume-synchronized features may add jump-risk information beyond simple taker imbalance. The current 5m spot aggregate is insufficient to claim VPIN; a separate trade-level or volume-bucket data pipeline would be required.
+- News surprise and sentiment may add information around scheduled and unscheduled events, but a point-in-time, licensed news source with article timestamps, first-publication times and revisions is required. Daily futures evidence cannot be imported into a 5m spot model without an ablation.
+- The “living/non-repeating fractal” remains a metaphor. The testable quantities are estimated scaling, recurrence, jump intensity, flow imbalance and regime transitions, each with finite-sample uncertainty.
+
+### Daily forecast and data provenance
+
+- Binance Spot BTCUSDT 5m public klines; reference 60,494.00 USDT; data cutoff 2026-11-24T07:09:59.999000Z; retrieved/issued 2026-11-24T07:14:55.953761Z / 2026-11-24T07:14:55.957774Z.
+- 1,000 raw rows contained 999 closed candles plus one still-forming candle. Closed candles were contiguous at 5m cadence, timestamps and OHLCV checks passed, and the final close matched the reference. The forecast JSON and raw response hashes are in FORECAST_LEDGER.md.
+- The council emitted seven paths with 24 contiguous hourly points. LFM5mEnsemble ends at 60,547.84 USDT (+0.089%). Its P90-style bands are not calibrated; no P50 interval was emitted. The workflow output is BTC/USDT with 5m inputs, not a BTC/USD champion forecast.
+- The 70,000 USDT downside diagnostic is already below the reference price. Its uncalibrated terminal-state heuristic of 1.0 is not a new downward-crossing probability.
+
+### Evaluation and standings
+
+- The evaluator completed successfully but produced no new evaluation: 16 unique vintages were already evaluated; the Nov 23 issue remained pending through 2026-11-24T08:59:59.999Z. The newly archived Nov 24 issue is pending through 2026-11-25T07:59:59.999Z.
+- Across 10 chronologically selected non-overlapping completed vintages, mean nMAE: RandomWalkLastPrice 3.396679; LFM5mEnsemble 3.526820; MeanReversion5m 3.388607; TakerFlow5m 3.398854; VolatilityCappedSlowDrift 4.201362. MeanReversion's paired 95% difference interval vs random walk crosses zero. Six overlapping completed vintages are excluded from aggregate selection.
+- All P90-style ranges remain uncalibrated. Virtual research points: **0**. No champion promotion; the 30-vintage gate is unmet.
+- External standings: none. BtcForecaster publishes volatility ranges, BitPredict binary 24h calls, Kalshi an hourly distribution, and GPTReviews daily directional calls; issue time, target object or metric differs. These remain shadow comparators only.
+
+### License and implementation record
+
+- No third-party code, model weights, datasets, tokenizers, API forecast payloads or raw news/market data were copied.
+- Added a license audit for [btcforecaster-eval](https://github.com/pelusoft/btcforecaster-eval): HEAD `df027d80289b6294eb22e28f55221a21f19c664a`, MIT LICENSE blob `e89e1fa28e2c9a7eacd10442c05af6492b80f466`; no code or sample data reused.
+- TimesFM 3.0 source remains Apache-2.0 but its 3.0 weights are separately licensed `timesfm-non-commercial-license-v1.0`; no weights used. Chronos-2 remains an Apache-2.0 candidate under the existing audit; pin its exact model-hub revision before loading.
+- New papers with CC BY 4.0 are cited only; no article text or figures were copied. LSEG Eikon, CME, Kalshi and public API data terms are separate from article/code licenses.
+
+### Changes and next experiment
+
+- Documentation/register updates only: forecast ledger, competitor landscape, research log, and third-party license register. No forecast/model equations or dependencies changed.
+- Next experiment: obtain a point-in-time 90-day Binance Spot BTCUSDT 5m history with immutable raw snapshots; compare rolling MF-DFA/MFCCA plus q-Gaussian surrogate diagnostics at 1d/7d/25d/90d scales against simple volatility features. Require at least 90 days before interpreting a 25-day crossover, freeze all feature parameters before a walk-forward split, and report whether multifractal features improve volatility forecasts. Do not promote them to point-price features without a separate ablation.
