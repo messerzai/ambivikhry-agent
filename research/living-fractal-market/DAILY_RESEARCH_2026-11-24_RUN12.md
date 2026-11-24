@@ -128,3 +128,13 @@ The final source pass added several useful distinctions:
 - [Mukherjee et al. (2026)](https://arxiv.org/abs/2609.23250) propose a sentiment-augmented POMP model for daily BTC volatility, not hourly point prices; it remains a preprint without a verified reusable implementation.
 
 **Interpretation:** treat surprise magnitude, non-headline information, sentiment state, attention intensity and social contagion as separate candidate channels. Their effects differ between returns and volatility. None is added to the 5m pipeline because the required TRMI/Eikon/CoinDesk/social data are not present with point-in-time provenance and cleared terms.
+
+
+### Supplementary documentation commits
+
+- [Research log addendum — ea62d58](https://github.com/messerzai/ambivikhry-agent/commit/ea62d58b18602e1bc1c362eddb734c9bad83d5af)
+- [Competitor landscape addendum — 57927ad](https://github.com/messerzai/ambivikhry-agent/commit/57927add939ef7743fe6cee421febae7d41ab97d)
+- [License/data-rights audit — 7fb7904](https://github.com/messerzai/ambivikhry-agent/commit/7fb7904501c43ddd65b6e7f6344581c278a51d7c)
+- [Daily report source addendum — 4ba1626](https://github.com/messerzai/ambivikhry-agent/commit/4ba162616e1ce52dc0686fa12d58dae016db4ed4)
+
+No code or dependency change was made; these are evidence and provenance updates only.
