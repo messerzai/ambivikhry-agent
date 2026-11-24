@@ -858,3 +858,19 @@ Archive commit: [a2631de](https://github.com/messerzai/ambivikhry-agent/commit/a
 - Treat RQA (DET, LAM, vertical entropy, trapping time) as a separate regime/risk challenger, not as a point-price forecaster. The reported 42-day horizon is not the user's 24h target.
 - Reproduce parameter sensitivity (embedding (m), delay (	au), recurrence rate (arepsilon), norm and rolling window) before trusting any DET/LAM warning. The article itself notes that inappropriate thresholds can create false deterministic/laminar structures.
 - Add RQA to the proposed 90-day feature study only as a pre-registered volatility diagnostic. Compare against HAR/RV and a simple realized-volatility threshold; use a strict rolling-origin test and report AUC confidence intervals and false-alarm rate. Do not use the article's CC BY-NC-ND text/figures/code as derivative material.
+
+
+## 2026-11-24 follow-up — regime-dependent volatility forecast candidate
+
+Wafi, El-Halaby & Aboul-Dahab, “Regime-dependent bitcoin volatility forecasting under alternative information sets: evidence from econometric, deep learning, and hybrid models,” *Digital Finance* 8, article 63 (version of record 2026-10-26), DOI [10.1007/s42521-026-00229-9](https://doi.org/10.1007/s42521-026-00229-9). The publisher's full article was checked on 2026-11-24.
+
+**Reported design and findings (facts):**
+- The target is one-step-ahead **daily conditional volatility**, not price direction or a 24-step hourly price path. The balanced evaluation sample has 2,722 complete daily observations from 2018-02-01 through 2025-07-19; the initial merged table extends to 2026-02-01, but the common-information intersection truncates the evaluated sample earlier.
+- The paper compares six GARCH-family specifications, three LSTM information sets, and eighteen state-augmented GARCH–LSTM hybrids under rolling out-of-sample evaluation. QLIKE is primary; RMSE/MAE are secondary and Diebold–Mariano tests qualify numerical rankings.
+- The LSTM uses 30 daily observations × 9 retained variables, two stacked layers (64 and 32 hidden units), and 0.20 dropout. Information sets are technical only (T), technical plus sentiment (TS), and technical plus sentiment plus blockchain (TSB).
+- In normal markets, LSTM-T has the lowest reported numerical loss, but TGARCH and Hybrid_GARCH_T are not statistically distinguishable from the selected benchmark. Adding sentiment and blockchain variables worsens the standalone LSTM result in the normal regime.
+- Crisis-period winners differ: Hybrid_TGARCH_TS for COVID-19, Hybrid_EGARCH_TSB for the China mining ban, and Hybrid_APARCH_TS for the crypto winter. The article cautions against universal model rankings from pooled data.
+
+**Limitations and interpretation:** daily conditional-volatility results do not establish hourly spot-price predictability. The balanced sample ends in July 2025 despite a merged source table extending into February 2026; the feature intersection therefore limits recency. The sentiment and blockchain sources are heterogeneous, and their point-in-time publication/availability timestamps and redistribution rights need independent checks. This is a research-backed volatility challenger, not an external score comparable to our BTC/USDT hourly-path nMAE.
+
+**Hypothesis:** a regime-conditioned volatility layer may be useful as a separate risk/interval challenger. It should first be compared with HAR/RV and simple GARCH/TGARCH on a frozen, point-in-time 5m-to-hourly realized-volatility target. Do not integrate it into the point-price ensemble until a separate ablation shows incremental out-of-sample value and intervals are calibrated.

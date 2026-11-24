@@ -150,3 +150,22 @@ Supplementary repository commits:
 - [RQA research log — e3babe6](https://github.com/messerzai/ambivikhry-agent/commit/e3babe6ad993f8e9ed1179179adf452d56de370b)
 - [RQA competitor entry — 38d0b56](https://github.com/messerzai/ambivikhry-agent/commit/38d0b56c17065e2b82b5349f942b7ce1943336c9)
 - [RQA license audit — a572416](https://github.com/messerzai/ambivikhry-agent/commit/a572416ae1d7433105b2893bdb83982a7f9957df)
+
+
+## Follow-up source and artifact audit — 2026-11-24 (post-run verification)
+
+### New research/competitor finding
+
+Wafi, El-Halaby & Aboul-Dahab (2026), *Digital Finance* 8, 63, [DOI 10.1007/s42521-026-00229-9](https://doi.org/10.1007/s42521-026-00229-9), is a useful daily **volatility** challenger: a common rolling out-of-sample design compares GARCH, LSTM and state-augmented GARCH–LSTM across technical, sentiment and blockchain information sets. LSTM-T is numerically best in normal markets, but leading GARCH/hybrid results are statistically indistinguishable; crisis winners vary by event. The 2,722-row balanced sample ends 2025-07-19, and the target is daily conditional volatility—not an hourly price trajectory. The [companion repository](https://github.com/Wafi-Finance/Regime-Dependent-Bitcoin-Volatility-Forecasting/tree/d7de0022e44a57d9a2497323f244e63c01d61c82) has a notebook and workbook, but the exact checked HEAD has no LICENSE and GitHub reports no repository license. No code or data were copied or executed.
+
+### Verification of today's existing 5m challenger vintage
+
+The already-completed forecast workflow was rechecked rather than triggered a second time: [run 45346501172](https://github.com/messerzai/ambivikhry-agent/actions/runs/45346501172), artifact ID 14898710701, uploaded 2026-11-24T07:14:56Z. All six workflow steps, including offline tests, live public-data retrieval, forecast generation and artifact upload, report success. The downloaded ZIP is 59,593 bytes and SHA-256 e9ff36710f5fb76eaadf2656738d283cfb88d4278411542d8cd0f854879b9467, matching the artifact digest and ledger entry. It contains the exact forecast JSON and raw 5m snapshot; their SHA-256 values are 42135fa80fb804d42d1f5acc6b53445d2a966cdb5bf112edad99fbddd9a38909 and 573ea0fd17175b7bf71056c7ad4766d9541f278751f745050ca8a52cc2b7ae83.
+
+Schema lfm.forecast.5m.v2 verified: issue 2026-11-24T07:14:55.957774Z, cutoff 2026-11-24T07:09:59.999000Z, retrieval 2026-11-24T07:14:55.953761Z, reference 60,494.00 USDT, source Binance Spot BTCUSDT, 999 closed 5m candles. The raw response contains 1,000 rows: 999 closed and one still-forming row; closed timestamps are contiguous at 5m cadence, basic OHLCV checks pass, and the last closed close equals the reference. All seven model paths contain 24 consecutive hourly targets from 08:00Z Nov 24 through 07:00Z Nov 25. P90-style ranges remain explicitly uncalibrated.
+
+The current-date marker had already produced this successful forecast and archival cycle, so no second marker or duplicate vintage was created in this follow-up. The 5m output remains a **BTC/USDT challenger**, not a BTC/USD hourly champion forecast. No separately validated BTC/USD hourly champion/feed is available in this run.
+
+### Evaluation state
+
+The Nov 23 vintage remains pending until its last target candle closes at 2026-11-24T08:59:59.999Z; the Nov 24 vintage remains pending until 2026-11-25T07:59:59.999Z. The last completed evaluation and aggregate metrics are unchanged: 10 non-overlapping vintages selected from 16 completed records; LFM5mEnsemble mean nMAE 3.526820 vs random walk 3.396679; MeanReversion5m 3.388607 with a paired interval crossing zero. All intervals remain uncalibrated, points remain **0**, and no champion promotion or comparable external ranking is justified.
