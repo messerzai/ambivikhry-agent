@@ -113,3 +113,18 @@ Workflow tests:
 - The 70,000 USDT threshold diagnostic is already below the 60,494 USDT reference. The uncalibrated heuristic probability of terminal price below that level is 1.0 because the reference is already below it; this is not a crossing probability.
 - Next experiment: collect and hash a paginated 90-day Binance Spot BTCUSDT 5m history; evaluate rolling MF-DFA/MFCCA and q-Gaussian surrogate robustness at 1d/7d/25d/90d scales; test incremental volatility forecast value against HAR/RV and simple baselines before any point-price integration.
 - Research only. No trading, order execution, exchange credentials, financial account or wager.
+
+
+## Supplementary macro-news and behavioral-finance review
+
+The final source pass added several useful distinctions:
+
+- [Huynh (2026)](https://doi.org/10.1016/j.jbef.2026.101183) studies 5m reactions of the top 100 crypto assets (2014–2021) around 32 U.S. macro releases, with daily TRMI sentiment. It reports that bullish sentiment moderates the response to surprises (about −16% for returns and −24% for turnover per standard deviation). The old sample and daily sentiment mean this is not a live BTC hourly forecast.
+- [Akbar (2026)](https://doi.org/10.1108/SEF-12-2025-0942) analyzes 16m+ BTC-related tweets with human-like/automation-like account labels. The publisher abstract reports no return-predictive value from polarity/hype/anxiety; attention improves GARCH-X variance modelling but reacts to price shocks. Reuse is licensed rights only.
+- [Han, Liu & Sui (Dallas Fed WP 2605)](https://doi.org/10.24149/wp2605) use 666,006 Bitcointalk posts (2012–2022), 44,356 users and 2,550 wallet-linked traders. Peer sentiment changes beliefs/trading direction but does not predict future BTC prices; contagion intensity predicts volatility, volume and crashes. This is a preliminary working paper, not a peer-reviewed forecast model.
+- [Kroner, Mohammed & Vega (Federal Reserve Board draft, 2026-03-20)](https://users.nber.org/~confer/conf_papers/2387/f238700/f238700.pdf) use CoinDesk minute data across 158 exchanges/18,403 pairs and focus on BTC/ETH spot around FOMC, CPI and NFP. Both headline and non-headline surprises matter; non-headline surprises often have stronger effects. Volatility, volume and spreads remain elevated for up to 30 minutes. The CoinDesk/Bloomberg/LSEG inputs are licensed and the paper is a working draft.
+- [Vu & Nguyen (2026)](https://doi.org/10.1108/RBF-06-2025-0254) find weak herding in extreme states and greater dispersion under high volatility in BTC plus 25 altcoins; sentiment proxies are associated with divergence, not a simple crowd-following rule.
+- [Savrul (2026)](https://doi.org/10.26650/JEPR1945391) reports weak systematic FOMC return effects in daily data, with VIX more consistent than realized rate changes; its surprise series contains only two non-zero observations and its article is CC BY-NC.
+- [Mukherjee et al. (2026)](https://arxiv.org/abs/2609.23250) propose a sentiment-augmented POMP model for daily BTC volatility, not hourly point prices; it remains a preprint without a verified reusable implementation.
+
+**Interpretation:** treat surprise magnitude, non-headline information, sentiment state, attention intensity and social contagion as separate candidate channels. Their effects differ between returns and volatility. None is added to the 5m pipeline because the required TRMI/Eikon/CoinDesk/social data are not present with point-in-time provenance and cleared terms.
