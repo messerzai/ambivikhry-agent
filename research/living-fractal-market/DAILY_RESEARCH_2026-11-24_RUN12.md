@@ -138,3 +138,15 @@ The final source pass added several useful distinctions:
 - [Daily report source addendum — 4ba1626](https://github.com/messerzai/ambivikhry-agent/commit/4ba162616e1ce52dc0686fa12d58dae016db4ed4)
 
 No code or dependency change was made; these are evidence and provenance updates only.
+
+
+### Additional recurrence/non-stationary-scaling findings
+
+- [Vanheusden et al. (2026), *Financial Innovation* 12:127](https://doi.org/10.1186/s40854-026-00940-x) apply recurrence quantification analysis to 100 cryptocurrencies using daily closes and 80-day windows. Their determinism/laminarity ratio reports AUC 0.605 for volatility above the 95th percentile at a 42-day horizon, with bootstrapped coefficient ~0.08. This is a modest, early-stage volatility warning result—not a BTC 24h price forecast. They did not compare RQA with MFDFA, and intraday validation remains future work. The article is CC BY-NC-ND 4.0; no article-derived code, figures or data were reused.
+- [Cho et al. (2026), *Frontiers in Physics* Perspective](https://doi.org/10.3389/fphy.2026.2026031) argues that scaling/entropy/efficiency measures change with market regime and sampling conventions and calls for finite-size, prospective crash-warning, endogenous-clock, multilayer-risk and time-irreversibility tests. This is a research agenda, not a new benchmark.
+- RQA is added to the future **volatility/regime** ablation only. The 42-day result is not a 24h target, and the current 999-bar feed is far too short for the paper's 80-day windows. Its parameter sensitivity (embedding, delay, recurrence threshold, norm, window) must be reproduced before interpretation.
+
+Supplementary repository commits:
+- [RQA research log — e3babe6](https://github.com/messerzai/ambivikhry-agent/commit/e3babe6ad993f8e9ed1179179adf452d56de370b)
+- [RQA competitor entry — 38d0b56](https://github.com/messerzai/ambivikhry-agent/commit/38d0b56c17065e2b82b5349f942b7ce1943336c9)
+- [RQA license audit — a572416](https://github.com/messerzai/ambivikhry-agent/commit/a572416ae1d7433105b2893bdb83982a7f9957df)
