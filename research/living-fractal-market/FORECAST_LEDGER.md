@@ -728,3 +728,22 @@ The canonical .artifact.zip preserves the exact workflow artifact bytes. The SHA
 - DownsideStress5m: nMAE 8.469765; direction vs issue 0.000; hour-to-hour direction 0.500; P90 empirical coverage 0.0; beats RW False.
 - Terminal threshold diagnostic: 70000.0 USDT; uncalibrated heuristic 1.0; observed terminal-below-level True; diagnostic Brier 0.0 (not a calibrated score).
 - Interpretation: one completed vintage is descriptive only; no champion promotion or research points.
+
+### 2026-11-24T07:14:55.957774Z — BTC/USDT — LFM-5m-Downside-Aware-Council-0.4
+- Workflow run: https://github.com/messerzai/ambivikhry-agent/actions/runs/45346501172
+- Run checkout commit: 11edd10500612193e04d3c15bdbcf615b1ec0fb4
+- Artifact ID: 14898710701 (name: lfm-5m-btc-forecast)
+- Exact ZIP archive: research/living-fractal-market/forecasts/2026-11-24/2026-11-24T07-14-55.957774Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip
+- Exact ZIP SHA-256: e9ff36710f5fb76eaadf2656738d283cfb88d4278411542d8cd0f854879b9467
+- Exact extracted JSON: research/living-fractal-market/forecasts/2026-11-24/2026-11-24T07-14-55.957774Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json
+- Exact extracted JSON SHA-256: 42135fa80fb804d42d1f5acc6b53445d2a966cdb5bf112edad99fbddd9a38909
+- Asset / venue / quote: BTC/USDT / Binance Spot / USDT
+- Issue / cutoff UTC: 2026-11-24T07:14:55.957774Z / 2026-11-24T07:09:59.999000Z
+- Schema / vintage ID: lfm.forecast.5m.v2 / lfm5m-2026-11-24T07:14:55.957774Z-BTCUSDT-binance-spot-council-0.4
+- Input interval / retrieved UTC: 5m / 2026-11-24T07:14:55.953761Z
+- Model commit / training cutoff UTC: 11edd10500612193e04d3c15bdbcf615b1ec0fb4 / 2026-11-24T07:09:59.999000Z
+- Closed input candles: 999 at 5m; hourly targets: 24
+- Exact raw 5m response: research/living-fractal-market/forecasts/2026-11-24/2026-11-24T07-14-55.957774Z_BTCUSDT_BinanceSpot_LFM-5m-0.4_raw_klines.json
+- Raw response SHA-256 / bytes: 573ea0fd17175b7bf71056c7ad4766d9541f278751f745050ca8a52cc2b7ae83 / 173991
+- Raw request URL: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000
+- Last closed input candle open / close ms: 1795503900000 / 1795504199999
