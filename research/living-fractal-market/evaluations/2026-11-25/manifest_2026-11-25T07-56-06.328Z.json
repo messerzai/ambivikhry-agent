@@ -1,0 +1,113 @@
+{
+  "already_evaluated": [
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-12/2026-11-12T08-03-03.240211Z_BTCUSDT_BinanceSpot_LFM-5m-0.3.json.gz",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-12T08:03:03.240211Z-BTCUSDT-binance-spot-council-0.3"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-13/2026-11-13T07-59-32.881650Z_BTCUSDT_BinanceSpot_LFM-5m-0.3.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-13T07:59:32.881650Z-BTCUSDT-binance-spot-council-0.3"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-13/2026-11-13T08-07-42.649816Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.json.gz",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-13T08:07:42.649816Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-14/2026-11-14T07-18-16.591141Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-14T07:18:16.591141Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-15/2026-11-15T07-37-06.892709Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-15T07:37:06.892709Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-15/2026-11-15T08-09-18.020362Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-15T08:09:18.020362Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-16/2026-11-16T07-11-30.546109Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-16T07:11:30.546109Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-17/2026-11-17T07-07-54.530285Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-17T07:07:54.530285Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-17/2026-11-17T07-38-41.322709Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-17T07:38:41.322709Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-18/2026-11-18T07-07-36.524004Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-18T07:07:36.524004Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-19/2026-11-19T07-23-19.072262Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-19T07:23:19.072262Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-20/2026-11-20T07-57-36.065378Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-20T07:57:36.065378Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-21/2026-11-21T07-51-41.343658Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-21T07:51:41.343658Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-15-41.077222Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-22T07:15:41.077222Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-32-28.271051Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-22T07:32:28.271051Z-BTCUSDT-binance-spot-council-0.4"
+    },
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-22/2026-11-22T07-43-35.562876Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "status": "already_evaluated",
+      "vintage_id": "lfm5m-2026-11-22T07:43:35.562876Z-BTCUSDT-binance-spot-council-0.4"
+    }
+  ],
+  "duplicates": [
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-13/2026-11-13T07-59-32.881650Z_BTCUSDT_BinanceSpot_LFM-5m-0.3.json.gz",
+      "canonical_archive": "research/living-fractal-market/forecasts/2026-11-13/2026-11-13T07-59-32.881650Z_BTCUSDT_BinanceSpot_LFM-5m-0.3.artifact.zip"
+    }
+  ],
+  "evaluated": [
+    {
+      "actual_data_sha256": "91c4141866d55a1da5bda1a7fcb724aa0ac3885b9e4102efa5224b5952acd488",
+      "actual_file": "evaluation-out/actual_hourly_lfm5m-2026-11-23t08-22-27-885252z-btcusdt-binance-spot-council-0-4.json",
+      "archive": "research/living-fractal-market/forecasts/2026-11-23/2026-11-23T08-22-27.885252Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "evaluation_file": "evaluation-out/evaluation_lfm5m-2026-11-23t08-22-27-885252z-btcusdt-binance-spot-council-0-4.json",
+      "status": "evaluated",
+      "vintage_id": "lfm5m-2026-11-23T08:22:27.885252Z-BTCUSDT-binance-spot-council-0.4"
+    }
+  ],
+  "evaluated_at_utc": "2026-11-25T07:56:06.328Z",
+  "evaluation_root": "research/living-fractal-market/evaluations",
+  "failed": [],
+  "forecast_root": "research/living-fractal-market/forecasts",
+  "pending": [
+    {
+      "archive": "research/living-fractal-market/forecasts/2026-11-24/2026-11-24T07-14-55.957774Z_BTCUSDT_BinanceSpot_LFM-5m-0.4.artifact.zip",
+      "final_target_close_utc": "2026-11-25T07:59:59.999Z",
+      "status": "pending",
+      "vintage_id": "lfm5m-2026-11-24T07:14:55.957774Z-BTCUSDT-binance-spot-council-0.4"
+    }
+  ],
+  "schema": "lfm.evaluation.manifest.v1"
+}
