@@ -294,6 +294,35 @@ class EvaluationTests(unittest.TestCase):
             self.assertEqual(summary["models_ranked_by_mean_loss"], [])
             self.assertEqual(summary["baseline_mean_normalized_log_price_mae"], {})
 
+    def test_leaderboard_reads_archived_vintage_filename(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "evaluations"
+            target_start = datetime(2026, 11, 20, 8, tzinfo=timezone.utc)
+            self._write_evaluation(
+                root, "archived-vintage", target_start, 1.1, 1.0,
+                {"MeanReversion5m": 0.9},
+            )
+            generated = root / "evaluation_archived-vintage.json"
+            archived = root / "lfm5m-archived-vintage.json"
+            generated.rename(archived)
+            (root / "actual_hourly_archived-vintage.json").write_text("[]", encoding="utf-8")
+            (root / "evaluation_manifest.json").write_text(
+                json.dumps({"schema": "lfm.evaluation.manifest.v1", "evaluated": []}),
+                encoding="utf-8",
+            )
+
+            summary = summarize_leaderboard(
+                [root], datetime(2026, 11, 22, 9, tzinfo=timezone.utc),
+                bootstrap_samples=50,
+            )
+            self.assertEqual(summary["completed_unique_vintages"], 1)
+            self.assertEqual(summary["non_overlapping_vintages"], 1)
+            self.assertEqual(
+                [item["vintage_id"] for item in summary["selected_vintages"]],
+                ["archived-vintage"],
+            )
+            self.assertEqual(summary["invalid_evaluation_files"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

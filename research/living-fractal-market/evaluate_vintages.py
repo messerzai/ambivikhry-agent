@@ -531,7 +531,10 @@ def summarize_leaderboard(
     for root in evaluation_roots:
         if not root.exists():
             continue
-        for path in sorted(root.rglob("evaluation_*.json")):
+        # Archived evaluation records use vintage-ID filenames (lfm5m-*.json),
+        # while fresh run outputs use evaluation_*.json. Scan all JSON and
+        # let the schema/protocol checks below reject manifests and raw candles.
+        for path in sorted(root.rglob("*.json")):
             try:
                 record = json.loads(path.read_text(encoding="utf-8"))
                 if not isinstance(record, dict) or record.get("status") != "evaluated":

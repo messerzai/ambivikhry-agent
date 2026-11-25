@@ -28,6 +28,12 @@ ARCHIVE_MARKER_PATH = "research/living-fractal-market/ARCHIVE_RUN_TRIGGER.md"
 DAILY_TRIGGER_PATH = "research/living-fractal-market/DAILY_RUN_TRIGGER.md"
 FORECAST_WORKFLOW = "lfm-5m.yml"
 EVALUATION_WORKFLOW = "lfm-evaluate.yml"
+EVALUATION_TRIGGER_PATHS = {
+    DAILY_TRIGGER_PATH,
+    "research/living-fractal-market/evaluate_vintages.py",
+    "research/living-fractal-market/test_evaluate_vintages.py",
+    ".github/workflows/lfm-evaluate.yml",
+}
 FORECAST_ARTIFACT_NAME = "lfm-5m-btc-forecast"
 EVALUATION_ARTIFACT_NAME = "lfm-completed-vintage-evaluation"
 
@@ -169,8 +175,8 @@ def source_head_sha_from_marker(marker_text: str) -> str | None:
 
 
 def should_wait_for_evaluation(changed_paths: set[str]) -> bool:
-    """Only daily-trigger pushes create a new evaluation workflow run."""
-    return DAILY_TRIGGER_PATH in changed_paths
+    """Wait for the sibling evaluator after any push that triggers it."""
+    return bool(changed_paths.intersection(EVALUATION_TRIGGER_PATHS))
 
 
 def select_source_commit(

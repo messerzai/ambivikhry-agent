@@ -113,6 +113,16 @@ class ArchiveArtifactDownloadTests(unittest.TestCase):
     def test_daily_marker_change_waits_for_evaluation_run(self):
         self.assertTrue(should_wait_for_evaluation({DAILY_TRIGGER_PATH}))
 
+    def test_evaluation_code_changes_wait_for_sibling_evaluation_run(self):
+        paths = (
+            "research/living-fractal-market/evaluate_vintages.py",
+            "research/living-fractal-market/test_evaluate_vintages.py",
+            ".github/workflows/lfm-evaluate.yml",
+        )
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertTrue(should_wait_for_evaluation({path}))
+
     def test_malformed_archive_marker_is_rejected_when_marker_changed(self):
         with self.assertRaisesRegex(ValueError, "valid"):
             select_source_commit(
