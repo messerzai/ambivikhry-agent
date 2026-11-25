@@ -1,26 +1,28 @@
 # Forecast ledger contract
 
-Last reviewed: 2026-11-24  
+Last reviewed: 2026-11-25  
 Branch: research/living-fractal-market
 
 ## Current state
 
-As of 2026-11-24T07:17Z, **18 unique experimental BTC/USDT forecast vintages are archived**: one Nov 12; two Nov 13; one Nov 14; two Nov 15; one Nov 16; two Nov 17; one Nov 18; one Nov 19; one Nov 20; one Nov 21; three Nov 22; one Nov 23; and one Nov 24. The extra Nov 13 gzip file is a duplicate mirror, not a separate vintage. All canonical vintages use Binance Spot BTCUSDT 5-minute inputs and emit 24 hourly target points. They remain BTC/USDT challenger forecasts, not a validated BTC/USD hourly champion.
+As of 2026-11-25T08:12Z, **19 unique BTC/USDT forecast vintages are archived**: one Nov 12; two Nov 13; one Nov 14; two Nov 15; one Nov 16; two Nov 17; one Nov 18; one Nov 19; one Nov 20; one Nov 21; three Nov 22; one Nov 23; one Nov 24; and one Nov 25. The extra Nov 13 gzip file is a duplicate mirror, not a separate vintage. All canonical vintages use Binance Spot BTCUSDT 5-minute inputs and emit 24 hourly target points. They remain BTC/USDT challenger forecasts, not a validated BTC/USD hourly champion.
 
-**Sixteen unique vintages have completed evaluation; two are pending.** The Nov 23 vintage remains pending until its final target candle closes at 2026-11-24T08:59:59.999Z. The Nov 24 vintage remains pending until 2026-11-25T07:59:59.999Z. The 16 completed vintages contain 10 chronologically selected non-overlapping target windows for aggregate scoring; six overlapping vintages are excluded from the aggregate. The 30-non-overlapping-vintage promotion threshold is unmet.
+**Eighteen unique vintages have completed evaluation; one is pending.** The Nov 25 vintage remains pending until its final target candle closes at 2026-11-26T07:59:59.999Z. The 18 completed vintages contain 11 chronologically selected non-overlapping target windows for aggregate scoring; seven overlapping vintages are excluded. The 30-non-overlapping-vintage promotion threshold is unmet.
 
-Aggregate primary nMAE across the 10 selected vintages (lower is better; paired percentile bootstrap over vintage-level differences, 20,000 resamples, seed 0x1f2e3d4c):
-- RandomWalkLastPrice: **3.396679** (strongest simple baseline by mean).
-- MeanReversion5m: **3.388607**; difference vs random walk −0.008073, 95% paired bootstrap interval [−0.069418, 0.061375].
-- TakerFlow5m: **3.398854**; difference vs random walk +0.002174, 95% interval [−0.011471, 0.020889].
-- LFM5mEnsemble: **3.526820**; difference vs random walk +0.130141, 95% interval [0.005399, 0.261037].
-- VolatilityRegime5m: **3.576858**; Momentum5m: **3.698869**; DownsideStress5m: **3.927249**; VolatilityCappedSlowDrift: **4.201362**.
+Aggregate primary nMAE across the 11 selected vintages (lower is better; paired percentile bootstrap over vintage-level differences, 20,000 resamples, seed 0x1f2e3d4c):
+- RandomWalkLastPrice: **3.219197** (strongest simple baseline by mean).
+- MeanReversion5m: **3.211871**; difference vs random walk −0.007326, 95% paired bootstrap interval [−0.063146, 0.055261].
+- TakerFlow5m: **3.221266**; difference vs random walk +0.002069, 95% interval [−0.010507, 0.019226].
+- LFM5mEnsemble: **3.348850**; difference vs random walk +0.129653, 95% interval [0.017418, 0.247931].
+- VolatilityRegime5m: **3.398744**; Momentum5m: **3.519714**; DownsideStress5m: **3.929772**; VolatilityCappedSlowDrift: **3.949844**.
 
-MeanReversion5m has the lowest average nMAE by a very small margin, but its paired interval crosses zero; this is not evidence of a stable edge. The LFM5mEnsemble is worse than random walk on this aggregate, with its paired interval above zero. All forecast P90-style ranges remain uncalibrated, so **virtual points remain 0** even where an individual vintage beats a baseline. No champion promotion is justified.
+MeanReversion5m has the lowest average nMAE by a very small margin, but its paired interval crosses zero; this is not evidence of a stable edge. The LFM5mEnsemble is worse than random walk on this aggregate, with its paired interval above zero. All selected forecast P90-style ranges remain uncalibrated, so **virtual points remain 0** even where an individual vintage beats a baseline. No champion promotion is justified.
 
-The latest completed vintage is the Nov 22 07:43:35Z issue, evaluated at 2026-11-23T08:22:26.136Z: MeanReversion5m nMAE 4.753271, RandomWalkLastPrice 4.925249, and VolatilityCappedSlowDrift 8.050249; empirical P90 coverage 0.6667 and intervals not calibrated. This is a single-vintage result, not a promotion signal.
+The latest completed vintage is the Nov 24 07:14:55Z issue, evaluated at 2026-11-25T08:11:54.892Z after all 24 hourly targets had closed. Its nMAE values are: VolatilityCappedSlowDrift 0.357336; RandomWalkLastPrice 1.074432; DownsideStress5m 1.074432; TakerFlow5m 1.079203; LFM5mEnsemble 1.121056; MeanReversion5m 1.128073; Momentum5m 1.133967; VolatilityRegime5m 1.176476. The volatility-aware baseline strongly beat random walk on this single vintage; none of the model candidates beat random walk. All P90 ranges remain uncalibrated and wide (about 13.03% mean width), so the apparent 100% empirical coverage is not calibration evidence. This is one vintage, not a promotion signal.
 
-The current Nov 24 issue is the LFM-5m-Downside-Aware-Council-0.4 challenger, reference 60,494.00 USDT. Its LFM5mEnsemble +24 point is 60,547.84 USDT (+0.089% versus reference). No calibrated P50 or P90 interval is available. The reference is already 13.58% below the diagnostic 70,000 USDT level; the emitted uncalibrated terminal-below-level heuristic of 1.0 is not a first-passage/crossing probability.
+The current Nov 25 issue is LFM-5m-Downside-Aware-Council-0.4, reference 58,698.41 USDT. The LFM5mEnsemble +24 point is 58,478.65 USDT (−0.375% versus reference). No calibrated P50 or P90 interval is available. The pipeline remains BTC/USDT from Binance Spot 5m inputs; **no BTC/USD champion forecast was issued**.
+
+The branch-scoped archiver is now the durable ledger writer: successful workflow ZIPs, extracted forecast/evaluation JSON, exact actual-data snapshots and ledger entries are committed under `forecasts/` and `evaluations/`. GitHub Actions artifacts retain 14-day download availability, but the copied Git objects remain in branch history (subject to repository retention/backup). The archive workflow was verified successful on 2026-11-25 for both the forecast and evaluation artifacts.
 
 ## Append-only storage contract
 

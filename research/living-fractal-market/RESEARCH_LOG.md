@@ -909,3 +909,13 @@ A second race was found: the archiver waited for the evaluation workflow only on
 - No third-party code, weights, datasets, cached model outputs or API payloads copied.
 - No dependency changes. Public model/paper results are not treated as live out-of-sample tournament submissions.
 - The daily Binance Spot BTCUSDT 5m feed remains a challenger input; no BTC/USD champion was promoted.
+
+
+### 2026-11-25 execution and evaluation results
+
+- Daily forecast workflow [45572000476](https://github.com/messerzai/ambivikhry-agent/actions/runs/45572000476) completed successfully; 15 forecast unit tests passed, live Binance Spot BTCUSDT 5m retrieval passed, 24 hourly target points were generated, and artifact 15002426841 uploaded.
+- Daily archive workflow [45572000351](https://github.com/messerzai/ambivikhry-agent/actions/runs/45572000351) completed successfully and archived the exact forecast ZIP/JSON/raw input snapshot.
+- The first evaluation workflow [45572000340](https://github.com/messerzai/ambivikhry-agent/actions/runs/45572000340) ran before the Nov 24 vintage's final close and correctly left that vintage pending; it evaluated the Nov 23 vintage only.
+- The leaderboard filename regression and archiver wait-path fixes were committed in [4852b85010fb32241fc0315a00943690c6a9572a](https://github.com/messerzai/ambivikhry-agent/commit/4852b85010fb32241fc0315a00943690c6a9572a). Evaluation workflow [45574156649](https://github.com/messerzai/ambivikhry-agent/actions/runs/45574156649) passed 17 tests, evaluated the Nov 24 vintage after its final close, and uploaded artifact 15003478221. Archive workflow [45574156692](https://github.com/messerzai/ambivikhry-agent/actions/runs/45574156692) passed 19 tests and archived that exact evaluation artifact; its log confirms no errors and a successful branch commit.
+- The corrected leaderboard scanner now finds archived `lfm5m-*.json` records as well as fresh `evaluation_*.json` files. The evaluation artifact's manifest contains 18 completed unique vintages, 11 non-overlapping selected vintages, seven overlaps excluded, one pending Nov 25 vintage, and zero failures. The leaderboard has 0 calibrated vintages and 0 virtual points.
+- Nov 24 evaluation actual-data SHA-256: `b088ae8c79aeca4426c2e6f3d5977221a3461c93a0d54fcc02e8e9cd6332be5c`; evaluation JSON SHA-256: `19db9b30dd46a335fcda17d431af5f665b7b3ee4bbadb67fc5db2b06979ce19e`; exact evaluation ZIP SHA-256: `8adc1e6639a54e2bb4f76693a33122b68af7288fde6a421edb64b21ee92d7bb8`.
