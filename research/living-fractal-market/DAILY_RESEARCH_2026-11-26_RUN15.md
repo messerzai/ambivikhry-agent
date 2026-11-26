@@ -126,3 +126,7 @@ License audit: verified MIT for btcforecaster-eval and BTC-Oracle; Apache-2.0 fo
 Acquire a point-in-time, venue-consistent BTC history long enough for scaling analysis (initial target at least 170 days of 5m data), then preregister the q-Gaussian/IAAFT/shuffle surrogate battery and finite-size checks. In parallel, specify a macro-surprise ablation only if consensus values, release timestamps, revisions and dataset terms can be audited. Keep champion/challenger status unchanged until the frozen walk-forward tournament clears its gates.
 
 Research only; no trading, fund movement or execution connection. Not financial advice.
+
+### Ledger completeness supplement
+
+After archive verification, the append-only ledger received a separate ledger-only commit: [153d8cb2](https://github.com/messerzai/ambivikhry-agent/commit/153d8cb26bb4a268df1ba80525d80bef52d22b32). It records the exact target candle-open range (2026-11-26T08:00:00Z through 2026-11-27T07:00:00Z), final target close (2026-11-27T07:59:59.999Z) and pending evaluation status. The daily trigger marker was not changed again.
