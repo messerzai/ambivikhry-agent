@@ -837,3 +837,6 @@ For vintage `lfm5m-2026-11-24T07:14:55.957774Z-BTCUSDT-binance-spot-council-0.4`
 - Raw response SHA-256 / bytes: 67d9a8882e36cd0d723098ea00f691885c9183a95182f147d7da220065427db2 / 173970
 - Raw request URL: https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1000
 - Last closed input candle open / close ms: 1795678800000 / 1795679099999
+
+- Exact target-grid supplement: 24 hourly candle-open timestamps from 2026-11-26T08:00:00Z through 2026-11-27T07:00:00Z inclusive; corresponding final target candle close is 2026-11-27T07:59:59.999Z.
+- Evaluation status at issue/archive: pending; no target close was available at issue time. Do not evaluate until the final target candle closes. The 2026-11-25 vintage remains separately pending until 2026-11-26T07:59:59.999Z.
